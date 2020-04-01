@@ -1,12 +1,8 @@
 const express = require('express');
 const app = express();
-const pug = require('pug');
+const indexRouter = require('./views/index');
 
-
-app.get('/', (req, res) => {
-   res.send("Hello!");
-});
-
+app.use(indexRouter);
 
 app.listen(3000);
 console.log('Listening on port 3000...');
