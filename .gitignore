@@ -203,4 +203,6 @@ fabric.properties
 *.css
 # not tracking html, since it's compiled from pug
 *.html
-:
+# Database files
+*.sqlite
+

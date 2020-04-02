@@ -1,8 +1,11 @@
 header
 	p siter-logo
 	ul
-		li Settings
+		li
+			a(href="/settings") Settings
 		if authorized
-			li Sign out
+			li
+				a(href="/logout") Sign out
 		else
-			li Sign in
+			li
+				a(href="/login") Sign in
