@@ -197,3 +197,10 @@ fabric.properties
 .idea/**/markdown-navigator/
 
 # End of https://www.gitignore.io/api/node,webstorm
+
+# Custom rules
+# not tracking css, since it's compiled from stylus
+*.css
+# not tracking html, since it's compiled from pug
+*.html
+:
