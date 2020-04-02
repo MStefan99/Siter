@@ -1,19 +1,14 @@
 doctype html
 head
-	title hello!
-	style
-		include ../static/css/style.css
+	include head
 
 body
-	header
-		p siter-logo
-		ul
-			li settings
-			li logout
+	include header
 
 	main
 		div.navigation-container navigation container
 		div.main-container= main
 		div.info-container info container
 
-	footer footer
+	footer
+		include footer

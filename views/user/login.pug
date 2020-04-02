@@ -1,0 +1,20 @@
+doctype html
+head
+	include ../head
+	link(rel="stylesheet", type="text/css", href="/style/login.css")
+
+body
+	include ../header
+
+	main
+		div.login-wrapper
+			form.login-form
+				label.title Sign in
+				label.subtitle(for="username") Username
+				input.text#username(type="text", name="username")
+				label.subtitle(for="username") Password
+				input.text#password(type="password", name="password")
+				input.button#submit(type="submit")
+
+footer
+	include ../footer
