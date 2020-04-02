@@ -1,6 +1,50 @@
+page-padding = 3vh 3vw
+
+p, ul
+	margin 0
+	padding 0
+
 html
 	body
+		font-family sans-serif
+		margin 0
+
 		header
-			height 10vh
-			color white
+			display flex
+			flex-flow row nowrap
+			align-items center
+			justify-content space-between
+			padding 3vh 5vw
 			background linear-gradient(90deg, #eb7015 0%, #c930eb 100%)
+			color white
+
+			ul
+				display flex
+				flex-flow row wrap
+				list-style-type none
+				margin-left 10vw;
+
+				li
+					margin 1vh 1vw
+
+		main
+			padding page-padding
+			display flex
+			flex-flow row nowrap
+			justify-content center
+			align-items flex-start
+
+			div.navigation-container
+				order 0
+				flex-grow 1
+
+			div.main-container
+				order 1
+				flex-grow 6
+
+			div.info-container
+				order 2
+				flex-grow 1
+
+		footer
+			padding page-padding
