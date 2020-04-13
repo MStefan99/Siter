@@ -8,9 +8,9 @@ router.use(cookieParser());
 // general pages
 router.get('/', (req, res) => {
 	if (!req.cookies.siterID) {
-		res.redirect('/login/', 302);
+		res.redirect(307, '/login/');
 	} else {
-		res.redirect('/dashboard/', 302);
+		res.redirect(307, '/dashboard/');
 	}
 });
 
