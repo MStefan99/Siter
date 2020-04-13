@@ -205,4 +205,5 @@ fabric.properties
 *.html
 # Database files
 *.sqlite
-
+# Log directory
+log/
