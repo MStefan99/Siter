@@ -22,16 +22,16 @@ create unique index users_username_uindex
 
 create table sessions
 (
-	id integer
+	id         integer
 		constraint sessions_pk
 			primary key autoincrement,
-	user_id integer not null
+	user_id    integer not null
 		references users
 			on update cascade on delete cascade,
-	cookie_id text not null,
-	ip_address text not null,
-	os text not null,
-	last_login text not null
+	cookie_id  text    not null,
+	ip_address text    not null,
+	os         text    not null,
+	last_login text    not null
 );
 
 create unique index sessions_id_uindex

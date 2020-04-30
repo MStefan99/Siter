@@ -25,6 +25,10 @@ router.get('/login', (req, res) => {
 	res.render('user/login');
 });
 
+router.get('/register', (req, res) => {
+	res.render('user/register');
+});
+
 
 // control pages
 router.get('/dashboard', (req, res) => {

@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="DDL" pattern="file[siter]:database/ddl//*" />
+</component>

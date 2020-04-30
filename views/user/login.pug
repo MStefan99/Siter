@@ -4,15 +4,11 @@ head
 	link(rel="stylesheet", type="text/css", href="/style/login.css")
 
 body
-	header
-		p siter-logo
-		ul
-			li
-				a(href="/about/") About Siter
+	include ../header_min
 
 	main
 		div.login-wrapper
-			form.login-form(action="/login", method="post")
+			form#login-form(action="/login", method="post")
 				label.title Sign in to Siter!
 				label.subtitle(for="username") Username
 				input.text#username(type="text", name="username", placeholder="user")

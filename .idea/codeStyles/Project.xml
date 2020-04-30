@@ -1,12 +1,50 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
+    <option name="OTHER_INDENT_OPTIONS">
+      <value>
+        <option name="USE_TAB_CHARACTER" value="true" />
+        <option name="SMART_TABS" value="true" />
+      </value>
+    </option>
     <JSCodeStyleSettings version="0">
       <option name="USE_CHAINED_CALLS_GROUP_INDENTS" value="true" />
     </JSCodeStyleSettings>
-    <codeStyleSettings language="HTML">
+    <SQLiteCodeStyleSettings version="2">
+      <option name="USE_GENERIC_STYLE" value="true" />
+    </SQLiteCodeStyleSettings>
+    <codeStyleSettings language="DB2">
       <indentOptions>
         <option name="USE_TAB_CHARACTER" value="true" />
         <option name="SMART_TABS" value="true" />
+        <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="Derby">
+      <indentOptions>
+        <option name="USE_TAB_CHARACTER" value="true" />
+        <option name="SMART_TABS" value="true" />
+        <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="H2">
+      <indentOptions>
+        <option name="USE_TAB_CHARACTER" value="true" />
+        <option name="SMART_TABS" value="true" />
+        <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="HSQLDB">
+      <indentOptions>
+        <option name="USE_TAB_CHARACTER" value="true" />
+        <option name="SMART_TABS" value="true" />
+        <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="JSON">
+      <indentOptions>
+        <option name="TAB_SIZE" value="2" />
+        <option name="USE_TAB_CHARACTER" value="true" />
+        <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
       </indentOptions>
     </codeStyleSettings>
     <codeStyleSettings language="Jade">
@@ -23,16 +61,38 @@
         <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
       </indentOptions>
     </codeStyleSettings>
-    <codeStyleSettings language="SQLite">
+    <codeStyleSettings language="MySQL">
       <indentOptions>
         <option name="USE_TAB_CHARACTER" value="true" />
         <option name="SMART_TABS" value="true" />
         <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
       </indentOptions>
     </codeStyleSettings>
-    <codeStyleSettings language="Shell Script">
+    <codeStyleSettings language="Oracle">
       <indentOptions>
         <option name="USE_TAB_CHARACTER" value="true" />
+        <option name="SMART_TABS" value="true" />
+        <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="PostgreSQL">
+      <indentOptions>
+        <option name="USE_TAB_CHARACTER" value="true" />
+        <option name="SMART_TABS" value="true" />
+        <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="SQL">
+      <indentOptions>
+        <option name="USE_TAB_CHARACTER" value="true" />
+        <option name="SMART_TABS" value="true" />
+        <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="SQLite">
+      <indentOptions>
+        <option name="USE_TAB_CHARACTER" value="true" />
+        <option name="SMART_TABS" value="true" />
       </indentOptions>
     </codeStyleSettings>
     <codeStyleSettings language="Stylus">
@@ -40,6 +100,21 @@
         <option name="TAB_SIZE" value="2" />
         <option name="USE_TAB_CHARACTER" value="true" />
         <option name="SMART_TABS" value="true" />
+        <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="Sybase">
+      <indentOptions>
+        <option name="USE_TAB_CHARACTER" value="true" />
+        <option name="SMART_TABS" value="true" />
+        <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="TSQL">
+      <indentOptions>
+        <option name="USE_TAB_CHARACTER" value="true" />
+        <option name="SMART_TABS" value="true" />
+        <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
       </indentOptions>
     </codeStyleSettings>
   </code_scheme>
