@@ -7,7 +7,7 @@ router.use(cookieParser());
 
 // general pages
 router.get('/', (req, res) => {
-	if (!req.cookies.siterID) {
+	if (!req.cookies['siterID']) {
 		res.redirect(307, '/login/');
 	} else {
 		res.redirect(307, '/dashboard/');
@@ -32,7 +32,11 @@ router.get('/register', (req, res) => {
 
 // control pages
 router.get('/dashboard', (req, res) => {
-	res.render('controls/dashboard');
+	if (req.cookies['siterID']) {
+		res.render('controls/dashboard');
+	} else  {
+		res.redirect(307, '/login/');
+	}
 });
 
 

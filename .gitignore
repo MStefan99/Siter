@@ -198,12 +198,13 @@ fabric.properties
 
 # End of https://www.gitignore.io/api/node,webstorm
 
-# Custom rules
-# not tracking css, since it's compiled from stylus
-*.css
-# not tracking html, since it's compiled from pug
-*.html
+# Custom rules =============
 # Database files
 *.sqlite
 # Log directory
 log/
+# Compiled files
+static/css/*.css
+static/js/*.js
+static/js/*.map
+*.html
