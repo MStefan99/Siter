@@ -16,7 +16,7 @@ html
 			justify-content space-between
 			padding 3vh 5vw
 			background mainGradient
-			color white
+			color #fff
 
 			ul
 				display flex
@@ -28,7 +28,7 @@ html
 					margin 1vh 1vw
 
 					a
-						color white
+						color #fff
 
 		main
 			padding page-padding
@@ -38,19 +38,52 @@ html
 			align-items flex-start
 
 			div.navigation-container
+				background #f5f5f5
+				margin-top: 2vh;
+				padding 0 1vh
 				order 0
 				flex 1 2
 
+				h2
+					text-align center
+
 			div.main-container
+				padding 0 2vh
 				order 1
 				flex 3 1
+
+				div#dashboard-container
+					.status-info
+						display inline
+						color white
+						background #555
+						margin-left 1em
+						font-weight bold
+
+					.good-status
+						background #0f0
+					.warning-status
+						background #f60
+					.bad-status
+						background #f00
+
+					div.dashboard-section
+						padding 1vh 0
+						margin 1vh 0
+						border-bottom 2px solid #ddd
 
 				p.about
 					max-width 60vw
 
 			div.info-container
+				background #f5f5f5
+				margin-top: 2vh;
+				padding 0 1vh
 				order 2
 				flex 1 2
+
+				h2
+					text-align center
 
 		footer
 			padding page-padding

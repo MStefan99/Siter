@@ -7,12 +7,26 @@ body
 
 	main
 		div.navigation-container
+			h2 Navigation
 		div.main-container
 			h1 Dashboard
 			div#dashboard-container
+				div.dashboard-section#section-general
+					h3 General
+					div
+						span.status-title Status
+						span.status-info#general-status
+					div
+						span.status-title Port
+						span.status-info#general-port
+				div.dashboard-section#section-directories
+					h3 Directories
+				div.dashboard-section#section-vhosts
+					h3 Virtual Hosts
+
 			script(type="text/javascript" src="/js/dashboard-info.js")
 		div.info-container
-
+			h2 Help
 
 	footer
 		include ../footer
