@@ -7,10 +7,10 @@ router.use(cookieParser());
 
 router.post('/dashboard_info', (req, res) => {
 	res.send(JSON.stringify({  // TODO: replace with something useful
-		status: 'ok',
+		status: 'OK',
 		ports: [
-			{port: 80, ifModule: null, on: true},
-			{port: 443, ifModule: 'ssl_module', on: true}
+			{port: 80, module: null, on: true},
+			{port: 443, module: 'ssl_module', on: true}
 		],
 		directories: [
 			{
@@ -47,4 +47,4 @@ router.post('/dashboard_info', (req, res) => {
 })
 
 
-module.exports = router
+module.exports = {workerRouter: router}

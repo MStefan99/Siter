@@ -1,26 +1,37 @@
 const express = require('express');
 const router = express.Router();
 const cookieParser = require('cookie-parser');
+const openDB = require('../db')
 
 router.use(cookieParser());
 
-
-// general pages
-router.get('/', (req, res) => {
-	if (!req.cookies['siterID']) {
-		res.redirect(307, '/login/');
+async function sessionExists(req) {
+	const db = await openDB();
+	const cookie = req.cookies['siterID'];
+	const user = await db.get(`select *
+                               from sessions s
+                                        left join users u on s.user_id = u.id
+                               where s.cookie_id = $cookieId`, {$cookieId: cookie});
+	if (user) {
+		req.user = {id: user['id']};
+		return true;
 	} else {
-		res.redirect(307, '/dashboard/');
+		return false;
 	}
-});
+}
 
+async function redirectIfNotAuthorized(req, res, next) {
+	if (!await sessionExists(req)) {
+		res.redirect(303, '/login/');
+	} else {
+		next();
+	}
+}
 
 router.get('/about', (req, res) => {
 	res.render('about');
 });
 
-
-// user pages
 router.get('/login', (req, res) => {
 	res.render('user/login');
 });
@@ -30,14 +41,17 @@ router.get('/register', (req, res) => {
 });
 
 
-// control pages
+router.use(redirectIfNotAuthorized)
+
+
+// Functions below will be executed only for authorized users
+router.get('/', (req, res) => {
+	res.redirect(303, '/dashboard/')
+});
+
 router.get('/dashboard', (req, res) => {
-	if (req.cookies['siterID']) {
-		res.render('controls/dashboard');
-	} else  {
-		res.redirect(307, '/login/');
-	}
+	res.render('controls/dashboard');
 });
 
 
-module.exports = router;
+module.exports = {pagesRouter: router};

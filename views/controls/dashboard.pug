@@ -8,23 +8,26 @@ body
 	main
 		div.navigation-container
 			h2 Navigation
+			ul#navigation-selector
+
 		div.main-container
-			h1 Dashboard
 			div#dashboard-container
+				h1#dashboard-header Dashboard
 				div.dashboard-section#section-general
-					h3 Status
+					h3#status-header Status
 					div
 						span.status-info#general-status
 					div#ports
-						h3 Ports
+						h3#ports-header Ports
 				div.dashboard-section#section-directories
-					h3 Directories
+					h3#directories-header Directories
 				div.dashboard-section#section-vhosts
-					h3 Virtual Hosts
+					h3#vhsosts-header Virtual Hosts
 
 			script(type="text/javascript" src="/js/dashboard-info.js")
 		div.info-container
 			h2 Help
+				p (under construction)
 
 	footer
 		include ../footer

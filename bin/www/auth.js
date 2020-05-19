@@ -56,8 +56,8 @@ router.post('/login', async (req, res) => {
 router.get('/logout', async (req, res) => {
 	const db = await openDB();
 	const sessionID = req.cookies['siterID'];
-	res.clearCookie('siterID', {httpOnly: true, sameSite: 'Strict'}).redirect(307, '/login/');
-	
+	res.clearCookie('siterID', {httpOnly: true, sameSite: 'Strict'}).redirect(303, '/login/');
+
 	await db.run(`delete
                   from sessions
                   where cookie_id = $cid`, {$cid: sessionID});
@@ -87,4 +87,4 @@ router.post('/register', async (req, res) => {
 });
 
 
-module.exports = router;
+module.exports = {authRouter: router};

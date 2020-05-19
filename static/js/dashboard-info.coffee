@@ -1,16 +1,30 @@
 container = document.querySelector('#dashboard-container')
+status = document.querySelector('#general-status')
+directories = document.querySelector('#section-directories')
+portContainer = document.querySelector('#ports')
+vhosts = document.querySelector('#section-vhosts')
+menuList = document.querySelector('#navigation-selector')
+
 
 addEventListener('load', () ->
 	res = await fetch('/dashboard_info/',
 		method: 'POST'
+	).catch(->
+		status.innerHTML = 'Backend not available!'
+		status.classList.add('bad-status')
 	)
-	parsedResponse = JSON.parse(await res.text())
+	try
+		parsedResponse = JSON.parse(await res.text())
+	catch err
+		status.innerHTML = 'Invalid response from server!'
+		status.classList.add('bad-status')
+		return
 
-	status = document.querySelector('#general-status')
-	status.innerHTML = parsedResponse['status'].toUpperCase()
-	if parsedResponse['status'] is 'ok'
+	status.innerHTML = parsedResponse['status']
+	if parsedResponse['status'] is 'OK'
 		status.classList.add('good-status')
-	portContainer = document.querySelector('#ports')
+	else
+		status.classList.add('warning-status')
 	portList = document.createElement('ol')
 
 	portContainer.appendChild(portList)
@@ -20,7 +34,7 @@ addEventListener('load', () ->
 		portNumber = document.createElement('p')
 		portNumber.innerHTML = 'Port: ' + port['port']
 		portModule = document.createElement('p')
-		portModule.innerHTML = 'Module: ' + if port['ifModule'] then port['ifModule'] else 'No module'
+		portModule.innerHTML = 'Module: ' + if port['module'] then port['module'] else 'No module'
 		portStatus = document.createElement('p')
 		portStatus.innerHTML = 'Port ' + if port['on'] then 'enabled' else 'disabled'
 
@@ -29,7 +43,6 @@ addEventListener('load', () ->
 		portElement.appendChild(portStatus)
 		portElement.appendChild(portModule)
 
-	directories = document.querySelector('#section-directories')
 	directoryList = document.createElement('ol')
 
 	directories.appendChild(directoryList)
@@ -38,6 +51,7 @@ addEventListener('load', () ->
 		directoryElement = document.createElement('li')
 		directoryElement.className = 'directory'
 		directoryTitle = document.createElement('h4')
+		directoryTitle.id = 'directory-' + directory['path']
 		directoryTitle.innerHTML = "Directory <u>#{directory['path']}</u>"
 		directoryOverride = document.createElement('p')
 		directoryOverride.innerHTML = 'Override ' + if directory['allowOverride'] then 'allowed' else 'prohibited'
@@ -101,7 +115,6 @@ addEventListener('load', () ->
 					ruleIpList.appendChild(ipElement)
 					ipElement.appendChild(ipAddress)
 
-	vhosts = document.querySelector('#section-vhosts')
 	vhostList = document.createElement('ol')
 
 	vhosts.appendChild(vhostList)
@@ -109,9 +122,11 @@ addEventListener('load', () ->
 	for vhost in parsedResponse['vhosts']
 		vhostElement = document.createElement('li')
 		vhostTitle = document.createElement('h4')
-		vhostTitle.innerHTML = if vhost['host']
-		then "Named Virtual Host <a href='https://#{vhost['host']}'>#{vhost['host']}</a>"
-		else "Address Virtual Host <a href='https://#{vhost['ip']}:#{vhost['port']}'>#{vhost['ip']}:#{vhost['port']}</a>"
+		host = if vhost['host']  then vhost['host'] else "#{vhost['ip']}:#{vhost['port']}"
+		vhostTitle.id = 'vhost-' + host
+		vhostTitle.innerHTML = "Host <u>#{host}</u>"
+		vhostLink = document.createElement('a')
+		vhostLink.href = 'http://' + vhostLink.innerHTML = host
 		vhostRoot = document.createElement('p')
 		vhostRoot.innerHTML = 'Document root: ' + vhost['documentRoot']
 		vhostStatus = document.createElement('p')
@@ -119,7 +134,22 @@ addEventListener('load', () ->
 
 		vhostList.appendChild(vhostElement)
 		vhostElement.appendChild(vhostTitle)
+		vhostElement.appendChild(vhostLink)
 		vhostElement.appendChild(vhostStatus)
 		vhostElement.appendChild(vhostRoot)
+
+	# Building Navigation Menu
+	headers = document.querySelectorAll('h1,h3,h4')
+	for header in headers
+		menuElement = document.createElement('li')
+		menuLink = document.createElement('a')
+		menuLink.href = '#' + header.id
+		menuLink.innerHTML = header.innerHTML
+
+		if header.tagName == 'H4'
+			menuElement.classList.add('sub-element')
+
+		menuList.appendChild(menuElement)
+		menuElement.appendChild(menuLink)
 )
 
