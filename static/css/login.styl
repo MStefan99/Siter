@@ -6,17 +6,41 @@ html
 			div.login-wrapper
 				form#login-form
 					&, .title, .subtitle, input
+						text-align center
 						display block
 						margin 1vh 0
 
 					.title
 						margin 2vh 0
-						text-align center
 						font-weight bold
 
 					input.text
-						border-style none none solid none
-						border-color mainColor
+						border none
+						border-bottom 3px solid
+						border-color borderColor
+						outline none
+						transition border-color linear .2s
+
+						&:hover
+							border-color mainColor
+
+						&:focus
+							border-color secondaryColor
 
 					.output
 						font-style italic
+
+					input#submit
+						height 2em
+						width: 100%
+						background secondaryColor
+						color #fff
+						cursor pointer
+						border none
+						border-bottom 3px solid
+						border-color secondaryColor
+						transition background linear .2s
+						font-weight bold
+
+						&:hover
+							background #aaa

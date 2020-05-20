@@ -57,5 +57,9 @@ router.get('/settings', (req, res) => {
 	res.render('controls/settings');
 });
 
+router.get('/users', (req, res) => {
+	res.render('controls/users');
+});
+
 
 module.exports = {pagesRouter: router};

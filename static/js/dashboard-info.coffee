@@ -7,7 +7,7 @@ logFileField = document.querySelector('#log-file-field')
 logFormatContainer = document.querySelector('#log-format-container')
 timeoutField = document.querySelector('#timeout-field')
 keepAliveField = document.querySelector('#keepalive-field')
-maxKeepAliveTimeoutField = document.querySelector('#maxkeepaliverequests-field')
+maxKeepAliveRequestsField = document.querySelector('#maxkeepaliverequests-field')
 keepAliveTimeoutField = document.querySelector('#keepalivetimeout-field')
 serverSignature = document.querySelector('#server-signature-field')
 serverTokens = document.querySelector('#server-tokens-field')
@@ -88,7 +88,7 @@ addEventListener('load', ->
 
 	if parsedResponse['status'] is 'OK'
 		statusInfoField.classList.add('good-status')
-		statusInfoField.innerHTML = 'Your server is running fine'
+		statusInfoField.innerHTML = 'The server is running fine'
 	else
 		statusInfoField.innerHTML = parsedResponse['status']
 		statusInfoField.classList.add('warning-status')
@@ -242,13 +242,21 @@ addEventListener('load', ->
 			tag: 'li'
 		addElement
 			parent: logElement
-			tag: 'h4'
+			tag: 'h5'
 			id: 'log-format_' + logFormat['nickname']
-			content: 'Nickname: ' + logFormat['nickname']
+			content: 'Format "' + logFormat['nickname'] + '"'
 		addElement
 			parent: logElement
 			tag: 'p'
 			content: 'Format: ' + logFormat['format']
+
+	timeoutField.innerHTML = 'Request timeout: ' + parsedResponse['timeout']
+	keepAliveField.innerHTML = 'Keep requests alive: ' + if parsedResponse['keepAlive'] then 'yes' else 'no'
+	maxKeepAliveRequestsField.innerHTML = 'Number of requests to keep alive: ' + parsedResponse['maxKeepAliveRequests']
+	keepAliveTimeoutField.innerHTML = 'Keep requests alive for: ' + parsedResponse['keepAliveTimeout'] + ' seconds'
+
+	serverSignature.innerHTML = 'Server signature: ' + parsedResponse['serverSignature']
+	serverTokens.innerHTML = 'Server tokens: ' + parsedResponse['serverTokens']
 
 	buildMenu()
 )

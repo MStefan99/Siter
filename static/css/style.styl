@@ -27,6 +27,14 @@ html
 				padding 1em
 				border-radius .5em
 				box-shadow: 0 10px 30px 5px shadowColor
+				opacity 0
+				transform translateY(-100%)
+				transition opacity linear .5s,
+				transform cubic-bezier(0.22, 0.61, 0.36, 1) .5s
+
+				&.visible
+					opacity 1
+					transform translateY(0)
 
 				.notification-title
 					color #fff
@@ -74,6 +82,7 @@ html
 
 					a
 						color #fff
+						font-weight bold
 
 		main
 			padding page-padding
