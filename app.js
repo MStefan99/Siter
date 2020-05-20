@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const {pagesRouter} = require('./bin/www/pages');
 const {authRouter} = require('./bin/www/auth');
-const {workerRouter} = require('./bin/www/workers')
+const {workerRouter} = require('./bin/www/workers');
 
 
 const port = process.env.PORT || 3000;

@@ -7,6 +7,10 @@ html
 	scroll-behavior smooth
 
 	body
+		display flex
+		flex-flow column nowrap
+		justify-content space-between
+		height 100vh
 		font-family sans-serif
 		margin 0
 
@@ -74,21 +78,34 @@ html
 		main
 			padding page-padding
 			display flex
-			flex-flow row wrap
+			flex-flow row nowrap
 			justify-content center
 			align-items flex-start
 
-			div.navigation-container
+			div.side-container
 				position sticky
 				top 5vh
-				background sidePanelColor
+				max-height 90vh
+				overflow-y auto
+				background panelColor
 				margin-top: 2vh;
 				padding 0 1vh
+
+				h1
+					text-align center
+
+			div.navigation-container
 				order 0
 				flex 1 2
 
-				h2
-					text-align center
+				.menu-h3
+					margin-left 2em
+
+				.menu-h4
+					margin-left 3em
+
+				.menu-h5
+					margin-left 3.5em
 
 				ul
 					list-style none
@@ -137,6 +154,12 @@ html
 						margin 1vh 0
 						border-bottom 2px solid borderColor
 
+						.button-link
+							color #fff
+							background #000
+							text-decoration none
+							padding .3em
+
 					ul
 						padding-inline-start 40px
 
@@ -144,11 +167,6 @@ html
 					max-width 60vw
 
 			div.info-container
-				position sticky
-				top 5vh
-				background sidePanelColor
-				margin-top: 2vh;
-				padding 0 1vh
 				order 2
 				flex 1 2
 
@@ -157,3 +175,5 @@ html
 
 		footer
 			padding page-padding
+			background panelColor
+			bottom 0

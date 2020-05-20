@@ -42,11 +42,12 @@ router.post('/dashboard_info', (req, res) => {
 			{host: 'host2.example.com', ip: '*', port: 80, documentRoot: '/var/www/site2', on: false},
 			{host: null, ip: '192.168.1.2', port: 80, documentRoot: '/var/www/site3', on: true},
 		],
-		includeOptional: [
-			{path: 'mods-enabled/*.load'},
-			{path: 'mods-enabled/*.conf'},
-			{path: 'conf-enabled/*.conf'},
-			{path: 'sites-enabled/*.conf'}
+		includes: [
+			{path: 'ports.conf', optional: false},
+			{path: 'mods-enabled/*.load', optional: true},
+			{path: 'mods-enabled/*.conf', optional: true},
+			{path: 'conf-enabled/*.conf', optional: true},
+			{path: 'sites-enabled/*.conf', optional: true}
 		],
 		log: {
 			errorLog: '${APACHE_LOG_DIR}/error.log',
@@ -62,7 +63,7 @@ router.post('/dashboard_info', (req, res) => {
 		serverSignature: 'Off',
 		serverTokens: 'Prod',
 	}));
-})
+});
 
 
-module.exports = {workerRouter: router}
+module.exports = {workerRouter: router};

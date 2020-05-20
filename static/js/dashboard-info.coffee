@@ -1,11 +1,70 @@
-statusInfo = document.querySelector('#status-info')
+statusInfoField = document.querySelector('#status-field')
 portContainer = document.querySelector('#port-container')
 directoryContainer = document.querySelector('#directory-container')
 vhostContainer = document.querySelector('#vhost-container')
-menuList = document.querySelector('#menu-container')
+includesContainer = document.querySelector('#include-container')
+logFileField = document.querySelector('#log-file-field')
+logFormatContainer = document.querySelector('#log-format-container')
+timeoutField = document.querySelector('#timeout-field')
+keepAliveField = document.querySelector('#keepalive-field')
+maxKeepAliveTimeoutField = document.querySelector('#maxkeepaliverequests-field')
+keepAliveTimeoutField = document.querySelector('#keepalivetimeout-field')
+serverSignature = document.querySelector('#server-signature-field')
+serverTokens = document.querySelector('#server-tokens-field')
 
 
 import {notify} from './notification.js'
+
+
+addElement = ({
+	parent,
+	tag,
+	id = null,
+	classes = null,
+	content = null,
+	properties = null
+}) ->
+	if !tag?
+		error = new TypeError()
+		error.content = 'Tag is undefined'
+		throw error
+
+	newElement = document.createElement(tag)
+	if id?
+		newElement.id = id
+	if content?
+		newElement.innerHTML = content
+	if classes?
+		if Array.isArray(classes)
+		then newElement.classList.add(...classes) else newElement.classList.add(classes)
+	for property of properties
+		newElement[property] = properties[property]
+	if parent?
+		parent.appendChild(newElement)
+
+	return newElement
+
+
+buildMenu = ->
+	menuList = document.querySelector('#menu-container')
+	headerList = document.querySelectorAll('#dashboard-container h2,
+		#dashboard-container h3,
+		#dashboard-container h4,
+		#dashboard-container h5')
+	for header in headerList  # Building Navigation Menu
+		menuElement = addElement
+			parent: menuList
+			tag: 'li'
+			classes: ['menu-item', 'menu-' + header.tagName.toLowerCase()]
+		menuLink = addElement
+			parent: menuElement
+			tag: 'a'
+			properties:
+				'href': '#' + header.id
+		addElement
+			parent: menuLink
+			tag: header.tagName
+			content: header.innerHTML
 
 
 addEventListener('load', ->
@@ -14,139 +73,182 @@ addEventListener('load', ->
 	).catch(->
 		notify('Server offline', 'Server not available.
 			Please make sure the server is running and reload this page.', 'error')
-		statusInfo.innerHTML = 'Backend not available!'
-		statusInfo.classList.add('bad-status')
+		statusInfoField.innerHTML = 'Backend not available!'
+		statusInfoField.classList.add('bad-status')
 		return
 	)
 	try
 		parsedResponse = JSON.parse(await res.text())
 	catch err
-		statusInfo.innerHTML = 'Invalid response from server!'
+		statusInfoField.innerHTML = 'Invalid response from server'
 		notify('Invalid response', 'The server has sent an invalid response.
 			Please check the server version and contact the support.', 'error')
-		statusInfo.classList.add('bad-status')
+		statusInfoField.classList.add('bad-status')
 		return
 
 	if parsedResponse['status'] is 'OK'
-		statusInfo.classList.add('good-status')
-		statusInfo.innerHTML = 'Your server is running fine!'
+		statusInfoField.classList.add('good-status')
+		statusInfoField.innerHTML = 'Your server is running fine'
 	else
-		statusInfo.innerHTML = parsedResponse['status']
-		statusInfo.classList.add('warning-status')
+		statusInfoField.innerHTML = parsedResponse['status']
+		statusInfoField.classList.add('warning-status')
 		notify('Server problem', 'There is a problem with server configuration.
 			Please check this page for more details.', 'warning')
 
 	for port in parsedResponse['ports']  # Populating ports section
-		portElement = document.createElement('li')
-		portNumber = document.createElement('p')
-		portNumber.innerHTML = 'Port: ' + port['port']
-		portModule = document.createElement('p')
-		portModule.innerHTML = 'Module: ' + if port['module'] then port['module'] else 'No module'
-		portStatus = document.createElement('p')
-		portStatus.innerHTML = 'Port ' + if port['on'] then 'enabled' else 'disabled'
-
-		portContainer.appendChild(portElement)
-		portElement.appendChild(portNumber)
-		portElement.appendChild(portStatus)
-		portElement.appendChild(portModule)
+		portElement = addElement
+			parent: portContainer
+			tag: 'li'
+		addElement
+			parent: portElement
+			tag: 'h4'
+			id: 'port_' + port['port']
+			content: 'Port: ' + port['port']
+		addElement
+			parent: portElement
+			tag: 'p'
+			content: 'Module: ' + if port['module'] then port['module'] else 'No module'
+		addElement
+			parent: portElement
+			tag: 'p'
+			content: 'Port ' + if port['on'] then 'enabled' else 'disabled'
 
 	for directory in parsedResponse['directories']  # Populating directory section
-		directoryElement = document.createElement('li')
-		directoryElement.className = 'directory'
-		directoryTitle = document.createElement('h4')
-		directoryTitle.id = 'directory_' + directory['path']
-		directoryTitle.innerHTML = "Directory <u>#{directory['path']}</u>"
-		directoryOverride = document.createElement('p')
-		directoryOverride.innerHTML = 'Override ' + if directory['allowOverride'] then 'allowed' else 'prohibited'
-		directoryRuleTitle = document.createElement('h5')
-		directoryRuleTitle.innerHTML = 'List of rules for directory'
-		directoryRuleList = document.createElement('ol')
-		directoryRuleList.className = 'rules-list'
-		directoryStatus = document.createElement('p')
-		directoryStatus.innerHTML = 'Directory ' + if directory['on'] then 'enabled' else 'disabled'
-
-		directoryContainer.appendChild(directoryElement)
-		directoryElement.appendChild(directoryTitle)
-		directoryElement.appendChild(directoryStatus)
-		directoryElement.appendChild(directoryOverride)
-		directoryElement.appendChild(directoryRuleTitle)
-		directoryElement.appendChild(directoryRuleList)
+		directoryElement = addElement
+			parent: directoryContainer
+			tag: 'li'
+			classes: 'directory'
+		addElement
+			parent: directoryElement
+			tag: 'h4'
+			id: 'directory_' + directory['path']
+			content: "Directory <u>#{directory['path']}</u>"
+		addElement
+			parent: directoryElement
+			tag: 'p'
+			content: 'Directory ' + if directory['on'] then 'enabled' else 'disabled'
+		addElement
+			parent: directoryElement
+			tag: 'p'
+			content: 'Override ' + if directory['allowOverride'] then 'allowed' else 'prohibited'
+		addElement
+			parent: directoryElement
+			tag: 'h5'
+			id: 'rules-directory_' + directory['path']
+			content: 'List of rules for directory'
+		directoryRuleList = addElement
+			parent: directoryElement
+			tag: 'ol'
+			classes: 'rules-list'
 
 		for rule in directory['rules']
-			ruleElement = document.createElement('li')
-			ruleType = document.createElement('p')
-			ruleType.innerHTML = "Type: #{rule['type']}"
-			ruleAllowed = document.createElement('p')
-			ruleAllowed.innerHTML = 'Accessible: ' + if rule['allow'] then 'yes' else 'no'
-			ruleStatus = document.createElement('p')
-			ruleStatus.innerHTML = 'Rule ' + if rule['on'] then 'enabled' else 'disabled'
-
-			directoryRuleList.appendChild(ruleElement)
-			ruleElement.appendChild(ruleType)
-			ruleElement.appendChild(ruleStatus)
-			ruleElement.appendChild(ruleAllowed)
+			ruleElement = addElement
+				parent: directoryRuleList
+				tag: 'li'
+			addElement
+				parent: ruleElement
+				tag: 'p'
+				content: "Type: #{rule['type']}"
+			addElement
+				parent: ruleElement
+				tag: 'p'
+				content: 'Rule ' + if rule['on'] then 'enabled' else 'disabled'
+			addElement
+				parent: ruleElement
+				tag: 'p'
+				content: 'Accessible: ' + if rule['allow'] then 'yes' else 'no'
 
 			if rule['type'] is 'user'
-				ruleUserHeader = document.createElement('p')
-				ruleUserHeader.innerHTML = 'Users:'
-				ruleUserList = document.createElement('ul')
-
-				ruleElement.appendChild(ruleUserHeader)
-				ruleElement.appendChild(ruleUserList)
+				addElement
+					parent: ruleElement
+					tag: 'p'
+					content: 'Users:'
+				ruleUserList = addElement
+					parent: ruleElement
+					tag: 'ul'
 
 				for user in rule['users']
-					userElement = document.createElement('li')
-					userName = document.createElement('p')
-					userName.innerHTML = user
-
-					ruleUserList.appendChild(userElement)
-					userElement.appendChild(userName)
+					userElement = addElement
+						parent: ruleUserList
+						tag: 'li'
+					addElement
+						parent: userElement
+						tag: 'p'
+						content: user
 
 			else if rule['type'] is 'ip'
-				ruleIpHeader = document.createElement('p')
-				ruleIpHeader.innerHTML = 'Ports:'
-				ruleIpList = document.createElement('ul')
-
-				ruleElement.appendChild(ruleIpHeader)
-				ruleElement.appendChild(ruleIpList)
+				addElement
+					parent: ruleElement
+					tag: 'p'
+					content: 'Ports: '
+				ruleIpList = addElement
+					parent: ruleElement
+					tag: 'ul'
 
 				for ip in rule['ips']
-					ipElement = document.createElement('li')
-					ipAddress = document.createElement('p')
-					ipAddress.innerHTML = ip
-
-					ruleIpList.appendChild(ipElement)
-					ipElement.appendChild(ipAddress)
+					ipElement = addElement
+						parent: ruleIpList
+						tag: 'li'
+					addElement
+						parent: ipElement
+						tag: 'p'
+						content: ip
 
 	for vhost in parsedResponse['vhosts']  # Populating vhost section
-		vhostElement = document.createElement('li')
-		vhostTitle = document.createElement('h4')
 		host = if vhost['host']  then vhost['host'] else "#{vhost['ip']}:#{vhost['port']}"
-		vhostTitle.id = 'vhost_' + host
-		vhostTitle.innerHTML = "Host <u>#{host}</u>"
-		vhostLink = document.createElement('a')
-		vhostLink.href = 'http://' + vhostLink.innerHTML = host
-		vhostRoot = document.createElement('p')
-		vhostRoot.innerHTML = 'Document root: ' + vhost['documentRoot']
-		vhostStatus = document.createElement('p')
-		vhostStatus.innerHTML = 'Virtual Host ' + if vhost['on'] then 'enabled' else 'disabled'
 
-		vhostContainer.appendChild(vhostElement)
-		vhostElement.appendChild(vhostTitle)
-		vhostElement.appendChild(vhostLink)
-		vhostElement.appendChild(vhostStatus)
-		vhostElement.appendChild(vhostRoot)
+		vhostElement = addElement
+			parent: vhostContainer
+			tag: 'li'
+		addElement
+			parent: vhostElement
+			tag: 'h4'
+			id: 'vhost_' + host
+			content: "Host <u>#{host}</u>"
+		addElement
+			parent: vhostElement
+			tag: 'a'
+			content: 'Open'
+			classes: 'button-link'
+			properties:
+				'href': 'http://' + host
+		addElement
+			parent: vhostElement
+			tag: 'p'
+			content: 'Virtual Host ' + if vhost['on'] then 'enabled' else 'disabled'
+		addElement
+			parent: vhostElement
+			tag: 'p'
+			content: 'Document root: ' + vhost['documentRoot']
 
-	headerList = document.querySelectorAll('h1,h3,h4')
-	for header in headerList  # Building Navigation Menu
-		menuElement = document.createElement('li')
-		menuLink = document.createElement('a')
-		menuLink.href = '#' + header.id
-		menuLink.innerHTML = header.innerHTML
+	for include in parsedResponse['includes']
+		includeElement = addElement
+			parent: includesContainer
+			tag: 'li'
+		addElement
+			parent: includeElement
+			tag: 'h4'
+			id: 'include_' + include['path']
+			content: 'File ' + include['path']
+		addElement
+			parent: includeElement
+			tag: 'p'
+			content: 'Optional: ' + if include['optional'] then 'yes' else 'no'
 
-		if header.tagName == 'H4'
-			menuElement.classList.add('sub-element')
+	logFileField.innerHTML = 'Error log file: ' + parsedResponse['log']['errorLog']
+	for logFormat in parsedResponse['log']['logFormats']
+		logElement = addElement
+			parent: logFormatContainer
+			tag: 'li'
+		addElement
+			parent: logElement
+			tag: 'h4'
+			id: 'log-format_' + logFormat['nickname']
+			content: 'Nickname: ' + logFormat['nickname']
+		addElement
+			parent: logElement
+			tag: 'p'
+			content: 'Format: ' + logFormat['format']
 
-		menuList.appendChild(menuElement)
-		menuElement.appendChild(menuLink)
+	buildMenu()
 )

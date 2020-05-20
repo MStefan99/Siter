@@ -2,22 +2,25 @@ doctype html
 head
 	include ../head
 
-body#top
+body
 	include ../header_full
 	include ../notifications
 
 	main
-		div.navigation-container
-			h2 Navigation
+		div.side-container.navigation-container
+			h1 Navigation
 			ul#menu-container
-				a(href='#top') Top
+				li.menu-item.menu-h3
+					a(href='#')
+						h3
+							u Top
 
 		div.main-container
 			div#dashboard-container
 				h1#dashboard Dashboard
-				div.dashboard-section#status-container
+				div.dashboard-section
 					h3#status Status
-					div.status-info#status-info Waiting for server...
+					div.status-info#status-field Waiting for server...
 					h3#ports Ports
 					ol#port-container
 				div.dashboard-section
@@ -26,11 +29,30 @@ body#top
 				div.dashboard-section
 					h3#vhosts Virtual Hosts
 					ol#vhost-container
+				div.dashboard-section
+					h3#includes Configuration files
+					ol#include-container
+				div.dashboard-section
+					h3#logs Log settings
+					div#log-file-field
+					h4#log-formats Log formats
+					ol#log-format-container
+				div.dashboard-section
+					h3#connections Connection settings
+					p#timeout-field
+					h4#keepalive Keep Alive settings
+					p#keepalive-field
+					p#maxkeepaliverequests-field
+					p#keepalivetimeout-field
+				div.dashboard-section
+					h3#signature Server signature
+					p#server-signature-field
+					p#server-tokens-field
 
 			script(type="module" src="/js/dashboard-info.js")
-		div.info-container
-			h2 Help
-				p (under construction)
+		div.side-container.info-container
+			h1 Help
+			p (under construction)
 
 	footer
 		include ../footer

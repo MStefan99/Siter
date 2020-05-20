@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const cookieParser = require('cookie-parser');
-const openDB = require('../db')
+const openDB = require('../db');
 
 router.use(cookieParser());
 
@@ -41,7 +41,7 @@ router.get('/register', (req, res) => {
 });
 
 
-router.use(redirectIfNotAuthorized)
+router.use(redirectIfNotAuthorized);
 
 
 // Functions below will be executed only for authorized users
