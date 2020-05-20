@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const cookieParser = require('cookie-parser');
 
+
 router.use(cookieParser());
 
 
@@ -38,11 +39,28 @@ router.post('/dashboard_info', (req, res) => {
 		],
 		vhosts: [
 			{host: 'host1.example.com', ip: '*', port: 80, documentRoot: '/var/www/site1', on: true},
-			{host: 'host2.example.com', ip: '*', port: 80, documentRoot: '/var/www/site1', on: false},
-			{host: null, ip: '192.168.1.2', port: 80, documentRoot: '/var/www/site1', on: true},
+			{host: 'host2.example.com', ip: '*', port: 80, documentRoot: '/var/www/site2', on: false},
+			{host: null, ip: '192.168.1.2', port: 80, documentRoot: '/var/www/site3', on: true},
 		],
+		includeOptional: [
+			{path: 'mods-enabled/*.load'},
+			{path: 'mods-enabled/*.conf'},
+			{path: 'conf-enabled/*.conf'},
+			{path: 'sites-enabled/*.conf'}
+		],
+		log: {
+			errorLog: '${APACHE_LOG_DIR}/error.log',
+			logFormats: [
+				{format: '%h %l %u %t "%r" %>s %O', nickname: 'common'},
+				{format: '%{User-agent}i', nickname: 'agent'}
+			]
+		},
+		timeout: 300,
+		keepAlive: true,
+		maxKeepAliveRequests: 100,
+		keepAliveTimeout: 5,
 		serverSignature: 'Off',
-		serverTokens: 'Prod'
+		serverTokens: 'Prod',
 	}));
 })
 

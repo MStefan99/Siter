@@ -10,6 +10,46 @@ html
 		font-family sans-serif
 		margin 0
 
+		#notification-container
+			position fixed
+			top: 5vh
+			left 0
+			right 0
+			margin 0 30vw
+
+			.notification
+				position relative
+				margin 0 0 2vh 0
+				padding 1em
+				border-radius .5em
+				box-shadow: 0 10px 30px 5px shadowColor
+
+				.notification-title
+					color #fff
+					font-weight bold
+					margin-top 0
+
+				.notification-close
+					color #fff
+					font-size 2rem
+					font-weight bold
+					position absolute
+					cursor pointer
+					top 0
+					right 5%
+
+				.notification-info
+					color #fff
+
+			.notification-ok
+				background okColor
+
+			.notification-warning
+				background warnColor
+
+			.notification-error
+				background errorColor
+
 		header
 			display flex
 			flex-flow row nowrap
@@ -34,12 +74,14 @@ html
 		main
 			padding page-padding
 			display flex
-			flex-flow row nowrap
+			flex-flow row wrap
 			justify-content center
 			align-items flex-start
 
 			div.navigation-container
-				background #f5f5f5
+				position sticky
+				top 5vh
+				background sidePanelColor
 				margin-top: 2vh;
 				padding 0 1vh
 				order 0
@@ -62,7 +104,7 @@ html
 					text-decoration none
 
 					&:hover
-						color #0a0
+						color okColor
 
 				.sub-element
 					padding-left 1em
@@ -76,24 +118,24 @@ html
 					.status-info
 						display inline
 						color #fff
-						background #555
+						background warnColor
 						font-weight bold
 						font-size 2rem
 						padding .5rem
 
 					.good-status
-						background #0a0
+						background okColor
 
 					.warning-status
-						background #770
+						background warnColor
 
 					.bad-status
-						background #a00
+						background errorColor
 
 					div.dashboard-section
 						padding 1vh 0
 						margin 1vh 0
-						border-bottom 2px solid #ddd
+						border-bottom 2px solid borderColor
 
 					ul
 						padding-inline-start 40px
@@ -102,7 +144,9 @@ html
 					max-width 60vw
 
 			div.info-container
-				background #f5f5f5
+				position sticky
+				top 5vh
+				background sidePanelColor
 				margin-top: 2vh;
 				padding 0 1vh
 				order 2

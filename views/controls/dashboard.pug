@@ -2,29 +2,32 @@ doctype html
 head
 	include ../head
 
-body
+body#top
 	include ../header_full
+	include ../notifications
 
 	main
 		div.navigation-container
 			h2 Navigation
-			ul#navigation-selector
+			ul#menu-container
+				a(href='#top') Top
 
 		div.main-container
 			div#dashboard-container
-				h1#dashboard-header Dashboard
-				div.dashboard-section#section-general
-					h3#status-header Status
-					div
-						span.status-info#general-status
-					div#ports
-						h3#ports-header Ports
-				div.dashboard-section#section-directories
-					h3#directories-header Directories
-				div.dashboard-section#section-vhosts
-					h3#vhsosts-header Virtual Hosts
+				h1#dashboard Dashboard
+				div.dashboard-section#status-container
+					h3#status Status
+					div.status-info#status-info Waiting for server...
+					h3#ports Ports
+					ol#port-container
+				div.dashboard-section
+					h3#directories Directories
+					ol#directory-container
+				div.dashboard-section
+					h3#vhosts Virtual Hosts
+					ol#vhost-container
 
-			script(type="text/javascript" src="/js/dashboard-info.js")
+			script(type="module" src="/js/dashboard-info.js")
 		div.info-container
 			h2 Help
 				p (under construction)

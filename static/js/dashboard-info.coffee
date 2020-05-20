@@ -1,35 +1,42 @@
-container = document.querySelector('#dashboard-container')
-status = document.querySelector('#general-status')
-directories = document.querySelector('#section-directories')
-portContainer = document.querySelector('#ports')
-vhosts = document.querySelector('#section-vhosts')
-menuList = document.querySelector('#navigation-selector')
+statusInfo = document.querySelector('#status-info')
+portContainer = document.querySelector('#port-container')
+directoryContainer = document.querySelector('#directory-container')
+vhostContainer = document.querySelector('#vhost-container')
+menuList = document.querySelector('#menu-container')
 
 
-addEventListener('load', () ->
+import {notify} from './notification.js'
+
+
+addEventListener('load', ->
 	res = await fetch('/dashboard_info/',
 		method: 'POST'
 	).catch(->
-		status.innerHTML = 'Backend not available!'
-		status.classList.add('bad-status')
+		notify('Server offline', 'Server not available.
+			Please make sure the server is running and reload this page.', 'error')
+		statusInfo.innerHTML = 'Backend not available!'
+		statusInfo.classList.add('bad-status')
+		return
 	)
 	try
 		parsedResponse = JSON.parse(await res.text())
 	catch err
-		status.innerHTML = 'Invalid response from server!'
-		status.classList.add('bad-status')
+		statusInfo.innerHTML = 'Invalid response from server!'
+		notify('Invalid response', 'The server has sent an invalid response.
+			Please check the server version and contact the support.', 'error')
+		statusInfo.classList.add('bad-status')
 		return
 
-	status.innerHTML = parsedResponse['status']
 	if parsedResponse['status'] is 'OK'
-		status.classList.add('good-status')
+		statusInfo.classList.add('good-status')
+		statusInfo.innerHTML = 'Your server is running fine!'
 	else
-		status.classList.add('warning-status')
-	portList = document.createElement('ol')
+		statusInfo.innerHTML = parsedResponse['status']
+		statusInfo.classList.add('warning-status')
+		notify('Server problem', 'There is a problem with server configuration.
+			Please check this page for more details.', 'warning')
 
-	portContainer.appendChild(portList)
-
-	for port in parsedResponse['ports']
+	for port in parsedResponse['ports']  # Populating ports section
 		portElement = document.createElement('li')
 		portNumber = document.createElement('p')
 		portNumber.innerHTML = 'Port: ' + port['port']
@@ -38,20 +45,16 @@ addEventListener('load', () ->
 		portStatus = document.createElement('p')
 		portStatus.innerHTML = 'Port ' + if port['on'] then 'enabled' else 'disabled'
 
-		portList.appendChild(portElement)
+		portContainer.appendChild(portElement)
 		portElement.appendChild(portNumber)
 		portElement.appendChild(portStatus)
 		portElement.appendChild(portModule)
 
-	directoryList = document.createElement('ol')
-
-	directories.appendChild(directoryList)
-
-	for directory in parsedResponse['directories']
+	for directory in parsedResponse['directories']  # Populating directory section
 		directoryElement = document.createElement('li')
 		directoryElement.className = 'directory'
 		directoryTitle = document.createElement('h4')
-		directoryTitle.id = 'directory-' + directory['path']
+		directoryTitle.id = 'directory_' + directory['path']
 		directoryTitle.innerHTML = "Directory <u>#{directory['path']}</u>"
 		directoryOverride = document.createElement('p')
 		directoryOverride.innerHTML = 'Override ' + if directory['allowOverride'] then 'allowed' else 'prohibited'
@@ -62,7 +65,7 @@ addEventListener('load', () ->
 		directoryStatus = document.createElement('p')
 		directoryStatus.innerHTML = 'Directory ' + if directory['on'] then 'enabled' else 'disabled'
 
-		directoryList.appendChild(directoryElement)
+		directoryContainer.appendChild(directoryElement)
 		directoryElement.appendChild(directoryTitle)
 		directoryElement.appendChild(directoryStatus)
 		directoryElement.appendChild(directoryOverride)
@@ -115,15 +118,11 @@ addEventListener('load', () ->
 					ruleIpList.appendChild(ipElement)
 					ipElement.appendChild(ipAddress)
 
-	vhostList = document.createElement('ol')
-
-	vhosts.appendChild(vhostList)
-
-	for vhost in parsedResponse['vhosts']
+	for vhost in parsedResponse['vhosts']  # Populating vhost section
 		vhostElement = document.createElement('li')
 		vhostTitle = document.createElement('h4')
 		host = if vhost['host']  then vhost['host'] else "#{vhost['ip']}:#{vhost['port']}"
-		vhostTitle.id = 'vhost-' + host
+		vhostTitle.id = 'vhost_' + host
 		vhostTitle.innerHTML = "Host <u>#{host}</u>"
 		vhostLink = document.createElement('a')
 		vhostLink.href = 'http://' + vhostLink.innerHTML = host
@@ -132,15 +131,14 @@ addEventListener('load', () ->
 		vhostStatus = document.createElement('p')
 		vhostStatus.innerHTML = 'Virtual Host ' + if vhost['on'] then 'enabled' else 'disabled'
 
-		vhostList.appendChild(vhostElement)
+		vhostContainer.appendChild(vhostElement)
 		vhostElement.appendChild(vhostTitle)
 		vhostElement.appendChild(vhostLink)
 		vhostElement.appendChild(vhostStatus)
 		vhostElement.appendChild(vhostRoot)
 
-	# Building Navigation Menu
-	headers = document.querySelectorAll('h1,h3,h4')
-	for header in headers
+	headerList = document.querySelectorAll('h1,h3,h4')
+	for header in headerList  # Building Navigation Menu
 		menuElement = document.createElement('li')
 		menuLink = document.createElement('a')
 		menuLink.href = '#' + header.id
@@ -152,4 +150,3 @@ addEventListener('load', () ->
 		menuList.appendChild(menuElement)
 		menuElement.appendChild(menuLink)
 )
-
