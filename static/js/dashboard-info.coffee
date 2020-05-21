@@ -13,7 +13,8 @@ serverSignature = document.querySelector('#server-signature-field')
 serverTokens = document.querySelector('#server-tokens-field')
 
 
-import {notify} from './notification.js'
+import {notify} from './notifications.js'
+import {buildMenu} from './menu.js'
 
 
 addElement = ({
@@ -43,28 +44,6 @@ addElement = ({
 		parent.appendChild(newElement)
 
 	return newElement
-
-
-buildMenu = ->
-	menuList = document.querySelector('#menu-container')
-	headerList = document.querySelectorAll('#dashboard-container h2,
-		#dashboard-container h3,
-		#dashboard-container h4,
-		#dashboard-container h5')
-	for header in headerList  # Building Navigation Menu
-		menuElement = addElement
-			parent: menuList
-			tag: 'li'
-			classes: ['menu-item', 'menu-' + header.tagName.toLowerCase()]
-		menuLink = addElement
-			parent: menuElement
-			tag: 'a'
-			properties:
-				'href': '#' + header.id
-		addElement
-			parent: menuLink
-			tag: header.tagName
-			content: header.innerHTML
 
 
 addEventListener('load', ->

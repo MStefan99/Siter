@@ -7,52 +7,45 @@ body
 	include ../notifications
 
 	main
-		div.side-container.navigation-container
-			h1 Navigation
-			ul#menu-container
-				li.menu-item.menu-h3
-					a(href='#')
-						h3
-							u Top
+		include ../nav-container
 
-		div.main-container
-			div#dashboard-container
-				h1#dashboard Dashboard
-				div.dashboard-section
+		div#main-container
+			div#content-container
+				h1.title Dashboard
+				div.content-section
 					h3#status Status
 					div.status-info#status-field Waiting for server...
 					h3#ports Ports
 					ol#port-container
-				div.dashboard-section
+				div.content-section
 					h3#directories Directories
 					ol#directory-container
-				div.dashboard-section
+				div.content-section
 					h3#vhosts Virtual Hosts
 					ol#vhost-container
-				div.dashboard-section
+				div.content-section
 					h3#includes Configuration files
 					ol#include-container
-				div.dashboard-section
+				div.content-section
 					h3#logs Log settings
 					div#log-file-field
 					h4#log-formats Log formats
 					ol#log-format-container
-				div.dashboard-section
+				div.content-section
 					h3#connections Connection settings
 					p#timeout-field
 					h4#keepalive Keep Alive settings
 					p#keepalive-field
 					p#maxkeepaliverequests-field
 					p#keepalivetimeout-field
-				div.dashboard-section
+				div.content-section
 					h3#signature Server signature
 					p#server-signature-field
 					p#server-tokens-field
-
 			script(type="module" src="/js/dashboard-info.js")
-		div.side-container.info-container
-			h1 Help
-			p (under construction)
 
-	footer
-		include ../footer
+		include ../info-container
+
+
+footer
+	include ../footer

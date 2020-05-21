@@ -44,10 +44,10 @@ router.post('/login', async (req, res) => {
 				$ip: req.connection.remoteAddress, $ll: Date.now()
 			});
 		} else {
-			res.send('Wrong password! Please try again.');
+			res.render('message', {message: 'Wrong password! Please try again.'});
 		}
 	} else {
-		res.send('User not found! Please check if you have access to this server');
+		res.render('message', {message: 'User not found! Please check if you have access to this server'});
 	}
 	await db.close();
 });
@@ -71,18 +71,23 @@ router.post('/register', async (req, res) => {
                              from users
                              where setup_code = $code`, {$code: req.body['sitercode']});
 	if (req.body['password'] !== req.body['password-repeat']) {
-		res.send('Passwords do not match. Please try again');
+		res.render('message', {message: 'Passwords do not match. Please try again'});
 	} else if (rows) {
-		const hash = crypto.createHash('sha512')
-			.update(req.body['password'])
-			.digest('hex');
-		await db.run(`update users
-                      set password_hash=$hash,
-                          setup_code=null
-                      where setup_code = $code`, {$hash: hash, $code: req.body['sitercode']});
-		res.send('Success! Now log in with your new password!');
+		if (req.body['password'].length >= 8) {
+			const hash = crypto.createHash('sha512')
+				.update(req.body['password'])
+				.digest('hex');
+			await db.run(`update users
+                          set password_hash=$hash,
+                              setup_code=null
+                          where setup_code = $code`, {$hash: hash, $code: req.body['sitercode']});
+			res.render('message', {message: 'Success! Your username is: ' + rows['username']});
+
+		} else {
+			res.render('message', {message: 'Your password has to be at least 8 characters long!'});
+		}
 	} else {
-		res.send('SiterCODE not found. Please check if the code is correct.');
+		res.render('message', {message: 'SiterCODE not found. Please check if the code is correct.'});
 	}
 });
 

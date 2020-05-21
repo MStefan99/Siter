@@ -1,14 +1,37 @@
 doctype html
+
 head
-	include ../head
 	link(rel="stylesheet", type="text/css", href="/style/login.css")
+	include ../head
 
 body
 	include ../header_full
 	include ../notifications
 
+	div#tab-container
+
 	main
-		h1 Under construction
+		include ../nav-container
+
+		div#main-container
+			div#content-container
+				div.tab.tab-selected#tab-ports
+					h1.title Ports
+				div.tab#tab-directories
+					h1.title Directories
+				div.tab#tab-vhosts
+					h1.title Virtual hosts
+				div.tab#tab-includes
+					h1.title Included files
+				div.tab#tab-log
+					h1.title Log settings
+				div.tab#tab-connection
+					h1.title Connection settings
+				div.tab#tab-signature
+					h1.title Server signature
+
+		include ../info-container
+	script(type="text/javascript" src="/js/tabs.js")
 
 footer
 	include ../footer

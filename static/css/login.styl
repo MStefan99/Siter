@@ -5,7 +5,17 @@ html
 		main
 			div.login-wrapper
 				form#login-form
+					.good-status
+						color okColor
+
+					.warning-status
+						color warnColor
+
+					.bad-status
+						color errorColor
+
 					&, .title, .subtitle, input
+						width 100%
 						text-align center
 						display block
 						margin 1vh 0
@@ -28,6 +38,8 @@ html
 							border-color secondaryColor
 
 					.output
+						text-align center
+						white-space normal
 						font-style italic
 
 					input#submit
