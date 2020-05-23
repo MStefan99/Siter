@@ -19,8 +19,7 @@ import {ServerSettings} from './server_settings.js'
 import {addElement} from './add_element.js'
 
 
-new ServerSettings().pull()
-	.then((settings) ->
+new ServerSettings().pull().then((settings) ->
 	if settings.get('status') is 'OK'
 		statusInfoField.classList.add('good-status')
 		statusInfoField.innerHTML = 'The server is running fine'
@@ -42,7 +41,7 @@ new ServerSettings().pull()
 		addElement
 			parent: portElement
 			tag: 'p'
-			content: 'Module: ' + if port['module'] then port['module'] else 'No module'
+			content: 'Module: ' + (port['module'] or 'no module')
 		addElement
 			parent: portElement
 			tag: 'p'
@@ -130,7 +129,7 @@ new ServerSettings().pull()
 						content: ip
 
 	for vhost in settings.get('vhosts')  # Populating vhost section
-		host = if vhost['host']  then vhost['host'] else "#{vhost['ip']}:#{vhost['port']}"
+		host = vhost['host'] or "#{vhost['ip']}:#{vhost['port']}"
 
 		vhostElement = addElement
 			parent: vhostContainer

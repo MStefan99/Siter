@@ -82,12 +82,12 @@ html
 
 		div#tab-container
 			display flex
-			flex-flow row nowrap
+			flex-flow row wrap
 
 			div.tab-selector
-				padding 1em
+				padding .5em 1em
 				text-align center
-				border-radius 0 0 1em 1em
+				border-radius 0 0 .2em .2em
 				background panelColor
 				cursor pointer
 				flex 1
@@ -96,30 +96,39 @@ html
 					background #fff
 
 				p
+					margin auto 0
 					font-weight bold
 
 		main
 			min-height 90vh
 			padding page-padding
-			display flex
-			flex-flow row nowrap
-			justify-content center
-			align-items flex-start
+
+			@media screen and (min-width 1024px)
+				display flex
+				flex-flow row nowrap
+				justify-content center
+				align-items flex-start
 
 			div.side-container
-				position sticky
-				top 5vh
-				max-height 90vh
 				overflow-y auto
 				background panelColor
 				padding 0 1vh
+				max-height 30vh
 
-				h2
+				@media screen and (min-width 1024px)
+					position sticky
+					top 5vh
+					max-height 90vh
+
+				h1
 					text-align center
 
 			div#navigation-container
 				order 0
 				flex 1 2
+
+				.menu-h2
+					margin-left 1em
 
 				.menu-h3
 					margin-left 2em
@@ -167,6 +176,20 @@ html
 
 						&.tab-selected
 							display block
+
+						table
+							width 100%
+
+						table, th, td
+							border 2px solid borderColor
+							border-collapse collapse
+
+						th
+							font-weight bold
+							padding .5em
+
+						td
+							padding .2em
 
 					.status-info
 						display inline

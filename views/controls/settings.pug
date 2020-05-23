@@ -1,7 +1,6 @@
 doctype html
 
 head
-	link(rel="stylesheet", type="text/css", href="/style/login.css")
 	include ../head
 
 body
@@ -17,10 +16,23 @@ body
 			div#content-container
 				div.tab.tab-selected#tab-ports
 					h1.title Ports
-					h2 ports
+					h2 Ports
+					table#ports-table
+						tr
+							th Port
+							th Module
+							th Active
+							th Edit
+							th Delete
 				div.tab#tab-directories
 					h1.title Directories
-					h2 directories
+					h2 Directories
+					table#directories-table
+						tr
+							th Directory
+							th Active
+							th Edit
+							th Delete
 				div.tab#tab-vhosts
 					h1.title Virtual hosts
 					h2 vhosts
