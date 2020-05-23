@@ -17,21 +17,29 @@ body
 			div#content-container
 				div.tab.tab-selected#tab-ports
 					h1.title Ports
+					h2 ports
 				div.tab#tab-directories
 					h1.title Directories
+					h2 directories
 				div.tab#tab-vhosts
 					h1.title Virtual hosts
+					h2 vhosts
 				div.tab#tab-includes
 					h1.title Included files
+					h2 includes
 				div.tab#tab-log
 					h1.title Log settings
+					h2 log
 				div.tab#tab-connection
 					h1.title Connection settings
+					h2 conn
 				div.tab#tab-signature
 					h1.title Server signature
+					h2 sig
 
 		include ../info-container
-	script(type="text/javascript" src="/js/tabs.js")
+	script(type="module" src="/js/tabs.js")
+	script(type="module" src="/js/settings/settings.js")
 
 footer
 	include ../footer

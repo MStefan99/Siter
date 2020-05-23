@@ -1,19 +1,33 @@
+import {addElement} from './add_element.js'
+
 export buildMenu = ->
 	menuList = document.querySelector('#menu-container')
-	headerList = document.querySelectorAll('#content-container h2,
-		#content-container h3,
-		#content-container h4,
-		#content-container h5')
+	oldHeaderList = document.querySelectorAll('.menu-item')
+	headerList = document.querySelectorAll(
+		'#content-container .tab-selected h2,
+		#content-container .tab-selected h3,
+		#content-container .tab-selected h4,
+		#content-container .tab-selected h5')
+
+	if oldHeaderList?
+		for oldHeader in oldHeaderList
+			remove(oldHeader)
 
 	for header in headerList
-		menuElement = document.createElement('li')
-		menuElement.classList.add('menu-item', 'menu-' + header.tagName.toLowerCase())
-		menuList.appendChild(menuElement)
+		menuElement = addElement
+			parent: menuList
+			tag: 'li'
+			classes: ['menu-item', 'menu-' + header.tagName.toLowerCase()]
+		menuLink = addElement
+			parent: menuElement
+			tag: 'a'
+			options:
+				'href': '#' + header.id
+		addElement
+			parent: menuLink
+			tag: header.tagName
+			content: header.innerHTML
 
-		menuLink = document.createElement('a')
-		menuLink.href = '#' + header.id
-		menuElement.appendChild(menuLink)
 
-		menuHeader = document.createElement(header.tagName)
-		menuHeader.innerHTML = header.innerHTML
-		menuLink.appendChild(menuHeader)
+remove = (element) ->
+	element.parentNode.removeChild(element)

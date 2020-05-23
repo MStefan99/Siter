@@ -1,80 +1,36 @@
-statusInfoField = document.querySelector('#status-field')
-portContainer = document.querySelector('#port-container')
-directoryContainer = document.querySelector('#directory-container')
-vhostContainer = document.querySelector('#vhost-container')
-includesContainer = document.querySelector('#include-container')
-logFileField = document.querySelector('#log-file-field')
-logFormatContainer = document.querySelector('#log-format-container')
-timeoutField = document.querySelector('#timeout-field')
-keepAliveField = document.querySelector('#keepalive-field')
-maxKeepAliveRequestsField = document.querySelector('#maxkeepaliverequests-field')
-keepAliveTimeoutField = document.querySelector('#keepalivetimeout-field')
-serverSignature = document.querySelector('#server-signature-field')
-serverTokens = document.querySelector('#server-tokens-field')
+statusInfoField = document.getElementById('status-field')
+portContainer = document.getElementById('port-container')
+directoryContainer = document.getElementById('directory-container')
+vhostContainer = document.getElementById('vhost-container')
+includesContainer = document.getElementById('include-container')
+logFileField = document.getElementById('log-file-field')
+logFormatContainer = document.getElementById('log-format-container')
+timeoutField = document.getElementById('timeout-field')
+keepAliveField = document.getElementById('keepalive-field')
+maxKeepAliveRequestsField = document.getElementById('maxkeepaliverequests-field')
+keepAliveTimeoutField = document.getElementById('keepalivetimeout-field')
+serverSignature = document.getElementById('server-signature-field')
+serverTokens = document.getElementById('server-tokens-field')
 
 
 import {notify} from './notifications.js'
 import {buildMenu} from './menu.js'
+import {ServerSettings} from './server_settings.js'
+import {addElement} from './add_element.js'
 
 
-addElement = ({
-	parent,
-	tag,
-	id = null,
-	classes = null,
-	content = null,
-	properties = null
-}) ->
-	if !tag?
-		error = new TypeError()
-		error.content = 'Tag is undefined'
-		throw error
-
-	newElement = document.createElement(tag)
-	if id?
-		newElement.id = id
-	if content?
-		newElement.innerHTML = content
-	if classes?
-		if Array.isArray(classes)
-		then newElement.classList.add(...classes) else newElement.classList.add(classes)
-	for property of properties
-		newElement[property] = properties[property]
-	if parent?
-		parent.appendChild(newElement)
-
-	return newElement
-
-
-addEventListener('load', ->
-	res = await fetch('/dashboard_info/',
-		method: 'POST'
-	).catch(->
-		notify('Server offline', 'Server not available.
-			Please make sure the server is running and reload this page.', 'error')
-		statusInfoField.innerHTML = 'Backend not available!'
-		statusInfoField.classList.add('bad-status')
-		return
-	)
-	try
-		parsedResponse = JSON.parse(await res.text())
-	catch err
-		statusInfoField.innerHTML = 'Invalid response from server'
-		notify('Invalid response', 'The server has sent an invalid response.
-			Please check the server version and contact the support.', 'error')
-		statusInfoField.classList.add('bad-status')
-		return
-
-	if parsedResponse['status'] is 'OK'
+new ServerSettings().pull()
+	.then((settings) ->
+	if settings.get('status') is 'OK'
 		statusInfoField.classList.add('good-status')
 		statusInfoField.innerHTML = 'The server is running fine'
 	else
-		statusInfoField.innerHTML = parsedResponse['status']
+		statusInfoField.innerHTML = settings.get('status')
 		statusInfoField.classList.add('warning-status')
 		notify('Server problem', 'There is a problem with server configuration.
 			Please check this page for more details.', 'warning')
 
-	for port in parsedResponse['ports']  # Populating ports section
+	for port in settings.get('ports')  # Populating ports section
 		portElement = addElement
 			parent: portContainer
 			tag: 'li'
@@ -92,7 +48,7 @@ addEventListener('load', ->
 			tag: 'p'
 			content: 'Port ' + if port['on'] then 'enabled' else 'disabled'
 
-	for directory in parsedResponse['directories']  # Populating directory section
+	for directory in settings.get('directories')  # Populating directory section
 		directoryElement = addElement
 			parent: directoryContainer
 			tag: 'li'
@@ -173,7 +129,7 @@ addEventListener('load', ->
 						tag: 'p'
 						content: ip
 
-	for vhost in parsedResponse['vhosts']  # Populating vhost section
+	for vhost in settings.get('vhosts')  # Populating vhost section
 		host = if vhost['host']  then vhost['host'] else "#{vhost['ip']}:#{vhost['port']}"
 
 		vhostElement = addElement
@@ -189,7 +145,7 @@ addEventListener('load', ->
 			tag: 'a'
 			content: 'Open'
 			classes: 'button-link'
-			properties:
+			options:
 				'href': 'http://' + host
 		addElement
 			parent: vhostElement
@@ -200,7 +156,7 @@ addEventListener('load', ->
 			tag: 'p'
 			content: 'Document root: ' + vhost['documentRoot']
 
-	for include in parsedResponse['includes']
+	for include in settings.get('includes')
 		includeElement = addElement
 			parent: includesContainer
 			tag: 'li'
@@ -214,8 +170,8 @@ addEventListener('load', ->
 			tag: 'p'
 			content: 'Optional: ' + if include['optional'] then 'yes' else 'no'
 
-	logFileField.innerHTML = 'Error log file: ' + parsedResponse['log']['errorLog']
-	for logFormat in parsedResponse['log']['logFormats']
+	logFileField.innerHTML = 'Error log file: ' + settings.get('log')['errorLog']
+	for logFormat in settings.get('log')['logFormats']
 		logElement = addElement
 			parent: logFormatContainer
 			tag: 'li'
@@ -229,13 +185,28 @@ addEventListener('load', ->
 			tag: 'p'
 			content: 'Format: ' + logFormat['format']
 
-	timeoutField.innerHTML = 'Request timeout: ' + parsedResponse['timeout']
-	keepAliveField.innerHTML = 'Keep requests alive: ' + if parsedResponse['keepAlive'] then 'yes' else 'no'
-	maxKeepAliveRequestsField.innerHTML = 'Number of requests to keep alive: ' + parsedResponse['maxKeepAliveRequests']
-	keepAliveTimeoutField.innerHTML = 'Keep requests alive for: ' + parsedResponse['keepAliveTimeout'] + ' seconds'
+	timeoutField.innerHTML = 'Request timeout: ' + settings.get('timeout')
+	keepAliveField.innerHTML = 'Keep requests alive: ' + if settings.get('keepAlive') then 'yes' else 'no'
+	maxKeepAliveRequestsField.innerHTML = 'Number of requests to keep alive: ' + settings.get('maxKeepAliveRequests')
+	keepAliveTimeoutField.innerHTML = 'Keep requests alive for: ' + settings.get('keepAliveTimeout') + ' seconds'
 
-	serverSignature.innerHTML = 'Server signature: ' + parsedResponse['serverSignature']
-	serverTokens.innerHTML = 'Server tokens: ' + parsedResponse['serverTokens']
+	serverSignature.innerHTML = 'Server signature: ' + settings.get('serverSignature')
+	serverTokens.innerHTML = 'Server tokens: ' + settings.get('serverTokens')
 
 	buildMenu()
+).catch((error) ->
+	buildMenu()
+	if error.message is 'Server not available'
+		notify('Server offline', 'Server not available.
+			Please make sure the server is running and reload this page.', 'error')
+		statusInfoField.innerHTML = 'Backend not available!'
+		statusInfoField.classList.add('bad-status')
+		return
+
+	else if error.message is 'Unexpected end of JSON input'
+		statusInfoField.innerHTML = 'Invalid response from server'
+		notify('Invalid response', 'The server has sent an invalid response.
+			Please check the server version and contact the support.', 'error')
+		statusInfoField.classList.add('bad-status')
+		return
 )

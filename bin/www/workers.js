@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 router.use(cookieParser());
 
 
-router.post('/dashboard_info', (req, res) => {
+router.get('/get_settings', (req, res) => {
 	res.send(JSON.stringify({  // TODO: replace with something useful
 		status: 'OK',
 		ports: [

@@ -26,16 +26,18 @@ export notify = (title, info, type) ->
 	notificationInfo.innerHTML = info
 	notificationElement.appendChild(notificationInfo)
 
-	setTimeout(
+	setTimeout(->
 		notificationElement.classList.add('visible')
 		100)
+	return
 
 
 remove = (element) ->
 	element.classList.remove('visible')
-	setTimeout(
+	setTimeout(->
 		element.parentNode.removeChild(element)
 		500)
+	return
 
 
 close = ->

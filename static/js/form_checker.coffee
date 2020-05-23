@@ -30,7 +30,7 @@ checkComplexity = ->
 		form.complexity.className = 'bad-status'
 
 [form.pwd, form.pwdRepeat].forEach((item) ->
-	item.addEventListener('keyup', () ->
+	item.addEventListener('keyup', ->
 		checkComplexity()
 		checkPasswords()
 	)

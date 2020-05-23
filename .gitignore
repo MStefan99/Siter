@@ -205,6 +205,6 @@ fabric.properties
 log/
 # Compiled files
 static/css/*.css
-static/js/*.js
-static/js/*.map
+static/js/**/*.js
+static/js/**/*.map
 *.html
