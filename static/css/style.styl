@@ -6,9 +6,80 @@ p, ul
 html
 	scroll-behavior smooth
 
+	form
+		.good-status
+			color okColor
+
+		.warning-status
+			color warnColor
+
+		.bad-status
+			color errorColor
+
+		&, .title, .subtitle, input
+			width 100%
+			text-align center
+			display block
+			margin 1vh 0
+			box-sizing border-box
+
+		.title
+			margin 2vh 0
+			font-weight bold
+
+		input
+			border none
+			border-bottom 3px solid
+			border-color borderColor
+			outline none
+			transition border-color linear .2s
+
+			&:hover
+				border-color mainColor
+
+			&:focus
+				border-color secondaryColor
+
+		.output
+			text-align center
+			white-space normal
+			font-style italic
+
+		input#submit
+			height 2em
+			width: 100%
+			background secondaryColor
+			color #fff
+			cursor pointer
+			border none
+			border-bottom 3px solid
+			border-color secondaryColor
+			transition background linear .2s
+			font-weight bold
+
+			&:hover
+				background #aaa
+
 	body
 		font-family sans-serif
 		margin 0
+
+		#popup
+			position fixed
+			width 60vw
+			margin 20vh 20vw
+			top: 0
+			background #fff
+			padding 2em
+			box-sizing border-box
+
+		#body-fade
+			position fixed
+			height 100vh
+			width 100vw
+			top: 0
+			background #000
+			opacity .5
 
 		#notification-container
 			position fixed
@@ -128,16 +199,16 @@ html
 				flex 1 2
 
 				.menu-h2
-					margin-left 1em
+					margin-left 10%
 
 				.menu-h3
-					margin-left 2em
+					margin-left 20%
 
 				.menu-h4
-					margin-left 3em
+					margin-left 30%
 
 				.menu-h5
-					margin-left 3.5em
+					margin-left 35%
 
 				ul
 					list-style none

@@ -1,20 +1,16 @@
 export addElement = ({
 	parent,
-	tag,
+	tag = 'div',
 	id = null,
 	classes = null,
 	content = null,
 	options = null
 }) ->
-	if !tag?
-		error = new TypeError()
-		error.content = 'Tag is undefined'
-		throw error
-
 	if (id && document.getElementById(id))
 		return
 
 	newElement = document.createElement(tag)
+
 	if id?
 		newElement.id = id
 	if content?

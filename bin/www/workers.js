@@ -7,11 +7,13 @@ router.use(cookieParser());
 
 
 router.get('/get_settings', (req, res) => {
+	// setTimeout(() => res.end(), 1000);
+	// return;  // For testing invalid response handling
 	res.send(JSON.stringify({  // TODO: replace with something useful
 		status: 'OK',
 		ports: [
 			{port: 80, module: null, on: true},
-			{port: 443, module: 'ssl_module', on: true}
+			{port: 443, module: 'ssl_module', on: false}
 		],
 		directories: [
 			{
