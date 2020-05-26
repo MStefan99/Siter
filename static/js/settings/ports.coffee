@@ -1,61 +1,36 @@
-import {Settings} from './settings.js'
+import {ServerSettings} from '../server_settings.js'
 import {addElement} from '../add_element.js'
+import {notify} from '../notifications.js'
 
 table = document.querySelector('#ports-table')
-body = document.querySelector('body')
+main = document.querySelector('main')
 
 
 remove = (elements) ->
 	if elements?
-		if Array.isArray(elements)
-			for element in elements
-				elements.parentNode.removeChild(elements)
-		else
+		if elements.parentNode?
 			elements.parentNode.removeChild(elements)
+		else
+			for element in elements
+				element.parentNode.removeChild(element)
 
 
 closePopup = ->
-	remove(document.querySelector('#body-fade'))
+	remove(document.querySelector('#main-fade'))
 	remove(document.querySelector('#popup, #popup *'))
 
 
-editPort = (port) ->
-	addElement
-		parent: body
-		id: 'body-fade'
-		.addEventListener('click', closePopup)
-	formContainer = addElement
-		parent: body
-		id: 'popup'
-	form = addElement
-		parent: formContainer
-		tag: 'form'
-	addElement
-		parent: form
-		tag: 'label'
-		classes: 'title'
-		content: 'Editing port ' + port['port']
-	addElement
-		parent: form
-		tag: 'label'
-		classes: 'subtitle'
-		content: 'Port number'
-	addElement
-		parent: form
-		tag: 'input'
-		options:
-			'type': 'text'
-			'placeholder': port['port']
-	addElement
-		parent: form
-		tag: 'input'
-		options:
-			'type': 'text'
-			'placeholder': port['module'] || 'None'
+settings = new ServerSettings()
 
 
-Settings.then((settings) ->
-	for port in settings.get('ports')
+buildTable = (ports) ->
+	remove(document.querySelectorAll('tr td'))
+
+	if not ports?
+		await settings.pull()
+		ports = settings.get('ports')
+
+	for port in ports
 		do (port) ->
 			row = addElement
 				parent: table
@@ -72,13 +47,13 @@ Settings.then((settings) ->
 			addElement
 				parent: row
 				tag: 'td'
-				content: if port['on'] then 'Yes' else 'No'
-			addElement
+				content: if port['active'] then 'Yes' else 'No'
+			addElement(
 				parent: row
 				id: 'button-edit-' + port['port']
 				tag: 'td'
 				content: 'Edit'
-				.addEventListener('click', ->
+			).addEventListener('click', ->
 				editPort(port)
 			)
 			addElement
@@ -86,4 +61,95 @@ Settings.then((settings) ->
 				id: 'button-delete-' + port['port']
 				tag: 'td'
 				content: 'Delete'
-)
+
+
+editPort = (port) ->
+	addElement(
+		parent: main
+		id: 'main-fade'
+	).addEventListener('click', closePopup)
+	formContainer = addElement
+		parent: main
+		id: 'popup'
+	form = addElement
+		parent: formContainer
+		tag: 'form'
+		options:
+			'submit': false
+	addElement
+		parent: form
+		tag: 'label'
+		classes: 'title'
+		content: 'Editing port ' + port['port']
+	addElement
+		parent: form
+		tag: 'label'
+		classes: 'subtitle'
+		content: 'Port number'
+	addElement(
+		parent: form
+		tag: 'input'
+		options:
+			'type': 'number'
+			'placeholder': port['port']
+	).addEventListener('change', ->
+		port['port'] = parseInt(this.value)
+		console.log(port)
+	)
+	addElement
+		parent: form
+		tag: 'label'
+		classes: 'subtitle'
+		content: 'Module ("None" to disable)'
+	addElement(
+		parent: form
+		tag: 'input'
+		options:
+			'type': 'text'
+			'placeholder': port['module'] || 'None'
+	).addEventListener('change', ->
+		port['module'] = if this.value isnt 'None' then this.value else null
+		console.log(port)
+	)
+	addElement
+		parent: form
+		tag: 'label'
+		classes: 'subtitle'
+		content: 'Active'
+	addElement(
+		parent: form
+		tag: 'input'
+		options:
+			'type': 'checkbox'
+			'checked': port['active']
+	).addEventListener('change', ->
+		port['active'] = this.checked
+		console.log(port)
+	)
+	addElement(
+		parent: form
+		tag: 'input'
+		options:
+			'type': 'button'
+			'value': 'Update'
+	).addEventListener('click', ->
+		fetch('/settings/ports/' + port['id'],
+			method: 'POST'
+			headers: {
+				'Content-Type': 'application/json;charset=utf-8'
+			}
+			body: JSON.stringify(port)
+		).then((res) ->
+			if res.ok
+				closePopup()
+				notify('Port updated', 'Port info was updated successfully!', 'ok', false)
+				closePopup()
+				buildTable(await res.json())
+			else
+				notify('Error occurred', 'Port info was not updated due to the
+							 error while communicating with the server', 'error', false)
+		)
+	)
+
+
+buildTable()

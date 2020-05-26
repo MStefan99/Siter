@@ -45,7 +45,7 @@ new ServerSettings().pull().then((settings) ->
 		addElement
 			parent: portElement
 			tag: 'p'
-			content: 'Port ' + if port['on'] then 'enabled' else 'disabled'
+			content: 'Port ' + if port['active'] then 'enabled' else 'disabled'
 
 	for directory in settings.get('directories')  # Populating directory section
 		directoryElement = addElement
@@ -60,7 +60,7 @@ new ServerSettings().pull().then((settings) ->
 		addElement
 			parent: directoryElement
 			tag: 'p'
-			content: 'Directory ' + if directory['on'] then 'enabled' else 'disabled'
+			content: 'Directory ' + if directory['active'] then 'enabled' else 'disabled'
 		addElement
 			parent: directoryElement
 			tag: 'p'
@@ -86,7 +86,7 @@ new ServerSettings().pull().then((settings) ->
 			addElement
 				parent: ruleElement
 				tag: 'p'
-				content: 'Rule ' + if rule['on'] then 'enabled' else 'disabled'
+				content: 'Rule ' + if rule['active'] then 'enabled' else 'disabled'
 			addElement
 				parent: ruleElement
 				tag: 'p'
@@ -149,7 +149,7 @@ new ServerSettings().pull().then((settings) ->
 		addElement
 			parent: vhostElement
 			tag: 'p'
-			content: 'Virtual Host ' + if vhost['on'] then 'enabled' else 'disabled'
+			content: 'Virtual Host ' + if vhost['active'] then 'enabled' else 'disabled'
 		addElement
 			parent: vhostElement
 			tag: 'p'

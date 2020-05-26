@@ -4,6 +4,7 @@ const app = express();
 const {pagesRouter} = require('./bin/www/pages');
 const {authRouter} = require('./bin/www/auth');
 const {workerRouter} = require('./bin/www/workers');
+const {settingsRouter} = require('./bin/www/ports');
 
 
 const port = process.env.PORT || 3000;
@@ -17,6 +18,7 @@ app.use('/js', express.static(path.join(__dirname, 'static/js')));
 app.use(authRouter);
 app.use(pagesRouter);
 app.use(workerRouter);
+app.use(settingsRouter);
 
 
 app.listen(port, () => {

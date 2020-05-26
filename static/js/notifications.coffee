@@ -12,11 +12,11 @@ export notify = (title, info, type, persistent = true) ->
 		parent: notificationContainer
 		classes: ['notification', 'notification-' + type]
 	if persistent
-		addElement
+		addElement(
 			parent: notificationElement
 			classes: 'notification-close'
 			content: 'x'
-			.addEventListener('click', ->
+		).addEventListener('click', ->
 			remove(this.parentNode)
 		)
 	else

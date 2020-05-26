@@ -1,8 +1,7 @@
-create table users
-(
+create table users (
 	id               integer not null
 		constraint users_pk
-			primary key autoincrement,
+			primary key,
 	username         text    not null,
 	password_hash    text,
 	setup_code       text,
@@ -20,11 +19,10 @@ create unique index users_username_uindex
 	on users (username);
 
 
-create table sessions
-(
+create table sessions (
 	id         integer
 		constraint sessions_pk
-			primary key autoincrement,
+			primary key,
 	user_id    integer not null
 		references users
 			on update cascade on delete cascade,
@@ -36,3 +34,5 @@ create table sessions
 
 create unique index sessions_id_uindex
 	on sessions (id);
+
+

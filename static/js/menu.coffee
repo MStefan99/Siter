@@ -31,3 +31,5 @@ export buildMenu = ->
 
 remove = (element) ->
 	element.parentNode.removeChild(element)
+
+buildMenu()

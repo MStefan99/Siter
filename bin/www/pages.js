@@ -1,32 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const cookieParser = require('cookie-parser');
-const openDB = require('../db');
+const {redirectIfNotAuthorized} = require('./auth');
 
-router.use(cookieParser());
-
-async function sessionExists(req) {
-	const db = await openDB();
-	const cookie = req.cookies['siterID'];
-	const user = await db.get(`select *
-                               from sessions s
-                                        left join users u on s.user_id = u.id
-                               where s.cookie_id = $cookieId`, {$cookieId: cookie});
-	if (user) {
-		req.user = {id: user['id']};
-		return true;
-	} else {
-		return false;
-	}
-}
-
-async function redirectIfNotAuthorized(req, res, next) {
-	if (!await sessionExists(req)) {
-		res.redirect(303, '/login/');
-	} else {
-		next();
-	}
-}
 
 router.get('/about', (req, res) => {
 	res.render('about');
