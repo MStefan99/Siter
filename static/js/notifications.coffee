@@ -23,7 +23,7 @@ export notify = (title, info, type, persistent = true) ->
 		setTimeout(->
 			remove(notificationElement)
 			return
-			5000)
+		, 5000)
 	addElement
 		parent: notificationElement
 		tag: 'h2'
@@ -37,7 +37,8 @@ export notify = (title, info, type, persistent = true) ->
 
 	setTimeout(->
 		notificationElement.classList.add('visible')
-		100)
+		return
+	, 100)
 	return
 
 
@@ -45,5 +46,6 @@ remove = (element) ->
 	element.classList.remove('visible')
 	setTimeout(->
 		element.parentNode.removeChild(element)
-		500)
+		return
+	, 500)
 	return

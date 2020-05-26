@@ -2,8 +2,11 @@ import {ServerSettings} from '../server_settings.js'
 import {addElement} from '../add_element.js'
 import {notify} from '../notifications.js'
 
-table = document.querySelector('#ports-table')
 main = document.querySelector('main')
+tab = document.querySelector('#tab-ports')
+table = document.querySelector('#ports-table')
+
+defaultPort = {port: 80, module: null, active: false}
 
 
 remove = (elements) ->
@@ -19,8 +22,44 @@ closePopup = ->
 	remove(document.querySelector('#main-fade'))
 	remove(document.querySelector('#popup, #popup *'))
 
+updatePort = (port, action) ->
+	if action isnt 'add' and action isnt 'edit' and action isnt 'delete'
+		throw new Error('No such action!')
+	if action is 'delete'
+		if not confirm("Are you sure to delete port #{port['port']}? This action cannot be undone!")
+			return
+	fetch('/settings/ports/' + action + '/' + (if action isnt 'add' then port['id'] else ''),
+		method: 'POST'
+		headers: {
+			'Content-Type': 'application/json;charset=utf-8'
+		}
+		body: JSON.stringify(port)
+	).then((res) ->
+		if res.status is 200
+			closePopup()
+			notify('Port updated', 'Port info was updated successfully!', 'ok', false)
+			closePopup()
+			buildTable(await res.json())
+		else if res.status is 403
+			notify('No permission', 'This action can be performed by server administrator only.
+							 Contact administrator to get admin permissions.', 'error', false)
+		else
+			notify('Cannot add port', 'Please check whether this port is already added
+						 and your connection to the server', 'error', false)
+	)
+
 
 settings = new ServerSettings()
+
+
+addElement(
+	parent: tab
+	tag: 'p'
+	classes: 'clickable'
+	content: 'Add new port'
+).addEventListener('click', ->
+	editPort(defaultPort, 'add')
+)
 
 
 buildTable = (ports) ->
@@ -52,18 +91,23 @@ buildTable = (ports) ->
 				parent: row
 				id: 'button-edit-' + port['port']
 				tag: 'td'
+				classes: 'clickable'
 				content: 'Edit'
 			).addEventListener('click', ->
-				editPort(port)
+				editPort(port, 'edit')
 			)
-			addElement
+			addElement(
 				parent: row
 				id: 'button-delete-' + port['port']
 				tag: 'td'
+				classes: 'clickable'
 				content: 'Delete'
+			).addEventListener('click', ->
+				updatePort(port, 'delete')
+			)
 
 
-editPort = (port) ->
+editPort = (port, action) ->
 	addElement(
 		parent: main
 		id: 'main-fade'
@@ -74,8 +118,6 @@ editPort = (port) ->
 	form = addElement
 		parent: formContainer
 		tag: 'form'
-		options:
-			'submit': false
 	addElement
 		parent: form
 		tag: 'label'
@@ -133,22 +175,7 @@ editPort = (port) ->
 			'type': 'button'
 			'value': 'Update'
 	).addEventListener('click', ->
-		fetch('/settings/ports/' + port['id'],
-			method: 'POST'
-			headers: {
-				'Content-Type': 'application/json;charset=utf-8'
-			}
-			body: JSON.stringify(port)
-		).then((res) ->
-			if res.ok
-				closePopup()
-				notify('Port updated', 'Port info was updated successfully!', 'ok', false)
-				closePopup()
-				buildTable(await res.json())
-			else
-				notify('Error occurred', 'Port info was not updated due to the
-							 error while communicating with the server', 'error', false)
-		)
+		updatePort(port, action)
 	)
 
 
