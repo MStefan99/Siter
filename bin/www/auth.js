@@ -32,11 +32,11 @@ async function isAdmin(cookie) {
                                from sessions s
                                         left join users u on s.user_id = u.id
                                where s.cookie_id = $cookieId`, {$cookieId: cookie});
-	return !!user['is_admin'];
+	return !!user.is_admin;
 }
 
 async function redirectIfNotAuthorized(req, res, next) {
-	if (await sessionExists(req.cookies['siterID'])) {
+	if (await sessionExists(req.cookies.siterID)) {
 		next();
 	} else {
 		res.redirect(303, '/login/');
@@ -60,13 +60,13 @@ router.post('/login', async (req, res) => {
 		const hash = crypto.createHash('sha512')
 			.update(req.body.password)
 			.digest('hex');
-		if (users['password_hash'] === hash) {
+		if (users.password_hash === hash) {
 			const sessionID = uuid.v4();
 			res.cookie('siterID', sessionID, {httpOnly: true, sameSite: 'Strict'})
 				.redirect(303, '/dashboard/');
 			await db.run(`insert into sessions (user_id, cookie_id, ip_address, os, last_login)
                           values ($uid, $cid, $ip, $os, $ll)`, {
-				$uid: users['id'], $cid: sessionID, $os: req.headers['user-agent'],
+				$uid: users.id, $cid: sessionID, $os: req.headers.user - agent,
 				$ip: req.connection.remoteAddress, $ll: Date.now()
 			});
 		} else {
@@ -81,7 +81,7 @@ router.post('/login', async (req, res) => {
 
 router.get('/logout', async (req, res) => {
 	const db = await openDB();
-	const sessionID = req.cookies['siterID'];
+	const sessionID = req.cookies.siterID;
 	res.clearCookie('siterID', {httpOnly: true, sameSite: 'Strict'}).redirect(303, '/login/');
 
 	await db.run(`delete
@@ -95,19 +95,19 @@ router.post('/register', async (req, res) => {
 	const db = await openDB();
 	let rows = await db.get(`select id, username
                              from users
-                             where setup_code = $code`, {$code: req.body['sitercode']});
-	if (req.body['password'] !== req.body['password-repeat']) {
+                             where setup_code = $code`, {$code: req.body.sitercode});
+	if (req.body.password !== req.body.password - repeat) {
 		res.render('message', {message: 'Passwords do not match. Please try again'});
 	} else if (rows) {
-		if (req.body['password'].length >= 8) {
+		if (req.body.password.length >= 8) {
 			const hash = crypto.createHash('sha512')
-				.update(req.body['password'])
+				.update(req.body.password)
 				.digest('hex');
 			await db.run(`update users
                           set password_hash=$hash,
                               setup_code=null
-                          where setup_code = $code`, {$hash: hash, $code: req.body['sitercode']});
-			res.render('message', {message: 'Success! Your username is: ' + rows['username']});
+                          where setup_code = $code`, {$hash: hash, $code: req.body.sitercode});
+			res.render('message', {message: 'Success! Your username is: ' + rows.username});
 
 		} else {
 			res.render('message', {message: 'Your password has to be at least 8 characters long!'});

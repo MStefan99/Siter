@@ -21,7 +21,7 @@ router.post('/settings/ports', async (req, res) => {
 
 
 router.post('/settings/ports/add', async (req, res) => {
-	if (await isAdmin(req.cookies['siterID'])) {
+	if (await isAdmin(req.cookies.siterID)) {
 		const port = req.body;
 		const db = await openDB();
 		await db.run(`insert into ports(port, module, active)
@@ -36,7 +36,7 @@ router.post('/settings/ports/add', async (req, res) => {
 
 
 router.post('/settings/ports/edit/:port_id', async (req, res) => {
-	if (await isAdmin(req.cookies['siterID'])) {
+	if (await isAdmin(req.cookies.siterID)) {
 		const port = req.body;
 		const db = await openDB();
 		await db.run(`update ports
@@ -53,7 +53,7 @@ router.post('/settings/ports/edit/:port_id', async (req, res) => {
 
 
 router.post('/settings/ports/delete/:port_id', async (req, res) => {
-	if (await isAdmin(req.cookies['siterID'])) {
+	if (await isAdmin(req.cookies.siterID)) {
 		const port = req.body;
 		const db = await openDB();
 		await db.run(`delete
@@ -66,4 +66,7 @@ router.post('/settings/ports/delete/:port_id', async (req, res) => {
 	res.send(JSON.stringify(await getPorts()));
 });
 
-module.exports = {settingsRouter: router, getPorts: getPorts};
+module.exports = {
+	portsRouter: router,
+	getPorts: getPorts
+};

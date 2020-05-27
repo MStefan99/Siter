@@ -36,16 +36,16 @@ new ServerSettings().pull().then((settings) ->
 		addElement
 			parent: portElement
 			tag: 'h4'
-			id: 'port_' + port['port']
-			content: 'Port: ' + port['port']
+			id: 'port_' + port.port
+			content: 'Port: ' + port.port
 		addElement
 			parent: portElement
 			tag: 'p'
-			content: 'Module: ' + (port['module'] or 'no module')
+			content: 'Module: ' + (port.module or 'no module')
 		addElement
 			parent: portElement
 			tag: 'p'
-			content: 'Port ' + if port['active'] then 'enabled' else 'disabled'
+			content: 'Port ' + if port.active then 'enabled' else 'disabled'
 
 	for directory in settings.get('directories')  # Populating directory section
 		directoryElement = addElement
@@ -55,44 +55,44 @@ new ServerSettings().pull().then((settings) ->
 		addElement
 			parent: directoryElement
 			tag: 'h4'
-			id: 'directory_' + directory['path']
-			content: "Directory <u>#{directory['path']}</u>"
+			id: 'directory_' + directory.path
+			content: "Directory <u>#{directory.path}</u>"
 		addElement
 			parent: directoryElement
 			tag: 'p'
-			content: 'Directory ' + if directory['active'] then 'enabled' else 'disabled'
+			content: 'Directory ' + if directory.active then 'enabled' else 'disabled'
 		addElement
 			parent: directoryElement
 			tag: 'p'
-			content: 'Override ' + if directory['allowOverride'] then 'allowed' else 'prohibited'
+			content: 'Override ' + if directory.allowOverride then 'allowed' else 'prohibited'
 		addElement
 			parent: directoryElement
 			tag: 'h5'
-			id: 'rules-directory_' + directory['path']
+			id: 'rules-directory_' + directory.path
 			content: 'List of rules for directory'
 		directoryRuleList = addElement
 			parent: directoryElement
 			tag: 'ol'
 			classes: 'rules-list'
 
-		for rule in directory['rules']
+		for rule in directory.rules
 			ruleElement = addElement
 				parent: directoryRuleList
 				tag: 'li'
 			addElement
 				parent: ruleElement
 				tag: 'p'
-				content: "Type: #{rule['type']}"
+				content: "Type: #{rule.type}"
 			addElement
 				parent: ruleElement
 				tag: 'p'
-				content: 'Rule ' + if rule['active'] then 'enabled' else 'disabled'
+				content: 'Rule ' + if rule.active then 'enabled' else 'disabled'
 			addElement
 				parent: ruleElement
 				tag: 'p'
-				content: 'Accessible: ' + if rule['allow'] then 'yes' else 'no'
+				content: 'Accessible: ' + if rule.allow then 'yes' else 'no'
 
-			if rule['type'] is 'user'
+			if rule.type is 'user'
 				addElement
 					parent: ruleElement
 					tag: 'p'
@@ -101,7 +101,7 @@ new ServerSettings().pull().then((settings) ->
 					parent: ruleElement
 					tag: 'ul'
 
-				for user in rule['users']
+				for user in rule.entities
 					userElement = addElement
 						parent: ruleUserList
 						tag: 'li'
@@ -110,7 +110,7 @@ new ServerSettings().pull().then((settings) ->
 						tag: 'p'
 						content: user
 
-			else if rule['type'] is 'ip'
+			else if rule.type is 'ip'
 				addElement
 					parent: ruleElement
 					tag: 'p'
@@ -119,7 +119,7 @@ new ServerSettings().pull().then((settings) ->
 					parent: ruleElement
 					tag: 'ul'
 
-				for ip in rule['ips']
+				for ip in rule.entities
 					ipElement = addElement
 						parent: ruleIpList
 						tag: 'li'
@@ -129,7 +129,7 @@ new ServerSettings().pull().then((settings) ->
 						content: ip
 
 	for vhost in settings.get('vhosts')  # Populating vhost section
-		host = vhost['host'] or "#{vhost['ip']}:#{vhost['port']}"
+		host = vhost.host or "#{vhost.ip}:#{vhost.port}"
 
 		vhostElement = addElement
 			parent: vhostContainer
@@ -149,11 +149,11 @@ new ServerSettings().pull().then((settings) ->
 		addElement
 			parent: vhostElement
 			tag: 'p'
-			content: 'Virtual Host ' + if vhost['active'] then 'enabled' else 'disabled'
+			content: 'Virtual Host ' + if vhost.active then 'enabled' else 'disabled'
 		addElement
 			parent: vhostElement
 			tag: 'p'
-			content: 'Document root: ' + vhost['documentRoot']
+			content: 'Document root: ' + vhost.documentRoot
 
 	for include in settings.get('includes')
 		includeElement = addElement
@@ -162,27 +162,27 @@ new ServerSettings().pull().then((settings) ->
 		addElement
 			parent: includeElement
 			tag: 'h4'
-			id: 'include_' + include['path']
-			content: 'File ' + include['path']
+			id: 'include_' + include.path
+			content: 'File ' + include.path
 		addElement
 			parent: includeElement
 			tag: 'p'
-			content: 'Optional: ' + if include['optional'] then 'yes' else 'no'
+			content: 'Optional: ' + if include.optional then 'yes' else 'no'
 
-	logFileField.innerHTML = 'Error log file: ' + settings.get('log')['errorLog']
-	for logFormat in settings.get('log')['logFormats']
+	logFileField.innerHTML = 'Error log file: ' + settings.get('log').errorLog
+	for logFormat in settings.get('log').logFormats
 		logElement = addElement
 			parent: logFormatContainer
 			tag: 'li'
 		addElement
 			parent: logElement
 			tag: 'h5'
-			id: 'log-format_' + logFormat['nickname']
-			content: 'Format "' + logFormat['nickname'] + '"'
+			id: 'log-format_' + logFormat.nickname
+			content: 'Format "' + logFormat.nickname + '"'
 		addElement
 			parent: logElement
 			tag: 'p'
-			content: 'Format: ' + logFormat['format']
+			content: 'Format: ' + logFormat.format
 
 	timeoutField.innerHTML = 'Request timeout: ' + settings.get('timeout')
 	keepAliveField.innerHTML = 'Keep requests alive: ' + if settings.get('keepAlive') then 'yes' else 'no'
