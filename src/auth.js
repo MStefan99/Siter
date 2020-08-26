@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const uuid = require('uuid');
 const path = require('path');
 const fs = require('fs');
-const openDB = require('../db');
+const openDB = require('./lib/db');
 
 
 router.use(bodyParser.urlencoded({extended: true}));
@@ -66,7 +66,7 @@ router.post('/login', async (req, res) => {
 				.redirect(303, '/dashboard/');
 			await db.run(`insert into sessions (user_id, cookie_id, ip_address, os, last_login)
                           values ($uid, $cid, $ip, $os, $ll)`, {
-				$uid: users.id, $cid: sessionID, $os: req.headers.user - agent,
+				$uid: users.id, $cid: sessionID, $os: req.headers['user-agent'],
 				$ip: req.connection.remoteAddress, $ll: Date.now()
 			});
 		} else {
@@ -96,7 +96,7 @@ router.post('/register', async (req, res) => {
 	let rows = await db.get(`select id, username
                              from users
                              where setup_code = $code`, {$code: req.body.sitercode});
-	if (req.body.password !== req.body.password - repeat) {
+	if (req.body.password !== req.body.password) {
 		res.render('message', {message: 'Passwords do not match. Please try again'});
 	} else if (rows) {
 		if (req.body.password.length >= 8) {

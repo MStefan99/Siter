@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const openDB = require('../db');
+const openDB = require('./lib/db');
 const {redirectIfNotAuthorized} = require('./auth');
 
 
@@ -77,6 +77,12 @@ router.post('/settings/directories/add', async (req, res) => {
 			}
 		}
 	}
+	res.send(JSON.stringify(await getDirectories()));
+});
+
+
+router.post('/settings/directories/rules/edit/:ruleId', async (rew, res) => {
+	
 	res.send(JSON.stringify(await getDirectories()));
 });
 

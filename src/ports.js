@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const openDB = require('../db');
+const openDB = require('./lib/db');
 const {redirectIfNotAuthorized, isAdmin} = require('./auth');
 
 

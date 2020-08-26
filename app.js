@@ -1,11 +1,11 @@
 const path = require('path');
 const express = require('express');
 const app = express();
-const {pagesRouter} = require('./bin/www/pages');
-const {authRouter} = require('./bin/www/auth');
-const {workerRouter} = require('./bin/www/workers');
-const {portsRouter} = require('./bin/www/ports');
-const {directoriesRouter} = require('./bin/www/directories');
+const {pagesRouter} = require('./src/pages');
+const {authRouter} = require('./src/auth');
+const {workerRouter} = require('./src/api/v0.1/workers');
+const {portsRouter} = require('./src/ports');
+const {directoriesRouter} = require('./src/directories');
 
 
 const port = process.env.PORT || 3000;
