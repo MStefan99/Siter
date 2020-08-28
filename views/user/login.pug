@@ -1,19 +1,10 @@
-doctype html
-head
-	include ../head
+extends ../layout
 
-body
-	include ../header_min
-
-	main
-		div.login-wrapper
-			form#login-form(action="/login/", method="post")
-				label.title Sign in to Siter!
-				label.subtitle(for="username") Username
-				input.text#username(type="text", name="username", placeholder="user")
-				label.subtitle(for="username") Password
-				input.text#password(type="password", name="password", placeholder="pa$$w0Rd1")
-				input.button.submit(type="submit")
-
-footer
-	include ../footer
+block main
+	form#login-form(action="/login/", method="post")
+		label.title Sign in to Siter!
+		label.subtitle(for="username") Username
+		input.text#username(type="text", name="username", placeholder="user")
+		label.subtitle(for="username") Password
+		input.text#password(type="password", name="password", placeholder="pa$$w0Rd1")
+		input.button.submit(type="submit")

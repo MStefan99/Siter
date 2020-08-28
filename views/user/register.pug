@@ -1,27 +1,19 @@
-doctype html
-head
-	include ../head
+extends ../layout
 
-body
-	include ../header_min
+block main
+	form#login-form(action="/register/", method="post")
+		label.title Register at Siter now
+		label.subtitle(for="sitercode") Your SiterCODE
+		input.text#sitercode(type="text", name="sitercode", placeholder="Code")
+		label.subtitle(for="password") Enter your password
+		input.text#password(type="password", name="password", placeholder="Password")
+		p.output#pwd-complexity
+		label.subtitle(for="password-repeat") Repeat your password
+		input.text#password-repeat(type="password", name="password-repeat", placeholder="Password again")
+		p.output.bad-status#check
+		input.button.submit(type="submit")
 
-	main
-		div.login-wrapper
-			form#login-form(action="/register/", method="post")
-				label.title Register at Siter now
-				label.subtitle(for="sitercode") Your SiterCODE
-				input.text#sitercode(type="text", name="sitercode", placeholder="Code")
-				label.subtitle(for="password") Enter your password
-				input.text#password(type="password", name="password", placeholder="Password")
-				p.output#pwd-complexity
-				label.subtitle(for="password-repeat") Repeat your password
-				input.text#password-repeat(type="password", name="password-repeat", placeholder="Password again")
-				p.output.bad-status#check
-				input.button.submit(type="submit")
-
-				script(type="text/javascript" src="/js/form_checker.js")
+			script(type="text/javascript" src="/js/form_checker.js")
 
 
-footer
-	include ../footer
 

@@ -1,0 +1,30 @@
+doctype html
+
+html(lang='en')
+	head
+		meta(charset='UTF-8')
+		meta(name='viewport', content='width=device-width, initial-scale=1.0')
+		link(rel='stylesheet', type='text/css', href='/style/style.css')
+		block head
+
+	body
+		header
+			a(href='/#') siter-logo
+			nav
+				if (!session)
+					a(href='/login/') Sign in
+				else
+					a(href='/logout/') Sign out
+				a(href='/about/') About
+		block body
+
+		div#notification-container
+			script(type="module" src="/js/notifications.js")
+			
+		main
+			block main
+				
+		footer
+			p Siter v0.0.1-alpha
+			p Pre-release software
+			block footer

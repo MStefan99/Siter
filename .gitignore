@@ -204,5 +204,5 @@ fabric.properties
 # Log directory
 log/
 # Compiled files
-static/css/*.css
-*.html
+*.css
+package-lock.json

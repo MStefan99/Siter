@@ -109,9 +109,9 @@ export default class Jui {
 
 
 	css(property, value) {
-		if (value === undefined) {  // Get css
+		if (value === undefined) {  // Get style
 			return this.nodes[0].style[property];
-		} else {  // Set css
+		} else {  // Set style
 			this.nodes.forEach(node => {
 				node.style[property] = value;
 			});

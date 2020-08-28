@@ -92,44 +92,26 @@ html
 
 			.notification
 				position relative
+				color white
 				margin 0 0 2vh 0
 				padding 1em
 				border-radius .5em
 				box-shadow: 0 10px 30px 5px shadowColor
-				opacity 0
-				transform translateY(-100%)
 				transition opacity linear .5s,
 				transform cubic-bezier(0.22, 0.61, 0.36, 1) .5s
 
-				&.visible
-					opacity 1
-					transform translateY(0)
+				&.inactive
+					opacity 0
+					transform translateY(-100%)
 
-				.notification-title
-					color #fff
-					font-weight bold
-					margin-top 0
+				&.ok
+					background okColor
 
-				.notification-close
-					color #fff
-					font-size 2rem
-					font-weight bold
-					position absolute
-					cursor pointer
-					top 0
-					right 5%
+				&.warning
+					background warnColor
 
-				.notification-info
-					color #fff
-
-			.notification-ok
-				background okColor
-
-			.notification-warning
-				background warnColor
-
-			.notification-error
-				background errorColor
+				&.error
+					background errorColor
 
 		header
 			display flex
@@ -149,9 +131,12 @@ html
 				li
 					margin 1vh 1vw
 
-					a
-						color #fff
-						font-weight bold
+			a
+				color #fff
+				font-weight bold
+
+				img
+					height 2vh
 
 		div#tab-container
 			display flex
