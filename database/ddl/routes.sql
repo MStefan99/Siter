@@ -2,10 +2,13 @@ create table routes (
 	id         integer not null
 		constraint routes_pk
 			primary key autoincrement,
-	secure     integer not null default 0,
+	seq      integer not null default 1,
 	subdomain  text,
 	port       integer not null default 80,
 	prefix     text,
+	secure     integer not null default 0,
+	keyFile    text,
+	certFile   text,
 	directory  text,
 	targetIP   text,
 	targetPort integer
