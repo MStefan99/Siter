@@ -5,7 +5,8 @@ const https = require('https');
 const path = require('path');
 const fs = require('fs');
 
-const openDB = require('./src/lib/db');
+const openDB = require('./db');
+const mimeMap = require('./mimeMap');
 
 const routes = [];
 const servers = new Map();
@@ -13,7 +14,10 @@ let siter;
 
 
 async function init(defaultHandler) {
-	if (defaultHandler === undefined) {
+	if (siter) {
+		throw new Error('Route Manager is already started');
+	}
+	if (!defaultHandler) {
 		throw new Error('Default handler must be defined');
 	}
 	siter = defaultHandler;
@@ -50,6 +54,23 @@ function addServer(route) {
 		}
 		server.listen(route.port);
 		servers.set(route.port, server);
+	}
+}
+
+
+function updateServer(oldRoute, newRoute) {
+	if (oldRoute.port !== newRoute.port) {
+		let server = servers.get(oldRoute.port);
+
+		if (!routes.some(r => r.port === oldRoute.port)) {
+			server.close();
+			server.listen(newRoute.port);
+
+			servers.delete(oldRoute.port);
+			servers.set(newRoute.port, server);
+		} else {
+			addServer(newRoute);
+		}
 	}
 }
 
@@ -93,9 +114,11 @@ function handleRequest(request, response) {
 						response.end('Error 404. The requested file cannot be found on the server.');
 					} else {
 						const fileStream = fs.createReadStream(filePath);
+						const mime = mimeMap.get(postfix.replace(/^.*\./, '.'))
+							|| 'application/octet-stream';
 
 						response.writeHead(200, {
-							'Content-Type': 'text/plain',
+							'Content-Type': mime,
 							'Content-Length': stats.size
 						});
 						fileStream.pipe(response).on('error', (err) => {
@@ -146,12 +169,18 @@ async function addRoute(route) {
                                    directory,
                                    targetIP,
                                    targetPort)
-                values ($seq, $sd, $port, $prefix, $secure,
-                        $key, $cert, $dir, $targetIP, $targetPort)`, {
-		$seq: route.seq || 1, $sd: route.subdomain, $port: route.port || 80,
-		$prefix: route.prefix, $secure: route.secure || 0, $key: route.keyFile,
-		$cert: route.certFile, $dir: route.directory,
-		$targetIP: route.targetIP, $targetPort: route.targetPort
+                values ($seq, $subdomain, $port, $prefix, $secure,
+                        $keyFile, $certFile, $directory, $targetIP, $targetPort)`, {
+		$seq: route.seq || 1,
+		$subdomain: route.subdomain,
+		$port: route.port || 80,
+		$prefix: route.prefix,
+		$secure: route.secure || 0,
+		$keyFile: route.keyFile,
+		$certFile: route.certFile,
+		$directory: route.directory,
+		$targetIP: route.targetIP,
+		$targetPort: route.targetPort
 	});
 	route.id = (await db.get(`select last_insert_rowid() as id`)).id;
 	await db.close();
@@ -159,6 +188,50 @@ async function addRoute(route) {
 	routes.push(route);
 	addServer(route);
 	return route;
+}
+
+
+async function updateRoute(routeID, newRoute) {
+	if (!routeID) {
+		return addRoute(newRoute);
+	}
+
+	const db = await openDB();
+
+	await db.run(`update routes
+                set seq=$seq,
+                    subdomain=$subdomain,
+                    port=$port,
+                    prefix=$prefix,
+                    secure=$secure,
+                    keyFile=$keyFile,
+                    certFile=$certFile,
+                    directory=$directory,
+                    targetIP=$targetIP,
+                    targetPort=$targetPort
+                where id=$id`, {
+		$id: routeID,
+		$seq: newRoute.seq || 1,
+		$subdomain: newRoute.subdomain,
+		$port: newRoute.port || 80,
+		$prefix: newRoute.prefix,
+		$secure: newRoute.secure || 0,
+		$keyFile: newRoute.keyFile,
+		$certFile: newRoute.certFile,
+		$directory: newRoute.directory,
+		$targetIP: newRoute.targetIP,
+		$targetPort: newRoute.targetPort,
+	});
+
+	const i = routes.findIndex(route => route.id === routeID);
+
+	if (i !== -1) {
+		const oldRoute = routes[i];
+		Object.assign(routes[i], newRoute);
+
+		updateServer(oldRoute, newRoute);
+	}
+	return routes[i];
 }
 
 
@@ -173,7 +246,9 @@ async function removeRoute(routeID) {
 	const route = routes.splice(routes
 	.findIndex(route => route.id === routeID), 1)[0];
 
-	removeServer(route);
+	if (route) {
+		removeServer(route);
+	}
 }
 
 
@@ -181,5 +256,6 @@ module.exports = {
 	start: init,
 	getRoutes: getRoutes,
 	addRoute: addRoute,
+	updateRoute: updateRoute,
 	removeRoute: removeRoute
 };

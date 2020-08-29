@@ -5,6 +5,9 @@ const libSession = require('./session');
 
 module.exports = {
 	getSession: async (req, res, next) => {
+		if (!req.cookies) {
+			throw new Error('This middleware requires cookie-parser');
+		}
 		if (!req.cookies.siterSESSION) {
 			req.session = null;
 		} else {
