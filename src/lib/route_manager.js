@@ -6,7 +6,7 @@ const path = require('path');
 const fs = require('fs');
 
 const openDB = require('./db');
-const mimeMap = require('./mimeMap');
+const mimeMap = require('./mime_map');
 
 const routes = [];
 const servers = new Map();
@@ -128,6 +128,7 @@ function handleRequest(request, response) {
 					}
 				});
 			} else {  // Proxying requests to other servers
+				// TODO: fix websocket connections
 				const options = {
 					hostname: route.targetIP,
 					port: route.targetPort,
@@ -244,7 +245,7 @@ async function removeRoute(routeID) {
 	await db.close();
 
 	const route = routes.splice(routes
-	.findIndex(route => route.id === routeID), 1)[0];
+		.findIndex(route => route.id === routeID), 1)[0];
 
 	if (route) {
 		removeServer(route);

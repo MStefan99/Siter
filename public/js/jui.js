@@ -197,6 +197,23 @@ export default class Jui {
 	}
 
 
+	if (condition, ifTrue, ifFalse) {
+		if (condition) {
+			if (ifTrue) {
+				return ifTrue(this);
+			} else {
+				return this;
+			}
+		} else {
+			if (ifFalse) {
+				return ifFalse(this);
+			} else {
+				return this;
+			}
+		}
+	}
+
+
 	on(events, handler) {
 		this.nodes.forEach(node => {
 			events.split(' ').forEach(event => {

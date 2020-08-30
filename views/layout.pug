@@ -3,28 +3,29 @@ doctype html
 html(lang='en')
 	head
 		meta(charset='UTF-8')
-		meta(name='viewport', content='width=device-width, initial-scale=1.0')
+		link(rel='stylesheet', type='text/css', href='/style/stylify.css')
 		link(rel='stylesheet', type='text/css', href='/style/style.css')
+		meta(name='viewport', content='width=device-width, initial-scale=1.0')
 		block head
 
 	body
-		header
-			a(href='/#') siter-logo
+		header.d-flex.bg-light.border-bottom.justify-content-between.align-items-center.px-5
+			a(href='/#')
+				img(src='/img/logo.svg' alt='Siter logo')
 			nav
-				if (!session)
-					a(href='/login/') Sign in
-				else
-					a(href='/logout/') Sign out
-				a(href='/about/') About
+				a.btn.btn-outline-secondary(href='/about/') About
+				if (session)
+					a.btn.btn-outline-secondary(href='/settings/') Settings
+					a.btn.btn-outline-primary(href='/logout/') Sign out
 		block body
 
 		div#notification-container
 			script(type="module" src="/js/notifications.js")
-			
-		main
+
+		main.container-xl
+			include flash
 			block main
-				
-		footer
+
+		footer.bg-light.d-flex.justify-content-between.px-5
 			p Siter v0.0.1-alpha
-			p Pre-release software
 			block footer

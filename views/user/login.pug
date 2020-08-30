@@ -2,9 +2,7 @@ extends ../layout
 
 block main
 	form#login-form(action="/login/", method="post")
-		label.title Sign in to Siter!
-		label.subtitle(for="username") Username
-		input.text#username(type="text", name="username", placeholder="user")
-		label.subtitle(for="username") Password
-		input.text#password(type="password", name="password", placeholder="pa$$w0Rd1")
-		input.button.submit(type="submit")
+		h4 Sign in to Siter!
+		label(for="password") Password
+		input#password(type="password", name="password", placeholder="Your password")
+		input.btn.btn-success(type="submit")

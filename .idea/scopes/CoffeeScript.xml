@@ -1,3 +1,0 @@
-<component name="DependencyValidationManager">
-  <scope name="CoffeeScript" pattern="file[siter]:static/js//*.coffee" />
-</component>

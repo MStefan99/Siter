@@ -2,7 +2,7 @@
 
 const express = require('express');
 
-const routeManager = require('../../lib/routeManager');
+const routeManager = require('../../lib/route_manager');
 
 const router = express.Router();
 

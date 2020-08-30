@@ -1,3 +1,3 @@
 <component name="DependencyValidationManager">
-  <scope name="DDL" pattern="file[siter]:database/ddl//*" />
+  <scope name="DDL" pattern="file[siter]:database/ddl//*.sql" />
 </component>

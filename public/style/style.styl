@@ -1,0 +1,80 @@
+html
+	body
+		margin 0
+		display flex
+		flex-flow column nowrap
+		justify-content space-between
+		min-height 100vh
+		overflow-x hidden
+
+		header
+			position sticky
+			top 0
+
+			img
+				height 3em
+
+		#flash-container
+			.flash
+				display flex
+				flex-flow row nowrap
+				align-content center
+
+				.separator
+					align-self stretch
+					display inline-block
+					width 4px
+					border-radius 2px
+					margin 0 .75em
+					filter brightness(.75)
+
+		#notification-container
+			position absolute
+			left 50vw
+			width 60vw
+			margin-top 10vh
+			transform translateX(-50%)
+
+			.alert
+				margin-bottom 2em
+				transition opacity .2s linear,
+				transform .2s linear
+
+				&.inactive
+					opacity 0
+					transform translateY(-100%)
+
+				.close-icon
+					height 1em
+					width 1em
+
+		main
+			margin 2em auto
+			max-width 95%
+			flex-grow 1
+
+			#navigation-container, #info-container
+				border-radius 10px
+				border 1px solid darken(#fff, 15)
+				padding 1em
+				flex 1 1
+
+			#navigation-container
+				li
+					list-style none
+
+				a
+					color #000
+
+			#dashboard
+				#route-container
+					flex-flow row wrap
+					justify-content space-between
+
+					.route
+						color #000
+						background-color darken(#fff, 3)
+						border-radius 10px
+						padding 2em
+						margin-bottom 2em
+						flex 1 0 30%

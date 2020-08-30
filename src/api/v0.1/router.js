@@ -14,7 +14,7 @@ router.use(bodyParser.json());
 router.use(middleware.getSession);
 
 router.use((req, res, next) => {
-	if (req.session) {
+	if (!req.session) {
 		res.status(403).send('Not authorized');
 	} else {
 		next();

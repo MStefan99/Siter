@@ -27,11 +27,12 @@ function close(notificationElement) {
 
 
 export function tell(title, message, type = 'ok', timeout = 5000) {
-	if (type !== 'ok' && type !== 'warning' && type !== 'error') {
+	if (!['light', 'dark', 'primary', 'secondary',
+		'success', 'danger', 'warning', 'info'].includes(type)) {
 		throw new Error('No such notification type');
 	}
 	const notificationElement = document.createElement('div');
-	notificationElement.classList.add('notification', 'inactive', type);
+	notificationElement.classList.add('alert', 'inactive', 'alert-' + type);
 	const closeElement = document.createElement('span');
 	closeElement.classList.add('icon', 'close-icon', 'clickable');
 	notificationElement.appendChild(closeElement);

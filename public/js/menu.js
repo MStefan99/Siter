@@ -11,10 +11,7 @@ function remove(element) {
 export default function createMenu() {
 	const menuList = document.querySelector('#menu-container');
 	const oldHeaderList = document.querySelectorAll('.menu-item');
-	const headerList = document.querySelectorAll('#content-container .tab-selected h2, ' +
-		'#content-container .tab-selected h3, ' +
-		'#content-container .tab-selected h4, ' +
-		'#content-container .tab-selected h5');
+	const headerList = document.querySelectorAll('h2');
 
 	if (oldHeaderList) {
 		for (const header of oldHeaderList) {

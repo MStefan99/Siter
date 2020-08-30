@@ -40,14 +40,14 @@ router.post('/login', async (req, res) => {
 		res.flash({
 			title: 'No password',
 			info: 'Please enter the password to log in',
-			type: 'error'
+			type: 'danger'
 		})
 		.redirect(303, '/login/');
 	} else if (!await libAuth.verifyPassword(req.body.password)) {
 		res.flash({
 			title: 'Wrong password',
 			info: 'You have entered the wrong password',
-			type: 'error'
+			type: 'danger'
 		})
 		.redirect(303, '/login/');
 	} else {
