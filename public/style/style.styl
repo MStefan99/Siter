@@ -53,6 +53,23 @@ html
 			max-width 95%
 			flex-grow 1
 
+			.popup-backdrop
+				position fixed
+				left 0
+				right 0
+				top 0
+				bottom 0
+				background #0006
+
+				.popup
+					position fixed
+					left 50vw
+					top 50vh
+					padding 2em
+					background #fff
+					border-radius 10px
+					transform translate(-50%, -50%)
+
 			#navigation-container, #info-container
 				border-radius 10px
 				border 1px solid darken(#fff, 15)

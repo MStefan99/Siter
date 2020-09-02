@@ -1,6 +1,6 @@
 'use strict';
 
-import Jui from '/js/jui.js';
+import Jui from '/js/lib/jui.js';
 
 
 function remove(element) {

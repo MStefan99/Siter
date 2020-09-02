@@ -19,7 +19,6 @@ block main
 							span.text-muted .your-domain.tld:
 							b.port 80
 							span.text-muted /
-							b.prefix *
 					div.route-security.border-bottom
 						h4 Security
 						p.secure Secure: #[b yes]
@@ -31,6 +30,6 @@ block main
 							b Siter web interface
 			button.btn-primary.ml-3#add-route-button Add route
 		include info-container
+
 	script(type="module" src="/js/dashboard.js")
-
-
+	script(type="module" src="/js/route_manager.js")

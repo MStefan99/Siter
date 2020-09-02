@@ -1,20 +1,12 @@
 'use strict';
 
-import * as notify from './notifications.js';
-import createMenu from './menu.js';
-import Jui from '/js/jui.js';
+import * as notify from './lib/notifications.js';
+import createMenu from './lib/navmenu.js';
+import Jui from '/js/lib/jui.js';
 
 
 const statusField = new Jui('#status-field');
 const routeContainer = new Jui('#route-container');
-const newRouteButton = new Jui('#add-route-button')
-	.on('click', e => {
-		new Jui(`
-			<div class="popup">
-				Popup
-			</div>
-		`)
-	});
 
 
 let tld = window.location.hostname
@@ -34,11 +26,11 @@ export function addRouteElement(route) {
 				<h4>URL mask</h4>
 				<a target="_blank" href="${route.secure ? 'https' :
 				'http'}://${route.subdomain}.${tld}/${route.prefix || ''}">
-					<span class="subdomain">${route.subdomain}</span>
+					<b class="subdomain">${route.subdomain}</b>
 					<span class="text-muted">.your-domain.tld:</span>
 					<b class="port">${route.port}</b>
 					<span class="text-muted">/</span>
-					<b class="prefix">${route.prefix || '*'}</b>
+					<b class="prefix">${route.prefix || ''}</b>
 				</a>
 			`)))
 		.append(new Jui(`<div class="route-security border-bottom">
@@ -46,8 +38,8 @@ export function addRouteElement(route) {
 			<p class="secure">Secure: <b>${route.secure ? 'yes' : 'no'}</b></p>
 			</div>
 		`)
-			.if(route.secure, jui =>
-				jui.append(new Jui(`
+			.if(route.secure,
+				jui => jui.append(new Jui(`
 					<p class="key-file">Key file location: <b>${route.keyFile}</b></p>
 					<p class="cert-file">Certificate file location: 
 						<b>${route.certFile}</b>
@@ -59,7 +51,8 @@ export function addRouteElement(route) {
 				<h4>Target</h4>
 			</div>
 		`)
-			.if(route.directory, jui => jui.append(new Jui(`
+			.if(route.directory,
+				jui => jui.append(new Jui(`
 				<p class="directory">Directory: <b>${route.directory}</b></p>
 			`)),
 				jui => jui.append(new Jui(`
