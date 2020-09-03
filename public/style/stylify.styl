@@ -27,7 +27,7 @@ all-colors = 'primary' 'secondary' 'success' 'danger' 'warning' 'info'\
 
 negate(unit)
 	if unit is a 'unit' and unit != auto and unit != 0
-		-unit
+		- + unit
 	else
 		unit
 
@@ -341,13 +341,13 @@ html
 			box-shadow none
 
 		.shadow-sm
-			box-shadow 0 .125rem .25rem #00000014
+			box-shadow 0 (spacer/ 8) (spacer / 4) #00000014
 
 		.shadow
-			box-shadow 0 .5rem 1rem #00000028
+			box-shadow 0 (spacer / 2) spacer #00000028
 
 		.shadow-lg
-			box-shadow 0 1rem 3rem #0000003c
+			box-shadow 0 spacer (spacer * 3) #0000003c
 
 		// Controls
 

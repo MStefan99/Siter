@@ -18,9 +18,10 @@ if (tld.match('localhost')) {
 
 export function addRouteElement(route) {
 	new Jui(`
-				<div class="route mx-3">
-					<h3>Custom route</h3>
-				</div>`)
+		<div class="route mx-3">
+			<h3>Custom route</h3>
+		</div>
+	`)
 		.append(new Jui('<div class="route-mask border-bottom"></div>')
 			.append(new Jui(`
 				<h4>URL mask</h4>
