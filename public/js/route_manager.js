@@ -25,63 +25,170 @@ function createMenu(menuContent) {
 }
 
 
+function setValid(element, valid) {
+	if (element instanceof Jui) {
+		if (valid) {
+			element.removeClass('is-invalid');
+			element.addClass('is-valid');
+		} else {
+			element.addClass('is-invalid');
+			element.removeClass('is-valid');
+		}
+	} else {
+		if (valid) {
+			element.classList.remove('is-invalid');
+			element.classList.add('is-valid');
+		} else {
+			element.classList.add('is-invalid');
+			element.classList.remove('is-valid');
+		}
+	}
+}
+
+
+function validateForm() {
+	let valid = true;
+
+	const subdomainInput = new Jui('#route-subdomain');
+	const portInput = new Jui('#route-port');
+	const prefixInput = new Jui('#route-prefix');
+
+	const secureCheckbox = new Jui('#route-security-checkbox');
+	const certFileInput = new Jui('#route-cert-file');
+	const keyFileInput = new Jui('#route-key-file');
+
+	const radioChecks = new Jui('.radio-check');
+	const targetRadios = new Jui('.target-radio');
+	const targetDirectoryInput = new Jui('#route-target-dir');
+	const targetServerAddrInput = new Jui('#route-target-server-addr');
+	const targetServerPortInput = new Jui('#route-target-server-port');
+
+	if (!subdomainInput.val() && !portInput.val() && !prefixInput.val()) {
+		valid = false;
+		setValid(subdomainInput, false);
+		setValid(portInput, false);
+		setValid(prefixInput, false);
+	} else {
+		setValid(subdomainInput, true);
+		setValid(portInput, true);
+		setValid(prefixInput, true);
+	}
+
+	if (secureCheckbox.nodes[0].checked) {
+		if (!certFileInput.val()) {
+			valid = false;
+			setValid(certFileInput, false);
+		} else {
+			setValid(certFileInput, true);
+		}
+		if (!keyFileInput.val()) {
+			valid = false;
+			setValid(keyFileInput, false);
+		} else {
+			setValid(keyFileInput, true);
+		}
+	}
+	
+	if (targetRadios.nodes[0].checked) {
+		setValid(radioChecks, true);
+		if (!targetDirectoryInput.val()) {
+			valid = false;
+			setValid(targetDirectoryInput, false);
+		} else {
+			setValid(targetDirectoryInput, true);
+		}
+	} else if (targetRadios.nodes[1].checked) {
+		setValid(radioChecks, true);
+		if (!targetServerAddrInput.val()) {
+			valid = false;
+			setValid(targetServerAddrInput, false);
+		} else {
+			setValid(targetServerAddrInput, true);
+		}
+		if (!targetServerPortInput.val()) {
+			valid = false;
+			setValid(targetServerPortInput, false);
+		} else {
+			setValid(targetServerPortInput, true);
+		}
+	} else {
+		setValid(radioChecks, false);
+	}
+
+	return valid;
+}
+
+
 const newRouteButton = new Jui('#add-route-button')
 	.on('click', buttonEvent => {
+		// language=HTML
 		createMenu(new Jui(`
 			<form>
 				<h2>Add new route</h2>
 				<h3>Route mask</h3>
 				<div class="row form-group">
-					<input class="col" type="text" placeholder="subdomain">
+					<input id="route-subdomain" class="col"
+								 type="text" placeholder="subdomain">
 					<span class="mx-1 text-muted col-form-label">.my-domain.tld:</span>
-					<input class="col invalid" type="number" placeholder="Port">
+					<input id="route-port" class="col" type="number" placeholder="Port">
 					<span class="mx-1 text-muted col-form-label">/</span>
-					<input class="col" type="text" placeholder="prefix">
+					<input id="route-prefix" class="col" type="text" placeholder="prefix">
 				</div>
 				<h3>Security</h3>
 				<div class="form-check">
 					<input id="route-security-checkbox" class="col-8" type="checkbox">
-					<label class="col-4">Enable HTTPS</label>
+					<label for="route-security-checkbox" class="col-4">Enable HTTPS</label>
 				</div>
 				<div id="route-security-group" class="d-none">
 					<div class="form-group">
-						<label>Certificate file path</label>
-						<input class="invalid" type="text" placeholder="/var/cert/cert.crt">
+						<label for="route-cert-file">Certificate file path</label>
+						<input id="route-cert-file"
+									 type="text" placeholder="/var/cert/cert.crt">
 						<span class="invalid-feedback">No certificate file</span>
 					</div>
 					<div class="form-group">
-						<label>Key file path</label>
-						<input class="invalid" type="text" placeholder="/var/cert/key.pem">
+						<label for="route-key-file">Key file path</label>
+						<input id="route-key-file"
+									 type="text" placeholder="/var/cert/key.pem">
 						<span class="invalid-feedback">No key file</span>
 					</div>
 				</div>
 				<h3>Target</h3>
-				<div class="form-check">
-					<input class="target-radio" type="radio" name="target" required>
-					<label>Directory</label>
-				</div>
-				<div class="form-check">
-					<input class="target-radio" type="radio" name="target">
-					<label>Local server</label>
+				<div class="form-group">
+					<div class="form-check radio-check">
+						<input id="route-dir-radio" class="target-radio"
+									 type="radio" name="target">
+						<label for="route-dir-radio">Directory</label>
+					</div>
+					<div class="form-check radio-check">
+						<input id="route-server-radio" class="target-radio"
+									 type="radio" name="target">
+						<label for="route-server-radio">Local server</label>
+					</div>
+					<span class="invalid-feedback">Please select the route type</span>
 				</div>
 				<div id="route-dir-group" class="form-group d-none">
 					<label>Directory path</label>
-					<input class="invalid" type="text" placeholder="/var/dir/">
+					<input id="route-target-dir" type="text" placeholder="/var/dir/">
 					<span class="invalid-feedback">No directory</span>
 				</div>
 				<div id="route-server-group" class="form-group d-none">
 					<label>Server address</label>
 					<div class="row form-group">
-						<input class="col invalid" type="text" placeholder="localhost">
+						<input id="route-target-server-addr" class="col"
+									 type="text" placeholder="localhost">
 						<span class="mx-1 text-muted col-form-label">:</span>
-						<input class="col invalid" type="number" placeholder="80">
+						<input id="route-target-server-port" class="col"
+									 type="number" placeholder="80">
 					</div>
 				</div>
 				<input class="btn btn-success" type="submit" value="Add route">
 			</form>
 		`)
 			.on('submit', formEvent => {
-				formEvent.preventDefault();
+				if (!validateForm()) {
+					formEvent.preventDefault();
+				}
 			}));
 
 		const checkbox = new Jui('form #route-security-checkbox')

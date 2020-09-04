@@ -437,11 +437,32 @@ html
 			.form-group
 				margin-bottom 1em
 
+			.col-form-label
+				padding-top calc(.7em + 1px)
+
 			.form-check
 				display block
 
-			.col-form-label
-				padding-top calc(.7em + 1px)
+				& ~ .valid-feedback, & ~ .invalid-feedback
+					display none
+					padding-top .5em
+					font-size .8em
+
+				&.is-valid
+					& ~ .valid-feedback
+						display block
+						color color-success
+
+					label
+						color darken(color-success, 15%)
+
+				&.is-invalid
+					& ~ .invalid-feedback
+						display block
+						color color-danger
+
+					label
+						color darken(color-danger, 15%)
 
 			input
 				&[type=checkbox], &[type=radio]
@@ -480,21 +501,29 @@ html
 					padding-top .5em
 					font-size .8em
 
-				&.valid
+				&.is-valid
 					border-color darken(color-success, 15%)
 
 					&:focus
+						border-color darken(color-success, 15%)
 						box-shadow 0 0 0 3px transparentify(color-success, color-success, 40%)
+
+					label
+						color darken(color-success, 15%)
 
 					& ~ .valid-feedback
 						display block
 						color color-success
 
-				&.invalid
+				&.is-invalid
 					border-color darken(color-danger, 15%)
 
 					&:focus
+						border-color darken(color-danger, 15%)
 						box-shadow 0 0 0 3px transparentify(color-danger, color-danger, 40%)
+
+					label
+						color darken(color-danger, 15%)
 
 					& ~ .invalid-feedback
 						display block
