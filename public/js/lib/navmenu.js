@@ -8,10 +8,10 @@ function remove(element) {
 }
 
 
-export default function createMenu() {
+export default function createMenu(selector) {
 	const menuList = document.querySelector('#menu-container');
 	const oldHeaderList = document.querySelectorAll('.menu-item');
-	const headerList = document.querySelectorAll('h2');
+	const headerList = document.querySelectorAll(selector);
 
 	if (oldHeaderList) {
 		for (const header of oldHeaderList) {
@@ -22,9 +22,9 @@ export default function createMenu() {
 		new Jui(`
 			<li>
 				<a href="#${header.id}">
-					<${header.tagName}>
+					<${header.tagName.match(/H\d/) ? 'h2' : 'p'}>
 						${header.innerText}
-					</${header.tagName}>
+					</${header.tagName.match(/H\d/) ? 'h2' : 'p'}>
 				</a>
 			</li>
 		`)

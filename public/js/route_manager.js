@@ -88,7 +88,7 @@ function validateForm() {
 			setValid(keyFileInput, true);
 		}
 	}
-	
+
 	if (targetRadios.nodes[0].checked) {
 		setValid(radioChecks, true);
 		if (!targetDirectoryInput.val()) {
@@ -99,16 +99,12 @@ function validateForm() {
 		}
 	} else if (targetRadios.nodes[1].checked) {
 		setValid(radioChecks, true);
-		if (!targetServerAddrInput.val()) {
+		if (!targetServerAddrInput.val() || !targetServerPortInput.val()) {
 			valid = false;
 			setValid(targetServerAddrInput, false);
-		} else {
-			setValid(targetServerAddrInput, true);
-		}
-		if (!targetServerPortInput.val()) {
-			valid = false;
 			setValid(targetServerPortInput, false);
 		} else {
+			setValid(targetServerAddrInput, true);
 			setValid(targetServerPortInput, true);
 		}
 	} else {
@@ -185,7 +181,7 @@ const newRouteButton = new Jui('#add-route-button')
 				<input class="btn btn-success" type="submit" value="Add route">
 			</form>
 		`)
-			.on('submit', formEvent => {
+			.on('submit input', formEvent => {
 				if (!validateForm()) {
 					formEvent.preventDefault();
 				}

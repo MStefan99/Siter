@@ -25,7 +25,8 @@ export function addRouteElement(route) {
 		.append(new Jui('<div class="route-mask border-bottom"></div>')
 			.append(new Jui(`
 				<h4>URL mask</h4>
-				<a target="_blank" href="${route.secure ? 'https' :
+				<a target="_blank" id="route-${route.id}"
+				 class="route-link" href="${route.secure ? 'https' :
 				'http'}://${route.subdomain}.${tld}/${route.prefix || ''}">
 					<b class="subdomain">${route.subdomain}</b>
 					<span class="text-muted">.your-domain.tld:</span>
@@ -96,5 +97,5 @@ addEventListener('load', async e => {
 		}
 	}
 
-	createMenu();
+	createMenu('h2, a.route-link');
 });
