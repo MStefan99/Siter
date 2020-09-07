@@ -1,6 +1,7 @@
 'use strict';
 
 import Jui from './lib/jui.js';
+import * as notify from './lib/notifications.js';
 
 
 const main = new Jui('main');
@@ -181,9 +182,39 @@ const newRouteButton = new Jui('#add-route-button')
 				<input class="btn btn-success" type="submit" value="Add route">
 			</form>
 		`)
-			.on('submit input', formEvent => {
-				if (!validateForm()) {
-					formEvent.preventDefault();
+			.on('input', e => {
+				validateForm();
+			})
+			.on('submit', async formEvent => {
+				formEvent.preventDefault();
+
+				if (validateForm()) {
+					const res = await fetch('/api/v0.1/routes/', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							route: {
+								subdomain: new Jui('#route-subdomain').val(),
+								port: new Jui('#route-port').val(),
+								prefix: new Jui('#route-prefix').val(),
+								secure: new Jui('#route-security-checkbox').nodes[0].checked,
+								certFile: new Jui('#route-cert-file').val(),
+								keyFile: new Jui('#route-key-file').val(),
+								directory: new Jui('#route-target-dir').val(),
+								targetIP: new Jui('#route-target-server-addr').val(),
+								targetPort: new Jui('#route-target-server-port').val()
+							}
+						})
+					});
+
+					if (res.ok) {
+						new Jui('.popup-backdrop').remove();
+						await notify.tell('Route saved',
+							'Route was successfully saved',
+							'success')
+					}
 				}
 			}));
 
