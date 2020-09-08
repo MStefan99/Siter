@@ -13,6 +13,11 @@ const servers = new Map();
 let siter;
 
 
+function isAValidPort(port) {
+	return Number.isInteger(port) && port > 0 && port < 65535;
+}
+
+
 async function init(defaultHandler) {
 	if (siter) {
 		throw new Error('Route Manager is already started');
@@ -158,8 +163,11 @@ function getRoutes() {
 
 
 async function addRoute(route) {
+	route.seq = Number.parseInt(route.seq);
+	route.port = Number.parseInt(route.port);
+	route.targetPort = Number.parseInt(route.targetPort);
+	
 	const db = await openDB();
-
 	await db.run(`insert into routes(seq,
                                    subdomain,
                                    port,
@@ -172,11 +180,11 @@ async function addRoute(route) {
                                    targetPort)
                 values ($seq, $subdomain, $port, $prefix, $secure,
                         $keyFile, $certFile, $directory, $targetIP, $targetPort)`, {
-		$seq: route.seq || 1,
+		$seq: isAValidPort(route.seq)? route.seq : 1,
 		$subdomain: route.subdomain,
-		$port: route.port || 80,
+		$port: isAValidPort(route.port)? route.port : 80,
 		$prefix: route.prefix,
-		$secure: route.secure || 0,
+		$secure: !!route.secure,
 		$keyFile: route.keyFile,
 		$certFile: route.certFile,
 		$directory: route.directory,
@@ -197,8 +205,11 @@ async function updateRoute(routeID, newRoute) {
 		return addRoute(newRoute);
 	}
 
-	const db = await openDB();
+	newRoute.seq = Number.parseInt(newRoute.seq);
+	newRoute.port = Number.parseInt(newRoute.port);
+	newRoute.targetPort = Number.parseInt(newRoute.targetPort);
 
+	const db = await openDB();
 	await db.run(`update routes
                 set seq=$seq,
                     subdomain=$subdomain,
@@ -212,9 +223,9 @@ async function updateRoute(routeID, newRoute) {
                     targetPort=$targetPort
                 where id=$id`, {
 		$id: routeID,
-		$seq: newRoute.seq || 1,
+		$seq: isAValidPort(newRoute.seq)? newRoute.seq : 1,
 		$subdomain: newRoute.subdomain,
-		$port: newRoute.port || 80,
+		$port: isAValidPort(newRoute.port)? newRoute.port : 80,
 		$prefix: newRoute.prefix,
 		$secure: newRoute.secure || 0,
 		$keyFile: newRoute.keyFile,

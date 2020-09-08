@@ -21,9 +21,7 @@ block main
 							span.text-muted /
 					div.route-security.border-bottom
 						h4 Security
-						p.secure Secure: #[b yes]
-						p.keyFile Key file location: #[b /path/to/keyFile.key]
-						p.certFile Certificate file location: #[b /path/to/certFile.crt]
+						p.secure Secure: #[b no]
 					div.route-target.border-bottom
 						h4 Target
 						p
@@ -31,5 +29,5 @@ block main
 			button.btn-primary.ml-3#add-route-button Add route
 		include info-container
 
-	script(type="module" src="/js/dashboard.js")
-	script(type="module" src="/js/route_manager.js")
+	script(type="module" src="/js/routes.js")
+	script(type="module" src="/js/route_editor.js")
