@@ -3,7 +3,7 @@
 import * as notify from './lib/notifications.js';
 import createMenu from './lib/navmenu.js';
 import Jui from '/js/lib/jui.js';
-import {createRouteForm} from '/js/route_editor.js';
+import * as routeEditor from '/js/route_editor.js';
 
 
 const statusField = new Jui('#status-field');
@@ -18,29 +18,50 @@ if (tld.match('localhost')) {
 }
 
 
-export function addRouteElement(route) {
-	if (!route.id) {
-		throw new Error('No route id defined.');
-	}
+function createRouteElement(route) {
+	const routeElement = new Jui('<div class="route mx-3">')
+		.append(new Jui('<h3>Custom route</h3>')
+			.append(new Jui('<div class="route-icon-container float-right"></div>')
+				.append(new Jui(`
+					<img src="/img/edit.svg" alt="Settings icon"
+							 class="icon edit-icon clickable mr-2">
+				`)
+					.on('click', () => {
+						routeEditor.createRouteForm('edit', route);
+					}))
+				.append(new Jui(`
+					<img src="/img/close.svg" alt="Remove icon"
+							 class="icon remove-icon clickable">
+				`)
+					.on('click', async () => {
+						if (await notify.ask('Delete route',
+							'Are you sure you want to delete this route?',
+							'warning')) {
+							const res = await fetch('/api/v0.1/routes/' + route.id + '/', {
+								method: 'DELETE'
+							});
 
-	const routeElement = new Jui(`
-		<div class="route mx-3">
-			<h3>Custom route</h3>
-			<div class="route-icon-container float-right">
-				<img src="/img/edit.svg" alt="Settings icon"
-						 class="icon edit-icon clickable mr-2">
-				<img src="/img/close.svg" alt="Remove icon"
-						 class="icon remove-icon clickable">
-			</div>
-			</div>
-	`)
+							if (!res.ok) {
+								notify.tell('Route not deleted',
+									'Failed to delete route',
+									'danger')
+							} else {
+								routeElement.remove();
+								notify.tell('Route deleted',
+									'Route was successfully deleted',
+									'success')
+							}
+						}
+					}))
+			)
+		)
 		.prop('data-route-id', route.id)
 		.append(new Jui(`
 			<div class="route-mask border-bottom">
 				<h4>URL mask</h4>
 				<a target="_blank" id="route-${route.id}"
 				 class="route-link" href="${route.secure ? 'https' :
-				 'http'}://${route.subdomain}.${tld}/${route.prefix || ''}">
+			'http'}://${route.subdomain}.${tld}/${route.prefix || ''}">
 					<b class="subdomain">${route.subdomain}</b>
 					<span class="text-muted">.your-domain.tld:</span>
 					<b class="port">${route.port}</b>
@@ -51,14 +72,16 @@ export function addRouteElement(route) {
 		`))
 		.append(new Jui(`<div class="route-security border-bottom">
 			<h4>Security</h4>
-			<p class="secure">Secure: <b>${route.secure ? 'yes' : 'no'}</b></p>
+			<p>Secure: <b class="secure">${route.secure ? 'yes' : 'no'}</b></p>
 			</div>
 		`)
 			.if(route.secure,
 				jui => jui.append(new Jui(`
-					<p class="key-file">Key file location: <b>${route.keyFile}</b></p>
-					<p class="cert-file">Certificate file location: 
-						<b>${route.certFile}</b>
+					<p>Key file location:
+						<b class="key-file">${route.keyFile}</b>
+					</p>
+					<p>Certificate file location: 
+						<b class="cert-file">${route.certFile}</b>
 					</p>
 				`))
 			))
@@ -68,43 +91,33 @@ export function addRouteElement(route) {
 			</div>
 		`)
 			.if(route.directory,
-				jui => jui.append(new Jui(`
-				<p class="directory">Directory: <b>${route.directory}</b></p>
+				target => target.append(new Jui(`
+				<p>Directory: <b class="directory">${route.directory}</b></p>
 			`)),
-				jui => jui.append(new Jui(`
-				<p class="ip">IP: <b>${route.targetIP}</b></p>
-				<p class="port">Port: <b>${route.targetPort}</b></p>
+				target => target.append(new Jui(`
+				<p>IP: <b class="target-addr">${route.targetIP}</b></p>
+				<p>Port: <b class="target-port">${route.targetPort}</b></p>
 			`))
 			)
-		)
+		);
+
+	return routeElement;
+}
+
+
+export function addRouteElement(route) {
+	if (!route.id) {
+		throw new Error('No route id defined.');
+	}
+
+	createRouteElement(route)
 		.appendTo(routeContainer);
+}
 
-	new Jui(`.route[data-route-id="${route.id}"] .edit-icon`)
-		.on('click', () => {
-			createRouteForm('edit', route);
-		});
 
-	new Jui(`.route[data-route-id="${route.id}"] .remove-icon`)
-		.on('click', async () => {
-			if (await notify.ask('Delete route',
-				'Are you sure you want to delete this route?',
-				'warning')) {
-				const res = await fetch('/api/v0.1/routes/' + route.id + '/', {
-					method: 'DELETE'
-				});
-
-				if (!res.ok) {
-					notify.tell('Route not deleted',
-						'Failed to delete route',
-						'danger')
-				} else {
-					routeElement.remove();
-					notify.tell('Route deleted',
-						'Route was successfully deleted',
-						'success')
-				}
-			}
-		})
+export function editRouteElement(routeID, newRoute) {
+	new Jui(`.route[data-route-id="${routeID}"]`)
+		.replaceWith(createRouteElement(newRoute));
 }
 
 

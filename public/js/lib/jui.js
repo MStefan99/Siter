@@ -53,8 +53,8 @@ export default class Jui {
 		if (!this.nodes.length) {
 			throw new Error('Trying to append to an empty object')
 		}
-		element.nodes.forEach((node) => {
-			this.nodes[this.nodes.length - 1].appendChild(node);
+		element.nodes.forEach(node => {
+			this.nodes[0].appendChild(node);
 		});
 		return this;
 	}
@@ -67,8 +67,24 @@ export default class Jui {
 		if (!target.nodes.length) {
 			throw new Error('Trying to append to an empty object')
 		}
-		this.nodes.forEach((node) => {
-			target.nodes[target.nodes.length - 1].appendChild(node);
+		this.nodes.forEach(node => {
+			target.nodes[0].appendChild(node);
+		});
+		return this;
+	}
+
+
+	replaceWith(newContent) {
+		if (!(newContent instanceof Jui)) {
+			newContent = new Jui(newContent);
+		}
+		if (!this.nodes.length) {
+			throw new Error('Trying to append to an empty object')
+		}
+		const target = this.nodes[0].parentNode;
+		this.nodes.forEach(node => remove(node));
+		newContent.nodes.forEach(node => {
+			target.appendChild(node);
 		});
 		return this;
 	}
@@ -78,7 +94,7 @@ export default class Jui {
 		if (html === undefined) {  // Get html
 			let html = '';
 
-			this.nodes.forEach((node) => {
+			this.nodes.forEach(node => {
 				html += node.innerHTML;
 			});
 			return html;
@@ -95,7 +111,7 @@ export default class Jui {
 		if (text === undefined) {  // Get text
 			let text = '';
 
-			this.nodes.forEach((node) => {
+			this.nodes.forEach(node => {
 				text += node.innerText;
 			});
 			return text;
@@ -242,7 +258,7 @@ export default class Jui {
 
 
 	remove() {
-		this.nodes.forEach((node) => {
+		this.nodes.forEach(node => {
 			remove(node);
 		});
 	}

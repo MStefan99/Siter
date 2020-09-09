@@ -215,11 +215,16 @@ export function createRouteForm(action, route) {
 					prefix: new Jui('#route-prefix').val() || null,
 					secure: new Jui('#route-security-checkbox').nodes[0].checked || false,
 					certFile: new Jui('#route-cert-file').val() || null,
-					keyFile: new Jui('#route-key-file').val() || null,
-					directory: new Jui('#route-target-dir').val() || null,
-					targetIP: new Jui('#route-target-server-addr').val() || null,
-					targetPort: new Jui('#route-target-server-port').val() || null
+					keyFile: new Jui('#route-key-file').val() || null
 				};
+
+				if (new Jui('form .target-radio').nodes[0].checked) {
+					route.directory = new Jui('#route-target-dir').val() || null;
+				} else {
+					route.directory = null;
+					route.targetIP = new Jui('#route-target-server-addr').val() || null;
+					route.targetPort = new Jui('#route-target-server-port').val() || null;
+				}
 
 				const res = await fetch(url, {
 					method: method,
@@ -231,10 +236,22 @@ export function createRouteForm(action, route) {
 					})
 				});
 
-				if (res.ok) {
+				if (!res.ok) {
+					notify.tell('Route not saved',
+						'An error occurred while saving route',
+						'danger');
+				} else {
 					const addedRoute = await res.json();
 					new Jui('.popup-backdrop').remove();
-					routeUI.addRouteElement(addedRoute);
+
+					switch (action) {
+						case 'add':
+							routeUI.addRouteElement(addedRoute);
+							break;
+						case 'edit':
+							routeUI.editRouteElement(addedRoute.id, addedRoute);
+							break;
+					}
 
 					notify.tell('Route saved',
 						'Route was successfully saved',
