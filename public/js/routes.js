@@ -23,31 +23,32 @@ export function addRouteElement(route) {
 		throw new Error('No route id defined.');
 	}
 
-	new Jui(`
+	const routeElement = new Jui(`
 		<div class="route mx-3">
 			<h3>Custom route</h3>
-		</div>
+			<div class="route-icon-container float-right">
+				<img src="/img/edit.svg" alt="Settings icon"
+						 class="icon edit-icon clickable mr-2">
+				<img src="/img/close.svg" alt="Remove icon"
+						 class="icon remove-icon clickable">
+			</div>
+			</div>
 	`)
 		.prop('data-route-id', route.id)
-		.append(new Jui('<div class="route-mask border-bottom"></div>')
-			.append(new Jui(`
-				<img src="/img/settings.svg" alt="Settings icon"
-						 class="icon float-right clickable">
-			`).on('click', menuEvent => {
-				createRouteForm('edit', route)
-			}))
-			.append(new Jui(`
+		.append(new Jui(`
+			<div class="route-mask border-bottom">
 				<h4>URL mask</h4>
 				<a target="_blank" id="route-${route.id}"
 				 class="route-link" href="${route.secure ? 'https' :
-				'http'}://${route.subdomain}.${tld}/${route.prefix || ''}">
+				 'http'}://${route.subdomain}.${tld}/${route.prefix || ''}">
 					<b class="subdomain">${route.subdomain}</b>
 					<span class="text-muted">.your-domain.tld:</span>
 					<b class="port">${route.port}</b>
 					<span class="text-muted">/</span>
 					<b class="prefix">${route.prefix || ''}</b>
 				</a>
-			`)))
+			</div>
+		`))
 		.append(new Jui(`<div class="route-security border-bottom">
 			<h4>Security</h4>
 			<p class="secure">Secure: <b>${route.secure ? 'yes' : 'no'}</b></p>
@@ -77,6 +78,33 @@ export function addRouteElement(route) {
 			)
 		)
 		.appendTo(routeContainer);
+
+	new Jui(`.route[data-route-id="${route.id}"] .edit-icon`)
+		.on('click', () => {
+			createRouteForm('edit', route);
+		});
+
+	new Jui(`.route[data-route-id="${route.id}"] .remove-icon`)
+		.on('click', async () => {
+			if (await notify.ask('Delete route',
+				'Are you sure you want to delete this route?',
+				'warning')) {
+				const res = await fetch('/api/v0.1/routes/' + route.id + '/', {
+					method: 'DELETE'
+				});
+
+				if (!res.ok) {
+					notify.tell('Route not deleted',
+						'Failed to delete route',
+						'danger')
+				} else {
+					routeElement.remove();
+					notify.tell('Route deleted',
+						'Route was successfully deleted',
+						'success')
+				}
+			}
+		})
 }
 
 
@@ -111,5 +139,5 @@ addEventListener('load', async e => {
 		}
 	}
 
-	createMenu('h2, a.route-link');
+	createMenu('#dashboard h2, a.route-link');
 });

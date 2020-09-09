@@ -137,7 +137,7 @@ export function createRouteForm(action, route) {
 
 	createMenu(new Jui(`
 		<form>
-			<h2>Add new route</h2>
+			<h2>${label}</h2>
 			<h3>Route mask</h3>
 			<div class="row form-group">
 				<input id="route-subdomain" class="col"
@@ -234,10 +234,11 @@ export function createRouteForm(action, route) {
 				if (res.ok) {
 					const addedRoute = await res.json();
 					new Jui('.popup-backdrop').remove();
-					await notify.tell('Route saved',
+					routeUI.addRouteElement(addedRoute);
+
+					notify.tell('Route saved',
 						'Route was successfully saved',
 						'success');
-					routeUI.addRouteElement(addedRoute);
 				}
 			}
 		}));

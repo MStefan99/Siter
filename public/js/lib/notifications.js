@@ -26,13 +26,13 @@ function close(notificationElement) {
 }
 
 
-export function tell(title, message, type = 'ok', timeout = 5000) {
+export function tell(title, message, type = 'secondary', timeout = 5000) {
 	if (!['light', 'dark', 'primary', 'secondary',
 		'success', 'danger', 'warning', 'info'].includes(type)) {
 		throw new Error('No such notification type');
 	}
 	const notificationElement = document.createElement('div');
-	notificationElement.classList.add('alert', 'inactive', 'alert-' + type);
+	notificationElement.classList.add('notification', 'inactive', 'bg-' + type);
 	const closeElement = document.createElement('span');
 	closeElement.classList.add('icon', 'close-icon', 'clickable');
 	notificationElement.appendChild(closeElement);
@@ -61,12 +61,13 @@ export function tell(title, message, type = 'ok', timeout = 5000) {
 }
 
 
-export function ask(title, message, type = 'ok', timeout = 10000) {
-	if (type !== 'ok' && type !== 'warning' && type !== 'error') {
+export function ask(title, message, type = 'secondary', timeout = 10000) {
+	if (!['light', 'dark', 'primary', 'secondary',
+		'success', 'danger', 'warning', 'info'].includes(type)) {
 		throw new Error('No such notification type');
 	}
 	const notificationElement = document.createElement('div');
-	notificationElement.classList.add('notification', 'inactive', type);
+	notificationElement.classList.add('notification', 'inactive', 'bg-' + type);
 	const titleElement = document.createElement('h2');
 	titleElement.innerText = title;
 	notificationElement.appendChild(titleElement);
@@ -74,11 +75,11 @@ export function ask(title, message, type = 'ok', timeout = 10000) {
 	messageElement.innerText = message;
 	notificationElement.appendChild(messageElement);
 	const confirmElement = document.createElement('span');
-	confirmElement.classList.add('button', 'primary', 'clickable');
+	confirmElement.classList.add('btn', 'btn-primary');
 	confirmElement.innerText = 'Yes';
 	notificationElement.appendChild(confirmElement);
 	const rejectElement = document.createElement('span');
-	rejectElement.classList.add('button', 'secondary', 'clickable');
+	rejectElement.classList.add('btn', 'btn-secondary');
 	rejectElement.innerText = 'No';
 	notificationElement.appendChild(rejectElement);
 	notificationContainer.appendChild(notificationElement);

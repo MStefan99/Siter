@@ -1,3 +1,6 @@
+ease-in = cubic-bezier(0, .6, .4, 1)
+
+
 html
 	body
 		margin 0
@@ -36,16 +39,18 @@ html
 					filter brightness(.75)
 
 		#notification-container
-			position absolute
+			position fixed
 			left 50vw
 			width 60vw
 			margin-top 10vh
 			transform translateX(-50%)
 
-			.alert
+			.notification
 				margin-bottom 2em
-				transition opacity .2s linear,
-				transform .2s linear
+				padding 1em
+				border-radius 10px
+				transition opacity .4s ease-in,
+				transform .6s ease-in
 
 				&.inactive
 					opacity 0
@@ -79,7 +84,7 @@ html
 					border-radius 10px
 					transform translate(-50%, -50%)
 
-			#navigation-container, #info-container
+			#navigation-container, #help-container
 				border-radius 10px
 				border 1px solid darken(#fff, 15)
 				padding 1em

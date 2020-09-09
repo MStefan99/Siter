@@ -234,6 +234,13 @@ export default class Jui {
 	}
 
 
+	toString() {
+		let html = '';
+		this.nodes.forEach(node => html += node.innerHTML);
+		return html;
+	}
+
+
 	remove() {
 		this.nodes.forEach((node) => {
 			remove(node);
