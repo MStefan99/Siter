@@ -1,7 +1,7 @@
 extends layout
 
 block main
-	div.d-flex
+	div.d-block.d-lg-flex
 		include nav-container
 
 		div#dashboard.mx-5
@@ -28,7 +28,7 @@ block main
 							b Siter web interface
 			button.btn-primary.ml-3#add-route-button Add route
 
-		div#help-container.d-none.d-lg-block
+		div#help-container
 			h1 Help
 			div(data-help-src='/html/help/dashboard/status.html')
 				h2.user-select-none Server status

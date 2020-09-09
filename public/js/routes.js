@@ -120,7 +120,7 @@ export function editRouteElement(routeID, newRoute) {
 		.replaceWith(createRouteElement(newRoute));
 }
 
-
+// TODO: factor out dashboard
 addEventListener('load', async e => {
 	const res = await fetch('/api/v0.1/routes/')
 		.catch(err => {

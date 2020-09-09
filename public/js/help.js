@@ -5,8 +5,11 @@ addEventListener('load', () => {
 	const helpElements = document.querySelectorAll('div[data-help-src]');
 
 	for (const helpElement of helpElements) {
+		helpElement.classList.add('help-collapsed');
+
 		helpElement.addEventListener('click', async () => {
 			if (helpElement.getAttribute('data-help-loaded') === null) {
+				helpElement.classList.remove('help-collapsed');
 				const res = await fetch(helpElement.getAttribute('data-help-src'));
 
 				if (res.ok) {
