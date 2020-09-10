@@ -1,0 +1,26 @@
+<p>
+	Route target determines what Siter should serve when a request for a given
+	route has been received.
+</p>
+<p>
+	Siter target can be one of two things:
+</p>
+<ul>
+	<li>A directory</li>
+	<li>Another web server</li>
+</ul>
+<p>
+	To host static files from a given directory, just choose <b>directory</b> as the
+	target and paste the directory path to be served. Siter will automatically
+	find the correct
+	<a href="https://en.wikipedia.org/wiki/Media_type">media type</a>
+	based on the file extension and send it along with the file.
+</p>
+<p>
+	If you have an existing web server that you want to use with Siter, choose
+	<b>web server</b>. In this case Siter will act as a proxy, forwarding the
+	requests to the server and serving its responses back to the users.
+	The server can be remote or local but using Siter as
+	<a href="https://en.wikipedia.org/wiki/Reverse_proxy">reverse proxy</a>
+	is generally recommended.
+</p>

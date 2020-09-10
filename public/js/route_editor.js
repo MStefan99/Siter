@@ -179,7 +179,7 @@ export function createRouteForm(action, route) {
 				<div class="form-check radio-check">
 					<input id="route-server-radio" class="target-radio"
 								 type="radio" name="target">
-					<label for="route-server-radio">Local server</label>
+					<label for="route-server-radio">Web server</label>
 				</div>
 				<span class="invalid-feedback">Please select the route type</span>
 			</div>

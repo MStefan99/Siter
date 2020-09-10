@@ -30,11 +30,21 @@ block main
 
 		div#help-container
 			h1 Help
-			div(data-help-src='/html/help/dashboard/status.html')
+			div(data-help-src='/html/help/status.html')
 				h2.user-select-none Server status
-			div(data-help-src='/html/help/dashboard/routes.html')
-				h2.user-select-none Routes
-			script(async type='module' src='/js/help.js')
+			div(data-help-src='/html/help/routes/about.html')
+				h2.user-select-none What are routes
+			div(data-help-src='/html/help/routes/manage.html')
+				h2.user-select-none Managing routes
+			div(data-help-src='/html/help/routes/options.html')
+				h2.user-select-none Understanding route options
+			div(data-help-src='/html/help/routes/url_mask.html')
+				h3.user-select-none URL mask
+			div(data-help-src='/html/help/routes/security.html')
+				h3.user-select-none Security
+			div(data-help-src='/html/help/routes/target.html')
+				h3.user-select-none Target
+		script(async type='module' src='/js/help.js')
 
 	script(type="module" src="/js/routes.js")
 	script(type="module" src="/js/route_editor.js")
