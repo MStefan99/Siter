@@ -20,9 +20,12 @@ html
 			cursor pointer
 
 		header
-			background #f5f5f599
+			background #fffb
 			position sticky
 			top 0
+			border-radius 0 0 12px 12px
+			backdrop-filter blur(12px)
+			box-shadow 0 1vh 2vh 0 #8881
 
 			img
 				height 3em
@@ -109,6 +112,10 @@ html
 
 				div.help-collapsed
 					color #777
+					cursor pointer
+
+					&:hover
+						color #000
 
 					div.help-content
 						display none
@@ -125,3 +132,10 @@ html
 						padding 2em
 						margin-bottom 2em
 						flex 1 0 30%
+
+		footer
+			border-radius 12px 12px 0 0
+
+			a
+				color #000
+				text-decoration underline

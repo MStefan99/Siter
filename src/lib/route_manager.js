@@ -2,6 +2,7 @@
 
 const http = require('http');
 const https = require('https');
+const tls = require('tls');
 const path = require('path');
 const fs = require('fs');
 
@@ -48,12 +49,39 @@ async function init(defaultHandler) {
 }
 
 
+function findRouteByDomain(domain) {
+	return routes.find(route =>
+		route.subdomain? domain.match(route.subdomain): true);
+}
+
+
+function findRoute(host, port, url) {
+	return routes.find(route =>
+		(route.subdomain? host.match(route.subdomain) : true) &&
+		(route.port === port) &&
+		(route.prefix? url.match(route.prefix) : true));
+}
+
+
+function getSecureContext(route) {
+	return tls.createSecureContext({
+		key: fs.readFileSync(route.keyFile),
+		cert: fs.readFileSync(route.certFile)
+	});
+}
+
+
 function addServer(route) {
 	let server = servers.get(route.port);
 
 	if (!server) {
 		if (route.secure) {
-			server = https.createServer(handleRequest);
+			server = https.createServer({
+				SNICallback: (servername, cb) => {
+					const route = findRouteByDomain(servername);
+					cb(null, getSecureContext(route));
+				},
+			}, handleRequest);
 		} else {
 			server = http.createServer(handleRequest);
 		}
@@ -100,14 +128,19 @@ function handleRequest(request, response) {
 		const port = server.address().port;
 		const url = request.url;
 
-		const route = routes.find(route => route.port === port &&
-			(!route.subdomain || host.match(route.subdomain)) &&
-			(!route.prefix || url.match(route.prefix)));
+		const route = findRoute(host, port, url);
 
 		if (!route) {
 			response.writeHead(400);
 			response.end('Error 400. The requested route not found on the server.');
 		} else {
+			if (route.secure) {
+				server.setSecureContext({
+					key: fs.readFileSync(route.keyFile),
+					cert: fs.readFileSync(route.certFile)
+				});
+			}
+
 			const postfix = url.replace(new RegExp(`^${route.prefix}`, 'i'), '');
 
 			if (route.directory) {  // Serving static files
@@ -166,7 +199,7 @@ async function addRoute(route) {
 	route.seq = Number.parseInt(route.seq);
 	route.port = Number.parseInt(route.port);
 	route.targetPort = Number.parseInt(route.targetPort);
-	
+
 	const db = await openDB();
 	await db.run(`insert into routes(seq,
                                    subdomain,

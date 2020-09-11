@@ -1,0 +1,38 @@
+<p>
+	To help you further understand how routes work, let's imagine
+	the following scenario: you have two applications and you'd like to
+	host them on a single server using Siter. The first application is a
+	<b>blog app</b> and the second one is a <b>file sharing app</b> similar
+	to Google Drive. In addition to these apps you'd also like to host
+	public files from the file sharing app (let's call it a "Drive").
+</p>
+<p>
+	First you would add the route for your blog. The subdomain will
+	be <b>"blog"</b> and port and prefix will use the default values.
+	Set the target to server and use address according to your blog settings.
+</p>
+<p>
+	Then you would add a route for hosting files. <b>Remember: more
+	specific rules come first.</b> To do this, create a route with subdomain
+	<b>"drive"</b>, prefix <b>"public"</b> and a default port.
+	Make sure that the Drive does not also use this prefix.
+	Set target to the directory containing public files of the Drive.
+</p>
+<p>
+	Finish by adding the route for the Drive app the same way as you did
+	for the blog, but replace the subdomain with <b>"drive"</b>.
+</p>
+<p>Now your routes should look like this (note the order):</p>
+<ol>
+	<li><b>blog.example.com/</b> for your blog</li>
+	<li><b>drive.example.com/public/</b> for your public files</li>
+	<li><b>drive.example.com/</b> for the Drive app</li>
+</ol>
+<p>
+	This way for your users the last two routes <b>seem to be connected</b>
+	despite the fact that the second route is not even forwarded
+	to the Drive app.
+</p>
+<p>
+	Now you just need to secure your routes and the setup is ready to use!
+</p>
