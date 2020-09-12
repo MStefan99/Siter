@@ -1,4 +1,7 @@
 ease-in = cubic-bezier(0, .6, .4, 1)
+background-blur(color=#fffb)
+	background color
+	backdrop-filter blur(12px)
 
 
 html
@@ -20,11 +23,10 @@ html
 			cursor pointer
 
 		header
-			background #fffb
+			background-blur()
 			position sticky
 			top 0
 			border-radius 0 0 12px 12px
-			backdrop-filter blur(12px)
 			box-shadow 0 1vh 2vh 0 #8881
 
 			img
@@ -95,6 +97,7 @@ html
 				border 1px solid darken(#fff, 15)
 				padding 1em
 				flex 1 0 20%
+				box-shadow 0 1vh 2vh 0 #8881
 
 			#navigation-container
 				li
@@ -110,12 +113,16 @@ html
 				a
 					text-decoration underline
 
-				div.help-collapsed
-					color #777
+				.help-header
 					cursor pointer
+					color #000
 
-					&:hover
-						color #000
+				div.help-collapsed
+					.help-header
+						color #777
+
+						&:hover
+							color #000
 
 					div.help-content
 						display none
@@ -126,6 +133,7 @@ html
 					justify-content space-between
 
 					.route
+						word-break break-word
 						color #000
 						background-color darken(#fff, 3)
 						border-radius 10px

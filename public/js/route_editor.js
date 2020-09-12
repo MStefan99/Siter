@@ -73,6 +73,7 @@ function validateForm() {
 	}
 
 	if (secureCheckbox.nodes[0].checked) {
+		portInput.val(443);
 		if (!certFileInput.val()) {
 			valid = false;
 			setValid(certFileInput, false);
@@ -85,6 +86,8 @@ function validateForm() {
 		} else {
 			setValid(keyFileInput, true);
 		}
+	} else {
+		portInput.val(80);
 	}
 
 	if (targetRadios.nodes[0].checked) {

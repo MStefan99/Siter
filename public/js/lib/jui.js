@@ -19,9 +19,10 @@ export default class Jui {
 		} else if (query instanceof NodeList) {  // If query is a node list
 			this.nodes = Array.from(query);
 		} else if (query.match(/^\s*<.*>\s*$/s)) {  // If query is an HTML string
-			query = query
-			.replace(/^\s*|\s*$|(>)\s*|\s*(<)/g, '$1$2')  // Removing whitespaces
-			.replace(/[\t\n\r]+/g, ' ');
+			query = query  // Removing whitespaces
+				.replace(/^\s*|\s*$/g, '')
+				.replace(/>\s*</g, '><')
+				.replace(/[\t\n]+|\\ /g, ' ');
 
 			if (query.match(/<tr|<td/)) {
 				const table = document.createElement('table');
@@ -213,7 +214,7 @@ export default class Jui {
 	}
 
 
-	if (condition, ifTrue, ifFalse) {
+	if(condition, ifTrue, ifFalse) {
 		if (condition) {
 			if (ifTrue) {
 				return ifTrue(this);
