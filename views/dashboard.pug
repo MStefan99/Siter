@@ -1,11 +1,21 @@
 extends layout
+include help
+
+
+block head
+	title Dashboard | Siter
+
+
+block header
+	b.mx-3 Dashboard
+
 
 block main
-	div.d-block.d-lg-flex
-		include nav-container
+	div#main-container.d-block.d-lg-flex
+		include navigation
 
-		div#dashboard.mx-lg-5.mb-5.mb-lg-0
-			h1 Dashboard
+		div#dashboard.mx-lg-5.mb-5.mb-lg-0.flex-grow-1
+			h1#title Dashboard
 			h2#status Status
 			div.alert.alert-secondary.mx-3#status-field Waiting for server...
 			h2#routes Routes
@@ -28,25 +38,15 @@ block main
 							b Siter web interface
 			button.btn-primary.ml-3#add-route-button Add route
 
-		div#help-container
-			h1 Help
-			div(data-help-src='/html/help/status.html')
-				h2.help-header.user-select-none Server status
-			div(data-help-src='/html/help/routes/about.html')
-				h2.help-header.user-select-none What are routes
-			div(data-help-src='/html/help/routes/manage.html')
-				h2.help-header.user-select-none Managing routes
-			div(data-help-src='/html/help/routes/options.html')
-				h2.help-header.user-select-none Understanding route options
-			div(data-help-src='/html/help/routes/url_mask.html')
-				h3.help-header.user-select-none URL mask
-			div(data-help-src='/html/help/routes/security.html')
-				h3.help-header.user-select-none Security
-			div(data-help-src='/html/help/routes/target.html')
-				h3.help-header.user-select-none Target
-			div(data-help-src='/html/help/routes/examples.html')
-				h2.help-header.user-select-none Example setup
-		script(async type='module' src='/js/help.js')
+		+help
+			+helpSection('Server status', '/html/help/status.html')
+			+helpSection('What are routes', '/html/help/routes/about.html')
+			+helpSection('Managing routes', '/html/help/routes/manage.html')
+			+helpSection('Understanding route options', '/html/help/routes/options.html')
+			+helpSection('URL mask', '/html/help/routes/url_mask.html')
+			+helpSection('Security', '/html/help/routes/security.html')
+			+helpSection('Target', '/html/help/routes/target.html')
+			+helpSection('Example setup', '/html/help/routes/examples.html')
 
 	script(type="module" src="/js/routes.js")
 	script(type="module" src="/js/route_editor.js")

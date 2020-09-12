@@ -22,6 +22,10 @@ html
 		.clickable
 			cursor pointer
 
+		iframe
+			border none
+			width 100%
+
 		header
 			background-blur()
 			position sticky
@@ -124,22 +128,29 @@ html
 						&:hover
 							color #000
 
-					div.help-content
+					.help-content
 						display none
 
-			#dashboard
-				#route-container
-					flex-flow row wrap
-					justify-content space-between
+			#main-container
+				width 95vw
+				justify-content space-between
 
-					.route
-						word-break break-word
-						color #000
-						background-color darken(#fff, 3)
-						border-radius 10px
-						padding 2em
-						margin-bottom 2em
-						flex 1 0 30%
+				@media screen and (min-width 768px)
+					display flex
+
+				#dashboard
+					#route-container
+						flex-flow row wrap
+						justify-content space-between
+
+						.route
+							word-break break-word
+							color #000
+							background-color darken(#fff, 3)
+							border-radius 10px
+							padding 2em
+							margin-bottom 2em
+							flex 1 0 30%
 
 		footer
 			border-radius 12px 12px 0 0

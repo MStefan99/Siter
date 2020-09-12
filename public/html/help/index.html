@@ -11,9 +11,9 @@
 
 <body>
 <header class="d-flex border-bottom justify-content-between align-items-center px-5">
-	<a href="/#">
-		<img src="../../img/logo.svg" alt="Siter logo">
-	</a>
+	<a href="/#"><img src="../../img/logo.svg" alt="Siter logo"></a>
+	<b>Offline help</b>
+	<a href="https://github.com/MStefan99/Siter"><b>Install Siter</b></a>
 </header>
 
 
@@ -59,6 +59,33 @@
 		<a href="https://mstefan99.com/">Mikhail Stefantsev</a>
 	</p>
 </footer>
-<script async src="../../js/help.js"></script>
+<script>
+	'use strict';
+
+	addEventListener('load', () => {
+		const helpElements = document.querySelectorAll('div[data-help-src]');
+
+		for (const helpElement of helpElements) {
+			helpElement.classList.add('help-collapsed');
+
+			helpElement.addEventListener('click', async e => {
+				if (e.target.classList.contains('help-header')) {
+					if (helpElement.getAttribute('data-help-loaded') === null) {
+						helpElement.classList.remove('help-collapsed');
+						const infoElement = document.createElement('iframe');
+
+						infoElement.src = helpElement.getAttribute('data-help-src');
+						infoElement.classList.add('help-content');
+
+						helpElement.appendChild(infoElement);
+						helpElement.setAttribute('data-help-loaded', '');
+					} else {
+						helpElement.classList.toggle('help-collapsed');
+					}
+				}
+			});
+		}
+	});
+</script>
 </body>
 </html>

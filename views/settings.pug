@@ -1,45 +1,22 @@
 extends layout
+include help
+
+
+block head
+	title Settings | Siter
+
+
+block header
+	b.mx-3 Settings
+
 
 block main
-	include nav-container
+	div#main-container.d-block.d-lg-flex
+		include navigation
 
-	div#main-container
-		div#content-container
-			div.tab.tab-selected#tab-ports
-				h1.title Ports
-				h2#ports Port table
-				table#ports-table
-					tr
-						th Port
-						th Module
-						th Active
-						th Edit
-						th Delete
-			div.tab#tab-directories
-				h1.title Directories
-				h2#directories Directory table
-				table#directories-table
-					tr
-						th Directory
-						th Active
-						th Edit
-						th Delete
-			div.tab#tab-vhosts
-				h1.title Virtual hosts
-				h2#vhosts Virtual hosts table
-			div.tab#tab-includes
-				h1.title Included files
-				h2#includes Included files table
-			div.tab#tab-log
-				h1.title Log settings
-				h2#log General
-				h2#log-formats Log formats
-			div.tab#tab-connection
-				h1.title Connection settings
-				h2#connection General
-			div.tab#tab-signature
-				h1.title Server signature
-				h2#signature General
+		div#settings.mx-lg-5.mb-5.mb-lg-0.flex-grow-1
+			h1#title Settings
 
-	// TODO: add help
-	script(type="module" src="/js/settings/ports.js")
+		+help
+
+
