@@ -82,11 +82,10 @@ export default class Jui {
 		if (!this.nodes.length) {
 			throw new Error('Trying to append to an empty object')
 		}
-		const target = this.nodes[0].parentNode;
-		this.nodes.forEach(node => remove(node));
-		newContent.nodes.forEach(node => {
-			target.appendChild(node);
-		});
+		this.nodes[0].replaceWith(newContent.nodes[0]);
+		for (let i = 1; i < newContent.nodes.length; ++i) {
+			this.nodes[0].parentNode.appendChild(newContent.nodes[i]);
+		}
 		return this;
 	}
 
