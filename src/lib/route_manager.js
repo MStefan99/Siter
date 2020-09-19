@@ -5,9 +5,12 @@ const https = require('https');
 const tls = require('tls');
 const path = require('path');
 const fs = require('fs');
+const util = require('util');
 
 const openDB = require('./db');
 const mimeMap = require('./mime_map');
+
+const readFile = util.promisify(fs.readFile);
 
 const routes = [];
 const servers = new Map();
@@ -79,7 +82,9 @@ function addServer(route) {
 			server = https.createServer({
 				SNICallback: (servername, cb) => {
 					const route = findRouteByDomain(servername);
-					cb(null, getSecureContext(route));
+					if (route.secure) {
+						cb(null, getSecureContext(route));
+					}
 				},
 			}, handleRequest);
 		} else {
@@ -132,7 +137,7 @@ function handleRequest(request, response) {
 
 		if (!route) {
 			response.writeHead(400);
-			response.end('Error 400. The requested route not found on the server.');
+			sendFile(response, 'no_route.html');
 		} else {
 			if (route.secure) {
 				server.setSecureContext({
@@ -149,7 +154,7 @@ function handleRequest(request, response) {
 				fs.stat(filePath, (err, stats) => {
 					if (err || stats.isDirectory()) {
 						response.writeHead(404);
-						response.end('Error 404. The requested file cannot be found on the server.');
+						sendFile(response, 'no_file.html');
 					} else {
 						const fileStream = fs.createReadStream(filePath);
 						const mime = mimeMap.get(postfix.replace(/^.*\./, '.'))
@@ -161,7 +166,7 @@ function handleRequest(request, response) {
 						});
 						fileStream.pipe(response).on('error', (err) => {
 							response.writeHead(500);
-							response.end('Error 500. Could not send file due to internal error');
+							sendFile(response, 'internal.html');
 						});
 					}
 				});
@@ -182,11 +187,17 @@ function handleRequest(request, response) {
 
 				request.pipe(req).on('error', (err) => {
 					response.writeHead(503);
-					response.end('Error 503. Destination server unavailable.');
+					sendFile(response, 'unavailable.html');
 				});
 			}
 		}
 	}
+}
+
+
+async function sendFile(response, fileName) {
+	const filePath = path.join(__dirname, '..', '..', 'views', 'compiled', fileName);
+	response.end(await readFile(filePath, 'utf-8'));
 }
 
 
