@@ -11,45 +11,31 @@
 
 <body>
 <header class="d-flex border-bottom justify-content-between align-items-center px-5">
-	<a href="/#"><img src="../../img/logo.svg" alt="Siter logo"></a>
-	<b>Offline help</b>
-	<a href="https://github.com/MStefan99/Siter"><b>Install Siter</b></a>
+	<a href="."><img src="../../img/logo.svg" alt="Siter logo"></a>
+	<b>Siter help</b>
+	<a href="https://github.com/MStefan99/Siter"><b>Download Siter</b></a>
 </header>
 
 
 <main class="w-100">
 	<h1>Siter help</h1>
-	<div id="help-container">
-		<div data-help-src="./status.html">
-			<h2 class="help-header user-select-none">Server status</h2>
-		</div>
-		<div data-help-src="./routes/about.html">
-			<h2 class="help-header user-select-none">What are routes</h2>
-		</div>
-		<div data-help-src="./routes/manage.html">
-			<h2 class="help-header user-select-none">Managing routes</h2>
-		</div>
-		<div data-help-src="./routes/options.html">
-			<h2 class="help-header user-select-none">Understanding route options</h2>
-		</div>
-		<div data-help-src="./routes/url_mask.html">
-			<h3 class="help-header user-select-none">URL mask</h3>
-		</div>
-		<div data-help-src="./routes/security.html">
-			<h3 class="help-header user-select-none">Security</h3>
-		</div>
-		<div data-help-src="./routes/target.html">
-			<h3 class="help-header user-select-none">Target</h3>
-		</div>
-		<div data-help-src="./routes/examples.html">
-			<h2 class="help-header user-select-none">Example setup</h2>
-		</div>
-	</div>
 	<p>
-		This page is similar to the <b>Help</b> section in the Siter
-		Dashboard but does not require Siter to be installed and running.
-		To use Dashboard, please install Siter.
+		Siter Dashboard is made to be simple and easy to use. But if you still have
+		some trouble configuring Siter, these pages
+		will help you better understand how all the options work, provide you
+		with examples on using them and give some tips on which of them
+		to use in your case.
 	</p>
+	<h2>Siter Dashboard</h2>
+	<p>
+		Siter Dashboard is a single place to configure all Siter routes.
+		Learn more about the Dashboard <a href="./dashboard.html">here</a>.
+	</p>
+	<i>
+		The pages you see here are similar to the <b>Help</b> section in the Siter
+		Dashboard but do not require Siter to be installed and running.
+		To use Dashboard, please install Siter.
+	</i>
 </main>
 
 
@@ -59,33 +45,6 @@
 		<a href="https://mstefan99.com/">Mikhail Stefantsev</a>
 	</p>
 </footer>
-<script>
-	'use strict';
-
-	addEventListener('load', () => {
-		const helpElements = document.querySelectorAll('div[data-help-src]');
-
-		for (const helpElement of helpElements) {
-			helpElement.classList.add('help-collapsed');
-
-			helpElement.addEventListener('click', async e => {
-				if (e.target.classList.contains('help-header')) {
-					if (helpElement.getAttribute('data-help-loaded') === null) {
-						helpElement.classList.remove('help-collapsed');
-						const infoElement = document.createElement('iframe');
-
-						infoElement.src = helpElement.getAttribute('data-help-src');
-						infoElement.classList.add('help-content');
-
-						helpElement.appendChild(infoElement);
-						helpElement.setAttribute('data-help-loaded', '');
-					} else {
-						helpElement.classList.toggle('help-collapsed');
-					}
-				}
-			});
-		}
-	});
-</script>
+<script src="./help.js"></script>
 </body>
 </html>

@@ -1,6 +1,5 @@
 'use strict';
 
-
 const helpElements = document.querySelectorAll('div[data-help-src]');
 
 for (const helpElement of helpElements) {
@@ -10,19 +9,18 @@ for (const helpElement of helpElements) {
 		if (e.target.classList.contains('help-header')) {
 			if (helpElement.getAttribute('data-help-loaded') === null) {
 				helpElement.classList.remove('help-collapsed');
-				const res = await fetch(helpElement.getAttribute('data-help-src'));
 
-				if (res.ok) {
-					const infoElement = document.createElement('div');
+				const infoElement = document.createElement('iframe');
 
-					infoElement.innerHTML = await res.text();
-					infoElement.classList.add('help-content');
-					helpElement.appendChild(infoElement);
-					helpElement.setAttribute('data-help-loaded', '');
-				}
+				infoElement.src = helpElement.getAttribute('data-help-src');
+				infoElement.classList.add('help-content');
+
+				helpElement.appendChild(infoElement);
+				helpElement.setAttribute('data-help-loaded', '');
 			} else {
 				helpElement.classList.toggle('help-collapsed');
 			}
 		}
 	});
 }
+
