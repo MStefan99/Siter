@@ -16,7 +16,21 @@ block main
 
 		div#settings.mx-lg-5.mb-5.mb-lg-0.flex-grow-1
 			h1#title Settings
+			h2 Password
+			form#password-form.mx-3(action='/settings' method='post')
+				div.form-group
+					label(for='old-pwd') Old password
+					input#old-pwd(type='password' placeholder='password'
+						name='oldPassword')
+				div.form-group
+					label(for='new-pwd') New password
+					input#new-pwd(type='password' placeholder='new-password'
+						name='newPassword')
+				div.form-group
+					label(for='new-pwd-repeat') Repeat new password
+					input#new-pwd-repeat(type='password' placeholder='new-password'
+						name='newPasswordRepeat')
+				input.btn.btn-primary(type='submit' value='Update')
 
 		+help
-
-
+			+helpSection('Password', '/html/help/password.html')
