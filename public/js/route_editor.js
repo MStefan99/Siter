@@ -47,9 +47,8 @@ function setValid(element, valid) {
 function validateForm() {
 	let valid = true;
 
-	const subdomainInput = new Jui('#route-domain');
+	const domainInput = new Jui('#route-domain');
 	const portInput = new Jui('#route-port');
-	const prefixInput = new Jui('#route-prefix');
 
 	const secureCheckbox = new Jui('#route-security-checkbox');
 	const certFileInput = new Jui('#route-cert-file');
@@ -61,15 +60,17 @@ function validateForm() {
 	const targetServerAddrInput = new Jui('#route-target-server-addr');
 	const targetServerPortInput = new Jui('#route-target-server-port');
 
-	if (!subdomainInput.val() && !portInput.val() && !prefixInput.val()) {
+	if (!domainInput.val()) {
 		valid = false;
-		setValid(subdomainInput, false);
-		setValid(portInput, false);
-		setValid(prefixInput, false);
+		setValid(domainInput, false);
 	} else {
-		setValid(subdomainInput, true);
+		setValid(domainInput, true);
+	}
+
+	if (!portInput.val()) {
+		setValid(portInput, false);
+	} else {
 		setValid(portInput, true);
-		setValid(prefixInput, true);
 	}
 
 	if (secureCheckbox.nodes[0].checked) {
@@ -143,9 +144,9 @@ export function createRouteForm(action, route) {
 			<h2>${label}</h2>
 			<h3>Route mask</h3>
 			<div class="row form-group">
-				<input id="route-subdomain" class="col"
-							 type="text" placeholder="subdomain" value="${route.subdomain || ''}">
-				<span class="mx-1 text-muted col-form-label">.my-domain.tld:</span>
+				<input id="route-domain" class="col" type="text"
+							 placeholder="domain" value="${route.domain || ''}">
+				<span class="mx-1 text-muted col-form-label">:</span>
 				<input id="route-port" class="col" type="number"
 							 placeholder="80" value="${route.port || 80}">
 				<span class="mx-1 text-muted col-form-label">/</span>
@@ -213,7 +214,7 @@ export function createRouteForm(action, route) {
 
 			if (validateForm()) {
 				const route = {
-					subdomain: new Jui('#route-domain').val() || null,
+					domain: new Jui('#route-domain').val(),
 					port: new Jui('#route-port').val() || 80,
 					prefix: new Jui('#route-prefix').val() || null,
 					secure: new Jui('#route-security-checkbox').nodes[0].checked || false,

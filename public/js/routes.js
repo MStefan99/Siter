@@ -61,9 +61,9 @@ function createRouteElement(route) {
 				<h4>URL mask</h4>
 				<a target="_blank" id="route-${route.id}"
 				 class="route-link" href="${route.secure ? 'https' :
-			'http'}://${route.subdomain}.${tld}/${route.prefix || ''}">
-					<b class="subdomain">${route.subdomain}</b>
-					<span class="text-muted">.your-domain.tld:</span>
+			'http'}://${route.domain}.${tld}/${route.prefix || ''}">
+					<b class="domain">${route.domain}</b>
+					<span class="text-muted">:</span>
 					<b class="port">${route.port}</b>
 					<span class="text-muted">/</span>
 					<b class="prefix">${route.prefix || ''}</b>
