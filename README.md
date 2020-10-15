@@ -2,6 +2,10 @@
 
 ![Siter logo][logo]
 
+![Siter version](https://img.shields.io/badge/Siter-beta-orange?style=flat-square)
+[![CodeFactor](https://www.codefactor.io/repository/github/mstefan99/siter/badge?s=59c31d18f4d3b3d7470ad0c0cb5481b7e48e33f5&style=flat-square)](https://www.codefactor.io/repository/github/mstefan99/siter)
+![GitHub issues](https://img.shields.io/github/issues/MStefan99/Siter?style=flat-square)
+
 ## What is Siter?
 Originally planned to be a web interface for Apache, Siter has since become
 a standalone application you can use to easily set up your web server to
