@@ -180,7 +180,9 @@ function handleRequest(request, response) {
 					headers: request.headers
 				};
 
-				const req = http.request(options, (res) => {
+				const req = http.request(options);
+
+				req.on('response', (res) => {
 					response.writeHead(res.statusCode, res.statusMessage, res.headers);
 					res.pipe(response);
 				});

@@ -1,8 +1,9 @@
 extends layout
 
 block main
-	form#login-form(action="/login/", method="post")
+	form#login-form(action="/login/" method="post")
 		h4 Sign in to Siter!
 		label(for="password") Password
-		input#password(type="password", name="password", placeholder="Your password")
+		input#password(type="password" name="password"
+			autofocus placeholder="Your password")
 		input.btn.btn-success(type="submit")

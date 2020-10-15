@@ -21,15 +21,15 @@ block main
 				div.form-group
 					label(for='old-pwd') Old password
 					input#old-pwd(type='password' placeholder='password'
-						name='oldPassword')
+						name='oldPassword' required)
 				div.form-group
 					label(for='new-pwd') New password
 					input#new-pwd(type='password' placeholder='new-password'
-						name='newPassword')
+						name='newPassword' required)
 				div.form-group
 					label(for='new-pwd-repeat') Repeat new password
 					input#new-pwd-repeat(type='password' placeholder='new-password'
-						name='newPasswordRepeat')
+						name='newPasswordRepeat' required)
 				input.btn.btn-primary(type='submit' value='Update')
 
 		+help
