@@ -9,6 +9,7 @@ const middleware = require('../../lib/middleware');
 
 const router = express.Router();
 
+
 router.use(cookieParser());
 router.use(bodyParser.json());
 router.use(middleware.getSession);

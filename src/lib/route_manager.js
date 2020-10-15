@@ -54,13 +54,13 @@ async function init(defaultHandler) {
 
 function findRouteByDomain(domain) {
 	return routes.find(route =>
-		route.subdomain? domain.match(route.subdomain): true);
+		route.domain? domain.match(route.domain): true);
 }
 
 
 function findRoute(host, port, url) {
 	return routes.find(route =>
-		(route.subdomain? host.match(route.subdomain) : true) &&
+		(route.domain? host === route.domain : true) &&
 		(route.port === port) &&
 		(route.prefix? url.match(route.prefix) : true));
 }
@@ -215,7 +215,7 @@ async function addRoute(route) {
 
 	const db = await openDB();
 	await db.run(`insert into routes(seq,
-                                   subdomain,
+                                   domain,
                                    port,
                                    prefix,
                                    secure,
@@ -224,10 +224,10 @@ async function addRoute(route) {
                                    directory,
                                    targetIP,
                                    targetPort)
-                values ($seq, $subdomain, $port, $prefix, $secure,
+                values ($seq, $domain, $port, $prefix, $secure,
                         $keyFile, $certFile, $directory, $targetIP, $targetPort)`, {
 		$seq: isAValidPort(route.seq)? route.seq : 1,
-		$subdomain: route.subdomain,
+		$domain: route.domain,
 		$port: isAValidPort(route.port)? route.port : 80,
 		$prefix: route.prefix,
 		$secure: !!route.secure,
@@ -258,7 +258,7 @@ async function updateRoute(routeID, newRoute) {
 	const db = await openDB();
 	await db.run(`update routes
                 set seq=$seq,
-                    subdomain=$subdomain,
+                    domain=$domain,
                     port=$port,
                     prefix=$prefix,
                     secure=$secure,
@@ -270,7 +270,7 @@ async function updateRoute(routeID, newRoute) {
                 where id=$id`, {
 		$id: routeID,
 		$seq: isAValidPort(newRoute.seq)? newRoute.seq : 1,
-		$subdomain: newRoute.subdomain,
+		$domain: newRoute.domain,
 		$port: isAValidPort(newRoute.port)? newRoute.port : 80,
 		$prefix: newRoute.prefix,
 		$secure: newRoute.secure || 0,

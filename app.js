@@ -8,14 +8,11 @@ const indexRouter = require('./src/routes/index');
 const authRouter = require('./src/routes/auth');
 const apiRouter = require('./src/api/router');
 
-require('./src/lib/init').init();
-
 const app = express();
 
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
-
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 app.use('/favicon.ico', express.static(path
@@ -25,5 +22,6 @@ app.use(authRouter);
 app.use(indexRouter);
 
 
-routeManager.start(app);
-
+require('./src/lib/init').init().then(() => {
+	routeManager.start(app);
+});

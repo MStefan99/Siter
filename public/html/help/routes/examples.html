@@ -7,20 +7,20 @@
 	public files from the file sharing app (let's call it a "Drive").
 </p>
 <p>
-	First you would add the route for your blog. The subdomain will
+	First you would add the route for your blog. The domain will
 	be <b>"blog"</b> and port and prefix will use the default values.
 	Set the target to server and use address according to your blog settings.
 </p>
 <p>
 	Then you would add a route for hosting files. <b>Remember: more
-	specific rules come first.</b> To do this, create a route with subdomain
+	specific rules come first.</b> To do this, create a route with domain
 	<b>"drive"</b>, prefix <b>"public"</b> and a default port.
 	Make sure that the Drive does not also use this prefix.
 	Set target to the directory containing public files of the Drive.
 </p>
 <p>
 	Finish by adding the route for the Drive app the same way as you did
-	for the blog, but replace the subdomain with <b>"drive"</b>.
+	for the blog, but replace the domain with <b>"drive"</b>.
 </p>
 <p>Now your routes should look like this (note the order):</p>
 <ol>

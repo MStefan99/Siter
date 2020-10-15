@@ -3,7 +3,7 @@ create table routes (
 		constraint routes_pk
 			primary key autoincrement,
 	seq      integer not null default 1,
-	subdomain  text,
+	domain  text,
 	port       integer not null default 80,
 	prefix     text,
 	secure     integer not null default 0,
@@ -18,4 +18,4 @@ create unique index routes_id_uindex
 	on routes (id);
 
 create unique index routes_uindex
-	on routes (subdomain, port, prefix);
+	on routes (domain, port, prefix);

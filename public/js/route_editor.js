@@ -47,7 +47,7 @@ function setValid(element, valid) {
 function validateForm() {
 	let valid = true;
 
-	const subdomainInput = new Jui('#route-subdomain');
+	const subdomainInput = new Jui('#route-domain');
 	const portInput = new Jui('#route-port');
 	const prefixInput = new Jui('#route-prefix');
 
@@ -213,7 +213,7 @@ export function createRouteForm(action, route) {
 
 			if (validateForm()) {
 				const route = {
-					subdomain: new Jui('#route-subdomain').val() || null,
+					subdomain: new Jui('#route-domain').val() || null,
 					port: new Jui('#route-port').val() || 80,
 					prefix: new Jui('#route-prefix').val() || null,
 					secure: new Jui('#route-security-checkbox').nodes[0].checked || false,
