@@ -182,6 +182,13 @@ function handleRequest(request, response) {
 
 				const req = http.request(options);
 
+				req.on('upgrade', (res, socket, head) => {
+					response.writeHead(res.statusCode, res.statusMessage, res.headers);
+					res.pipe(response);
+					request.socket.pipe(socket);
+					res.socket.pipe(response.socket);
+				});
+
 				req.on('response', (res) => {
 					response.writeHead(res.statusCode, res.statusMessage, res.headers);
 					res.pipe(response);
