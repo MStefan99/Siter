@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+
 const flash = require('../lib/flash');
 const libAuth = require('../lib/auth');
 const libSession = require('../lib/session');
@@ -17,7 +18,6 @@ router.use(flash());
 
 const cookieOptions = {
 	httpOnly: true,
-	secure: !process.env.NO_HTTPS,
 	sameSite: 'strict',
 };
 
@@ -53,7 +53,8 @@ router.post('/login', async (req, res) => {
 	} else {
 		const session = await libSession.createSession(req.ip, req.headers['user-agent']);
 
-		res.cookie('siterSESSION', session.id, cookieOptions)
+		const options = Object.assign({}, {secure: req.secure}, cookieOptions);
+		res.cookie('siterSESSION', session.id, options)
 		.redirect('/');
 	}
 });
@@ -67,7 +68,8 @@ router.get('/logout', async (req, res) => {
 
 	await session.delete();
 
-	res.clearCookie('siterSESSION', cookieOptions)
+	const options = Object.assign({}, {secure: req.secure}, cookieOptions);
+	res.clearCookie('siterSESSION', options)
 	.redirect('/login/');
 });
 

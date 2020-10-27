@@ -11,13 +11,6 @@ const routeContainer = new Jui('#route-container');
 let routeArr = [];
 
 
-let tld = window.location.hostname
-	.replace(/^(.*?)\.(\w*?)\.(\w*)$/, '$2.$3');
-if (tld.match('localhost')) {
-	tld = 'localhost';
-}
-
-
 function createRouteElement(route) {
 	const routeElement = new Jui('<div class="route mx-3">')
 		.append(new Jui('<h3>Custom route</h3>')
@@ -61,7 +54,7 @@ function createRouteElement(route) {
 				<h4>URL mask</h4>
 				<a target="_blank" id="route-${route.id}"
 				 class="route-link" href="${route.secure ? 'https' :
-			'http'}://${route.domain}.${tld}/${route.prefix || ''}">
+			'http'}://${route.domain}/${route.prefix || ''}">
 					<b class="domain">${route.domain}</b>
 					<span class="text-muted">:</span>
 					<b class="port">${route.port}</b>

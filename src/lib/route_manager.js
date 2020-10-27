@@ -5,12 +5,10 @@ const https = require('https');
 const tls = require('tls');
 const path = require('path');
 const fs = require('fs');
-const util = require('util');
 
 const openDB = require('./db');
 const mimeMap = require('./mime_map');
-
-const readFile = util.promisify(fs.readFile);
+const compiledViews = path.join(__dirname, '..', '..', 'views', 'compiled');
 
 const routes = [];
 const servers = new Map();
@@ -32,11 +30,9 @@ async function init(defaultHandler) {
 	siter = defaultHandler;
 	const db = await openDB();
 
-	if (process.env.NO_HTTPS) {
-		const defaultServer = http.createServer(handleRequest);
-		defaultServer.listen(80);
-		servers.set(80, defaultServer);
-	}
+	const defaultServer = http.createServer(handleRequest);
+	defaultServer.listen(80);
+	servers.set(80, defaultServer);
 
 	await db.each(`select *
                  from routes
@@ -54,7 +50,7 @@ async function init(defaultHandler) {
 
 function findRouteByDomain(domain) {
 	return routes.find(route =>
-		route.domain? domain.match(route.domain): true);
+		route.domain? domain.match(route.domain) : true);
 }
 
 
@@ -137,41 +133,25 @@ function handleRequest(request, response) {
 
 		if (!route) {
 			response.writeHead(400);
-			sendFile(response, 'no_route.html');
+			sendFile(response, path.join(compiledViews, 'no_route.html'));
 		} else {
-			if (route.secure) {
-				server.setSecureContext({
-					key: fs.readFileSync(route.keyFile),
-					cert: fs.readFileSync(route.certFile)
-				});
-			}
-
 			const postfix = url.replace(new RegExp(`^${route.prefix}`, 'i'), '');
 
 			if (route.directory) {  // Serving static files
 				const filePath = path.join(route.directory, ...postfix.split('/'));
 
-				fs.stat(filePath, (err, stats) => {
-					if (err || stats.isDirectory()) {
-						response.writeHead(404);
-						sendFile(response, 'no_file.html');
-					} else {
-						const fileStream = fs.createReadStream(filePath);
-						const mime = mimeMap.get(postfix.replace(/^.*\./, '.'))
-							|| 'application/octet-stream';
-
-						response.writeHead(200, {
-							'Content-Type': mime,
-							'Content-Length': stats.size
+				// trying requested file
+				sendFile(response, filePath, () => {
+					// trying requested file with .html extension
+					sendFile(response, filePath + '.html', () => {
+						// trying to treat as a folder with index.html
+						sendFile(response, path.join(filePath, 'index.html'), () => {
+							// file not found
+							sendFile(response, path.join(compiledViews, 'no_file.html'));
 						});
-						fileStream.pipe(response).on('error', (err) => {
-							response.writeHead(500);
-							sendFile(response, 'internal.html');
-						});
-					}
-				});
+					})
+				})
 			} else {  // Proxying requests to other servers
-				// TODO: fix websocket connections
 				const options = {
 					hostname: route.targetIP,
 					port: route.targetPort,
@@ -187,6 +167,7 @@ function handleRequest(request, response) {
 					res.pipe(response);
 					request.socket.pipe(socket);
 					res.socket.pipe(response.socket);
+					// TODO: fix connection closing
 				});
 
 				req.on('response', (res) => {
@@ -196,7 +177,7 @@ function handleRequest(request, response) {
 
 				request.pipe(req).on('error', (err) => {
 					response.writeHead(503);
-					sendFile(response, 'unavailable.html');
+					sendFile(response, path.join(compiledViews, 'unavailable.html'));
 				});
 			}
 		}
@@ -204,9 +185,35 @@ function handleRequest(request, response) {
 }
 
 
-async function sendFile(response, fileName) {
-	const filePath = path.join(__dirname, '..', '..', 'views', 'compiled', fileName);
-	response.end(await readFile(filePath, 'utf-8'));
+async function sendFile(response, filePath, errorCallback) {
+	fs.stat(filePath, (err, stats) => {
+		if (err || stats.isDirectory()) {
+			if (errorCallback) {
+				errorCallback(err);
+			}
+		} else {
+			const fileStream = fs.createReadStream(filePath);
+
+			const mime = mimeMap.get(filePath.replace(/^.*\./, '.'))
+				|| 'application/octet-stream';
+
+			response.writeHead(200, {
+				'content-type': mime,
+				'content-length': stats.size
+			});
+
+			fileStream
+				.pipe(response)
+				.on('end', () => {
+					response.end();
+				})
+				.on('err', err => {
+					if (errorCallback) {
+						errorCallback(err);
+					}
+				});
+		}
+	});
 }
 
 
@@ -274,7 +281,7 @@ async function updateRoute(routeID, newRoute) {
                     directory=$directory,
                     targetIP=$targetIP,
                     targetPort=$targetPort
-                where id=$id`, {
+                where id = $id`, {
 		$id: routeID,
 		$seq: isAValidPort(newRoute.seq)? newRoute.seq : 1,
 		$domain: newRoute.domain,
@@ -305,7 +312,7 @@ async function removeRoute(routeID) {
 
 	await db.run(`delete
                 from routes
-                where id=$id`, {$id: routeID});
+                where id = $id`, {$id: routeID});
 	await db.close();
 
 	const route = routes.splice(routes
