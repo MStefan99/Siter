@@ -12,7 +12,7 @@ const defaults = {
 	redirect: false,  // Indicates whether to end the request or redirect back
 	action: null  // A callback to be run when rate exceeded
 	// Has the following signature: (req, res) => {};
-}
+};
 
 
 function clamp(val, min, max) {
@@ -56,7 +56,7 @@ module.exports = (options) => {
 				tag: options.tag,
 				tokens: options.initial,
 				modified: Date.now(),
-			}
+			};
 			buckets.push(bucket);
 		}
 
@@ -70,7 +70,8 @@ module.exports = (options) => {
 		if (tokens >= options.price) {
 			next();
 		} else {
-			res.set('Retry-After', Math.ceil((options.price - bucket.tokens / options.rate) * 60))
+			res.set('Retry-After',
+				Math.ceil((options.price - bucket.tokens / options.rate) * 60));
 			if (options.action) {
 				options.action(req, res);
 			}
@@ -81,4 +82,4 @@ module.exports = (options) => {
 			}
 		}
 	}
-}
+};

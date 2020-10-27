@@ -77,7 +77,7 @@ function addServer(route) {
 		if (route.secure) {
 			server = https.createServer({
 				SNICallback: (servername, cb) => {
-					const route = findRouteByDomain(servername);
+					const route = findRouteByDomain(servername) || {};
 					if (route.secure) {
 						cb(null, getSecureContext(route));
 					}
@@ -132,8 +132,7 @@ function handleRequest(request, response) {
 		const route = findRoute(host, port, url);
 
 		if (!route) {
-			response.writeHead(400);
-			sendFile(response, path.join(compiledViews, 'no_route.html'));
+			sendFile(response, path.join(compiledViews, 'no_route.html'), 404);
 		} else {
 			const postfix = url.replace(new RegExp(`^${route.prefix}`, 'i'), '');
 
@@ -141,13 +140,13 @@ function handleRequest(request, response) {
 				const filePath = path.join(route.directory, ...postfix.split('/'));
 
 				// trying requested file
-				sendFile(response, filePath, () => {
+				sendFile(response, filePath, 200, () => {
 					// trying requested file with .html extension
-					sendFile(response, filePath + '.html', () => {
+					sendFile(response, filePath + '.html', 200, () => {
 						// trying to treat as a folder with index.html
-						sendFile(response, path.join(filePath, 'index.html'), () => {
+						sendFile(response, path.join(filePath, 'index.html'), 200, () => {
 							// file not found
-							sendFile(response, path.join(compiledViews, 'no_file.html'));
+							sendFile(response, path.join(compiledViews, 'no_file.html'), 404);
 						});
 					})
 				})
@@ -170,14 +169,13 @@ function handleRequest(request, response) {
 					// TODO: fix connection closing
 				});
 
-				req.on('response', (res) => {
+				req.on('response', res => {
 					response.writeHead(res.statusCode, res.statusMessage, res.headers);
 					res.pipe(response);
 				});
 
-				request.pipe(req).on('error', (err) => {
-					response.writeHead(503);
-					sendFile(response, path.join(compiledViews, 'unavailable.html'));
+				request.pipe(req).on('error', err => {
+					sendFile(response, path.join(compiledViews, 'unavailable.html'), 503);
 				});
 			}
 		}
@@ -185,7 +183,7 @@ function handleRequest(request, response) {
 }
 
 
-async function sendFile(response, filePath, errorCallback) {
+async function sendFile(response, filePath, statusCode, errorCallback) {
 	fs.stat(filePath, (err, stats) => {
 		if (err || stats.isDirectory()) {
 			if (errorCallback) {
@@ -197,7 +195,7 @@ async function sendFile(response, filePath, errorCallback) {
 			const mime = mimeMap.get(filePath.replace(/^.*\./, '.'))
 				|| 'application/octet-stream';
 
-			response.writeHead(200, {
+			response.writeHead(statusCode || 200, {
 				'content-type': mime,
 				'content-length': stats.size
 			});
