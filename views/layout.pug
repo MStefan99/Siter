@@ -1,5 +1,7 @@
-doctype html
+include menu
 
+
+doctype html
 html(lang='en')
 	head
 		meta(charset='UTF-8')
@@ -19,11 +21,19 @@ html(lang='en')
 				if (session)
 					a.btn.btn-outline-secondary(href='/settings/') Settings
 					a.btn.btn-outline-primary(href='/logout/') Sign out
+					span#menu-toggle.btn.btn-outline-secondary.d-inline.d-md-none Menu
 
 		div#notification-container
 
 		main
 			include flash
+			+menu
+				a.btn.btn-outline-secondary(href='#') Top
+				a.btn.btn-outline-secondary(href='/') Home
+				a.btn.btn-outline-secondary(href='/about/') About
+				if (session)
+					a.btn.btn-outline-secondary(href='/settings/') Settings
+					a.btn.btn-outline-primary(href='/logout/') Sign out
 			block main
 
 		footer.bg-light.d-flex.justify-content-between.px-5

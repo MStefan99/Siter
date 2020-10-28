@@ -155,9 +155,9 @@ export function createRouteForm(action, route) {
 			</div>
 			<h3>Security</h3>
 			<div class="form-check">
-				<input id="route-security-checkbox" class="col-8"
+				<input id="route-security-checkbox"
 							 type="checkbox" ${route.secure ? 'checked' : ''}>
-				<label for="route-security-checkbox" class="col-4">Enable HTTPS</label>
+				<label for="route-security-checkbox">Enable HTTPS</label>
 			</div>
 			<div id="route-security-group" class="d-none">
 				<div class="form-group">

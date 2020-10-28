@@ -32,5 +32,20 @@ block main
 						name='newPasswordRepeat' required)
 				input.btn.btn-primary(type='submit' value='Update')
 
+			h2 Security
+			form#security-form.mx-3(action='/security/' method='post')
+				div.form-check
+					input#https-checkbox(type='checkbox' name='secure')
+					label(for='https-checkbox') Enable HTTPS for Siter
+				div.form-group
+					label(for='cert-file-input') Certificate file
+					input#cert-file-input(type='text' name='certFile'
+						placeholder='Path to certificate file')
+				div.form-group
+					label(for='key-file-input') Key file
+					input#key-file-input(type='text' name='keyFile'
+						placeholder='Path to key file')
+				input.btn.btn-primary(type='submit' value='Update')
+
 		+help
 			+helpSection('Password', '/html/help/password.html')

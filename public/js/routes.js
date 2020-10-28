@@ -53,8 +53,8 @@ function createRouteElement(route) {
 			<div class="route-mask border-bottom">
 				<h4>URL mask</h4>
 				<a target="_blank" id="route-${route.id}"
-				 class="route-link" href="${route.secure ? 'https' :
-			'http'}://${route.domain}/${route.prefix || ''}">
+					class="route-link" href="${route.secure ? 'https' :
+					'http'}://${route.domain}/${route.prefix || ''}">
 					<b class="domain">${route.domain}</b>
 					<span class="text-muted">:</span>
 					<b class="port">${route.port}</b>
@@ -70,11 +70,11 @@ function createRouteElement(route) {
 		`)
 			.if(route.secure,
 				jui => jui.append(new Jui(`
-					<p>Key file location:
-						<b class="key-file">${route.keyFile}</b>
-					</p>
 					<p>Certificate file location: 
 						<b class="cert-file">${route.certFile}</b>
+					</p>
+					<p>Key file location:
+						<b class="key-file">${route.keyFile}</b>
 					</p>
 				`))
 			))
