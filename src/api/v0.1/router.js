@@ -1,18 +1,17 @@
 'use strict';
 
 const express = require('express');
-const cookieParser = require('cookie-parser');
+const router = express.Router();
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const routeRouter = require('./routes');
 const middleware = require('../../lib/middleware');
 
-const router = express.Router();
-
 
 router.use(cookieParser());
 router.use(bodyParser.json());
-router.use(middleware.getSession);
+router.use(middleware.getSession());
 
 router.use((req, res, next) => {
 	if (!req.session) {

@@ -148,8 +148,8 @@ function handleRequest(request, response) {
 							// file not found
 							sendFile(response, path.join(compiledViews, 'no_file.html'), 404);
 						});
-					})
-				})
+					});
+				});
 			} else {  // Proxying requests to other servers
 				const options = {
 					hostname: route.targetIP,
@@ -183,7 +183,7 @@ function handleRequest(request, response) {
 }
 
 
-async function sendFile(response, filePath, statusCode, errorCallback) {
+function sendFile(response, filePath, statusCode, errorCallback) {
 	fs.stat(filePath, (err, stats) => {
 		if (err || stats.isDirectory()) {
 			if (errorCallback) {

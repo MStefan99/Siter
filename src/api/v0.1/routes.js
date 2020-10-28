@@ -1,10 +1,9 @@
 'use strict';
 
 const express = require('express');
+const router = express.Router();
 
 const routeManager = require('../../lib/route_manager');
-
-const router = express.Router();
 
 
 router.get('/', (req, res) => {

@@ -6,8 +6,8 @@ const router = express.Router();
 const middleware = require('../lib/middleware');
 
 
-router.use(middleware.getSession);
-router.use(middleware.redirectIfNotAuthorized);
+router.use(middleware.getSession());
+router.use(middleware.redirectIfNotAuthorized());
 
 
 router.get('/', (req, res) => {
