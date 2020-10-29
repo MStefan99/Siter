@@ -7,5 +7,6 @@ create table sessions (
 	time text not null
 );
 
+
 create unique index sessions_id_uindex
 	on sessions (id);

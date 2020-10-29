@@ -347,37 +347,23 @@ async function removeRoute(routeID) {
 }
 
 
-async function setSecureContext(certFile, keyFile) {
-	const db = await openDB();
 
-	await db.run(`insert or
-                replace
-                into options(key, value)
-                values ('certFile', $certFile),
-                       ('keyFile', $keyFile)`, {
-		$certFile: certFile, $keyFile: keyFile
-	});
-	await db.close();
-
-	securitySettings.certFile = certFile;
-	securitySettings.keyFile = keyFile;
-}
-
-
-async function setSecurityOptions(httpsEnabled, httpsRedirect) {
+async function setSecurityOptions(options = {}) {
 	const db = await openDB();
 
 	await db.run(`insert or
                 replace
                 into options(key, value)
                 values ('httpsEnabled', $httpsEnabled),
-                       ('httpsRedirect', $httpsRedirect)`, {
-		$httpsEnabled: httpsEnabled, $httpsRedirect: httpsRedirect
+                       ('httpsRedirect', $httpsRedirect),
+                       ('certFile', $certFile),
+                       ('keyFile', $keyFile)`, {
+		$httpsEnabled: options.httpsEnabled, $httpsRedirect: options.httpsRedirect,
+		$certFile: options.certFile, $keyFile: options.keyFile
 	});
 	await db.close();
 
-	securitySettings.httpsEnabled = httpsEnabled;
-	securitySettings.httpsRedirect = httpsRedirect;
+	Object.assign(securitySettings, options);
 }
 
 
@@ -395,6 +381,5 @@ module.exports = {
 	removeRoute: removeRoute,
 
 	getSecurityOptions: getSecurityOptions,
-	setSecureContext: setSecureContext,
 	setSecurityOptions: setSecurityOptions
 };

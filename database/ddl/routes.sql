@@ -14,8 +14,10 @@ create table routes (
 	targetPort integer
 );
 
+
 create unique index routes_id_uindex
 	on routes (id);
+
 
 create unique index routes_uindex
 	on routes (domain, port, prefix);

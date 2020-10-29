@@ -53,7 +53,7 @@ router.post('/login', async (req, res) => {
 
 		const options = Object.assign({}, {secure: req.secure}, cookieOptions);
 		res.cookie('siterSESSION', session.id, options)
-		.redirect('/');
+		.redirect(303, '/');
 	}
 });
 
@@ -68,7 +68,7 @@ router.get('/logout', async (req, res) => {
 
 	const options = Object.assign({}, {secure: req.secure}, cookieOptions);
 	res.clearCookie('siterSESSION', options)
-	.redirect('/login/');
+	.redirect(303, '/login/');
 });
 
 
