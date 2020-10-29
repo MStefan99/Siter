@@ -48,8 +48,13 @@ block main
 				div.form-check
 					input#redirect-checkbox(type='checkbox' name='httpsRedirect')
 					label(for='redirect-checkbox') Enable HTTPS redirect
+					br
+					span.text-danger Warning! Only enable if you can access Siter
+						|
+						|
+						a#https-link via HTTPS
 				input.btn.btn-primary(type='submit' value='Update')
-			script(async src='/js/settings.js')
+			script(async type='module' src='/js/settings.js')
 
 		+help
 			+helpSection('Password', '/html/help/password.html')
