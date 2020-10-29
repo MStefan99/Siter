@@ -49,6 +49,7 @@ block main
 					input#redirect-checkbox(type='checkbox' name='httpsRedirect')
 					label(for='redirect-checkbox') Enable HTTPS redirect
 				input.btn.btn-primary(type='submit' value='Update')
+			script(async src='/js/settings.js')
 
 		+help
 			+helpSection('Password', '/html/help/password.html')
