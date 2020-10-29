@@ -12,6 +12,7 @@ const compiledViews = path.join(__dirname, '..', '..', 'views', 'compiled');
 
 const routes = [];
 const servers = new Map();
+const securitySettings = {};
 let siter;
 
 
@@ -44,13 +45,30 @@ async function init(defaultHandler) {
 			addServer(row);
 		}
 	});
+	await db.each(`select key,
+                        value
+                 from options
+                 where key in ('httpsEnabled',
+                               'httpsRedirect',
+                               'certFile',
+                               'keyFile')`, (err, row) => {
+		securitySettings[row.key] = row.value;
+	});
 	await db.close();
 }
 
 
 function findRouteByDomain(domain) {
-	return routes.find(route =>
-		route.domain? domain.match(route.domain) : true);
+	if (domain.match(/^siter\./)) {
+		return {
+			secure: securitySettings.httpsEnabled,
+			certFile: securitySettings.certFile,
+			keyFile: securitySettings.keyFile
+		}
+	} else {
+		return routes.find(route =>
+			route.domain? domain.match(route.domain) : true);
+	}
 }
 
 
@@ -122,13 +140,20 @@ function removeServer(route) {
 function handleRequest(request, response) {
 	const server = this;
 	const host = request.headers.host;
+	const port = server.address().port;
+	const url = request.url;
 
-	if (host.match('siter')) {
-		siter(request, response);
+	if (host.match(/^siter\./)) {
+		if (!request.connection.encrypted &&
+			securitySettings.httpsEnabled &&
+			securitySettings.httpsRedirect) {
+			response.writeHead(303, {
+				Location: 'https://' + host + url
+			}).end();
+		} else {
+			siter(request, response);
+		}
 	} else {
-		const port = server.address().port;
-		const url = request.url;
-
 		const route = findRoute(host, port, url);
 
 		if (!route) {
@@ -322,10 +347,54 @@ async function removeRoute(routeID) {
 }
 
 
+async function setSecureContext(certFile, keyFile) {
+	const db = await openDB();
+
+	await db.run(`insert or
+                replace
+                into options(key, value)
+                values ('certFile', $certFile),
+                       ('keyFile', $keyFile)`, {
+		$certFile: certFile, $keyFile: keyFile
+	});
+	await db.close();
+
+	securitySettings.certFile = certFile;
+	securitySettings.keyFile = keyFile;
+}
+
+
+async function setSecurityOptions(httpsEnabled, httpsRedirect) {
+	const db = await openDB();
+
+	await db.run(`insert or
+                replace
+                into options(key, value)
+                values ('httpsEnabled', $httpsEnabled),
+                       ('httpsRedirect', $httpsRedirect)`, {
+		$httpsEnabled: httpsEnabled, $httpsRedirect: httpsRedirect
+	});
+	await db.close();
+
+	securitySettings.httpsEnabled = httpsEnabled;
+	securitySettings.httpsRedirect = httpsRedirect;
+}
+
+
+function getSecurityOptions() {
+	return securitySettings;
+}
+
+
 module.exports = {
 	start: init,
+
 	getRoutes: getRoutes,
 	addRoute: addRoute,
 	updateRoute: updateRoute,
-	removeRoute: removeRoute
+	removeRoute: removeRoute,
+
+	getSecurityOptions: getSecurityOptions,
+	setSecureContext: setSecureContext,
+	setSecurityOptions: setSecurityOptions
 };

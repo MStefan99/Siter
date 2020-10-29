@@ -1,9 +1,10 @@
+// Shared library by MStefan99
+
 'use strict';
 
 const dataCookieOptions = {
 	httpOnly: true,
 	maxAge: 60 * 60 * 24 * 7,
-	secure: !process.env.NO_HTTPS,
 	sameSite: 'strict',
 };
 

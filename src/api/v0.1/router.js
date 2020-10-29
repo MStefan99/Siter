@@ -5,21 +5,14 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
-const routeRouter = require('./routes');
 const middleware = require('../../lib/middleware');
+const routeRouter = require('./routes');
 
 
 router.use(cookieParser());
 router.use(bodyParser.json());
 router.use(middleware.getSession());
-
-router.use((req, res, next) => {
-	if (!req.session) {
-		res.status(403).send('Not authorized');
-	} else {
-		next();
-	}
-});
+router.use(middleware.rejectIfNotAuthorized());
 
 router.use('/routes', routeRouter);
 

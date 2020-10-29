@@ -35,7 +35,7 @@ block main
 			h2 Security
 			form#security-form.mx-3(action='/security/' method='post')
 				div.form-check
-					input#https-checkbox(type='checkbox' name='secure')
+					input#https-checkbox(type='checkbox' name='httpsEnabled')
 					label(for='https-checkbox') Enable HTTPS for Siter
 				div.form-group
 					label(for='cert-file-input') Certificate file
@@ -45,7 +45,11 @@ block main
 					label(for='key-file-input') Key file
 					input#key-file-input(type='text' name='keyFile'
 						placeholder='Path to key file')
+				div.form-check
+					input#redirect-checkbox(type='checkbox' name='httpsRedirect')
+					label(for='redirect-checkbox') Enable HTTPS redirect
 				input.btn.btn-primary(type='submit' value='Update')
 
 		+help
 			+helpSection('Password', '/html/help/password.html')
+			+helpSection('Security', '/html/help/security.html')
