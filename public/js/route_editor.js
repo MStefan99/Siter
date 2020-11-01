@@ -45,75 +45,7 @@ function setValid(element, valid) {
 
 
 function validateForm() {
-	let valid = true;
-
-	const domainInput = new Jui('#route-domain');
-	const portInput = new Jui('#route-port');
-
-	const secureCheckbox = new Jui('#route-security-checkbox');
-	const certFileInput = new Jui('#route-cert-file');
-	const keyFileInput = new Jui('#route-key-file');
-
-	const radioChecks = new Jui('.radio-check');
-	const targetRadios = new Jui('.target-radio');
-	const targetDirectoryInput = new Jui('#route-target-dir');
-	const targetServerAddrInput = new Jui('#route-target-server-addr');
-	const targetServerPortInput = new Jui('#route-target-server-port');
-
-	if (!domainInput.val()) {
-		valid = false;
-		setValid(domainInput, false);
-	} else {
-		setValid(domainInput, true);
-	}
-
-	if (!portInput.val()) {
-		setValid(portInput, false);
-	} else {
-		setValid(portInput, true);
-	}
-
-	if (secureCheckbox.nodes[0].checked) {
-		portInput.val(443);
-		if (!certFileInput.val()) {
-			valid = false;
-			setValid(certFileInput, false);
-		} else {
-			setValid(certFileInput, true);
-		}
-		if (!keyFileInput.val()) {
-			valid = false;
-			setValid(keyFileInput, false);
-		} else {
-			setValid(keyFileInput, true);
-		}
-	} else {
-		portInput.val(80);
-	}
-
-	if (targetRadios.nodes[0].checked) {
-		setValid(radioChecks, true);
-		if (!targetDirectoryInput.val()) {
-			valid = false;
-			setValid(targetDirectoryInput, false);
-		} else {
-			setValid(targetDirectoryInput, true);
-		}
-	} else if (targetRadios.nodes[1].checked) {
-		setValid(radioChecks, true);
-		if (!targetServerAddrInput.val() || !targetServerPortInput.val()) {
-			valid = false;
-			setValid(targetServerAddrInput, false);
-			setValid(targetServerPortInput, false);
-		} else {
-			setValid(targetServerAddrInput, true);
-			setValid(targetServerPortInput, true);
-		}
-	} else {
-		setValid(radioChecks, false);
-	}
-
-	return valid;
+	return true;
 }
 
 
@@ -139,73 +71,105 @@ export function createRouteForm(action, route) {
 			throw new Error('No such action.');
 	}
 
-	createMenu(new Jui(`
-		<form>
-			<h2>${label}</h2>
-			<h3>Route mask</h3>
-			<div class="row form-group">
-				<input id="route-domain" class="col" type="text"
+	const domainInput = new Jui(`
+		<input id="route-domain" class="col" type="text"
 							 placeholder="domain" value="${route.domain || ''}">
-				<span class="mx-1 text-muted col-form-label">:</span>
-				<input id="route-port" class="col" type="number"
+	`);
+	const portInput = new Jui(`
+	<input id="route-port" class="col" type="number"
 							 placeholder="80" value="${route.port || 80}">
-				<span class="mx-1 text-muted col-form-label">/</span>
-				<input id="route-prefix" class="col" type="text"
+	`);
+	const prefixInput = new Jui(`
+	<input id="route-prefix" class="col" type="text"
 							 placeholder="prefix" value="${route.prefix || ''}">
-			</div>
-			<h3>Security</h3>
-			<div class="form-check">
-				<input id="route-security-checkbox"
+	`);
+	const secureCheckbox = new Jui(`
+	<input id="route-security-checkbox"
 							 type="checkbox" ${route.secure? 'checked' : ''}>
-				<label for="route-security-checkbox">Enable HTTPS</label>
-			</div>
-			<div id="route-security-group" class="d-none">
-				<div class="form-group">
-					<label for="route-cert-file">Certificate file path</label>
-					<input id="route-cert-file" type="text"
+	`);
+	const certFileInput = new Jui(`
+		<input id="route-cert-file" type="text"
 								 placeholder="/var/cert/cert.crt" value="${route.certFile || ''}">
-					<span class="invalid-feedback">No certificate file</span>
-				</div>
-				<div class="form-group">
-					<label for="route-key-file">Key file path</label>
-					<input id="route-key-file" type="text" 
+	`);
+	const keyFileInput = new Jui(`
+	<input id="route-key-file" type="text" 
 								 placeholder="/var/cert/key.pem" value="${route.keyFile || ''}">
-					<span class="invalid-feedback">No key file</span>
-				</div>
-			</div>
-			<h3>Target</h3>
-			<div class="form-group">
-				<div class="form-check radio-check">
-					<input id="route-dir-radio" class="target-radio"
+	`);
+	const directoryRadio = new Jui(`
+	<input id="route-dir-radio" class="target-radio"
 								 type="radio" name="target">
-					<label for="route-dir-radio">Directory</label>
-				</div>
-				<div class="form-check radio-check">
-					<input id="route-server-radio" class="target-radio"
+	`);
+	const serverRadio = new Jui(`
+	<input id="route-server-radio" class="target-radio"
 								 type="radio" name="target">
-					<label for="route-server-radio">Web server</label>
-				</div>
-				<span class="invalid-feedback">Please select the route type</span>
-			</div>
-			<div id="route-dir-group" class="form-group d-none">
-				<label>Directory path</label>
-				<input id="route-target-dir" type="text" 
+	`);
+	const targetDirectoryInput = new Jui(`
+	<input id="route-target-dir" type="text" 
 							 placeholder="/var/dir/" value="${route.directory || ''}">
-				<span class="invalid-feedback">No directory</span>
-			</div>
-			<div id="route-server-group" class="form-group d-none">
-				<label>Server address</label>
-				<div class="row form-group">
-					<input id="route-target-server-addr" class="col" type="text"
+	`);
+	const targetAddressInput = new Jui(`
+	<input id="route-target-server-addr" class="col" type="text"
 								 placeholder="localhost" value="${route.targetIP || ''}">
-					<span class="mx-1 text-muted col-form-label">:</span>
-					<input id="route-target-server-port" class="col" type="number" 
+	`);
+	const targetPortInput = new Jui(`
+	<input id="route-target-server-port" class="col" type="number" 
 								 placeholder="80" value="${route.targetPort || ''}">
-				</div>
-			</div>
-			<input class="btn btn-success" type="submit" value="${label}">
-		</form>
-	`)
+	`);
+
+	const securityGroup = new Jui(`<div class="d-none"/>`)
+		.append(new Jui(`<div class="form-group"/>`)
+			.append(new Jui(`<label for="route-cert-file">Certificate file path</label>`))
+			.append(certFileInput)
+			.append(new Jui(`<span class="invalid-feedback">No certificate file</span>`))
+		)
+		.append(new Jui(`<div class="form-group"/>`)
+			.append(new Jui(`<label for="route-key-file">Key file path</label>`))
+			.append(keyFileInput)
+			.append(new Jui(`<span class="invalid-feedback">No key file</span>`))
+		);
+	const directoryGroup = new Jui(`<div class="form-group d-none"/>`)
+		.append(new Jui(`<label>Directory path</label>`))
+		.append(targetDirectoryInput)
+		.append(new Jui(`<span class="invalid-feedback">No directory</span>`));
+	const serverGroup = new Jui(`<div class="form-group d-none"/>`)
+		.append(new Jui(`<label>Server address</label>`))
+		.append(new Jui(`<div class="row form-group"/>`)
+			.append(targetAddressInput)
+			.append(new Jui(`<span class="mx-1 text-muted col-form-label">:</span>`))
+			.append(targetPortInput)
+		);
+
+	const menu = new Jui(`<form/>`)
+		.append(new Jui(`<h2>${label}</h2>`))
+		.append(new Jui(`<h3>Route mask</h3>`))
+		.append(new Jui(`<div class="row form-group"/>`)
+			.append(domainInput)
+			.append(new Jui(`<span class="mx-1 text-muted col-form-label">:</span>`))
+			.append(portInput)
+			.append(new Jui(`<span class="mx-1 text-muted col-form-label">/</span>`))
+			.append(prefixInput)
+		)
+		.append(new Jui(`<h3>Security</h3>`))
+		.append(new Jui(`<div class="form-check"/>`)
+			.append(secureCheckbox)
+			.append(new Jui(`<label for="route-security-checkbox">Enable HTTPS</label>`))
+		)
+		.append(securityGroup)
+		.append(new Jui(`<h3>Target</h3>`))
+		.append(new Jui(`<div class="form-group">`)
+			.append(new Jui(`<div class="form-check radio-check">`)
+				.append(directoryRadio)
+				.append(new Jui(`<label for="route-dir-radio">Directory</label>`))
+			)
+			.append(new Jui(`<div class="form-check radio-check"/>`)
+				.append(serverRadio)
+				.append(new Jui(`<label for="route-server-radio">Web server</label>`))
+			)
+			.append(new Jui(`<span class="invalid-feedback">Please select the route type</span>`))
+		)
+		.append(directoryGroup)
+		.append(serverGroup)
+		.append(new Jui(`<input class="btn btn-success" type="submit" value="${label}">`))
 		.on('input', e => {
 			validateForm();
 		})
@@ -214,20 +178,20 @@ export function createRouteForm(action, route) {
 
 			if (validateForm()) {
 				const route = {
-					domain: new Jui('#route-domain').val(),
-					port: new Jui('#route-port').val() || 80,
-					prefix: new Jui('#route-prefix').val() || null,
-					secure: new Jui('#route-security-checkbox').nodes[0].checked || false,
-					certFile: new Jui('#route-cert-file').val() || null,
-					keyFile: new Jui('#route-key-file').val() || null
+					domain: domainInput.val(),
+					port: portInput.val() || 80,
+					prefix: prefixInput.val() || null,
+					secure: !!secureCheckbox.prop('checked'),
+					certFile: certFileInput.val() || null,
+					keyFile: keyFileInput.val() || null
 				};
 
-				if (new Jui('form .target-radio').nodes[0].checked) {
-					route.directory = new Jui('#route-target-dir').val() || null;
+				if (directoryRadio.prop('checked')) {
+					route.directory = targetDirectoryInput.val() || null;
 				} else {
 					route.directory = null;
-					route.targetIP = new Jui('#route-target-server-addr').val() || null;
-					route.targetPort = new Jui('#route-target-server-port').val() || null;
+					route.targetIP = targetAddressInput.val() || null;
+					route.targetPort = targetPortInput.val() || null;
 				}
 
 				const res = await fetch(url, {
@@ -262,36 +226,18 @@ export function createRouteForm(action, route) {
 						'success');
 				}
 			}
-		}));
+		});
 
-	const checkbox = new Jui('form #route-security-checkbox');
-	const radios = new Jui('form .target-radio');
-	const securityGroup = new Jui('form #route-security-group');
-	const directoryGroup = new Jui('form #route-dir-group');
-	const serverGroup = new Jui('form #route-server-group');
-
-	if (route.secure) {
-		checkbox.nodes[0].checked = true;
-		securityGroup.removeClass('d-none');
-	}
-
-	if (route.directory) {
-		radios.nodes[0].checked = true;
-		directoryGroup.removeClass('d-none');
-	} else if (route.targetIP || route.targetPort) {
-		radios.nodes[1].checked = true;
-		serverGroup.removeClass('d-none');
-	}
-
-	checkbox.on('click', () => {
-		new Jui('form #route-security-group')
-			.if(checkbox.nodes[0].checked,
-				group => group.removeClass('d-none'),
-				group => group.addClass('d-none'));
+	secureCheckbox.on('click', e => {
+		if (secureCheckbox.prop('checked')) {
+			securityGroup.removeClass('d-none');
+		} else {
+			securityGroup.addClass('d-none');
+		}
 	});
 
-	radios.on('click', () => {
-		if (radios.nodes[0].checked) {
+	directoryRadio.on('click', e => {
+		if (directoryRadio.prop('checked')) {
 			directoryGroup.removeClass('d-none');
 			serverGroup.addClass('d-none');
 		} else {
@@ -299,6 +245,17 @@ export function createRouteForm(action, route) {
 			serverGroup.removeClass('d-none');
 		}
 	});
+	serverRadio.on('click', e => {
+		if (serverRadio.prop('checked')) {
+			serverGroup.removeClass('d-none');
+			directoryGroup.addClass('d-none');
+		} else {
+			serverGroup.addClass('d-none');
+			directoryGroup.removeClass('d-none');
+		}
+	});
+
+	createMenu(menu);
 }
 
 
