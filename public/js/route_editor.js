@@ -44,11 +44,6 @@ function setValid(element, valid) {
 }
 
 
-function validateForm() {
-	return true;
-}
-
-
 export function createRouteForm(action, route) {
 	let url, method, label;
 
@@ -127,6 +122,15 @@ export function createRouteForm(action, route) {
 			.append(keyFileInput)
 			.append(new Jui(`<span class="invalid-feedback">No key file</span>`))
 		);
+	const radioGroup = new Jui(`<div class="form-group">`)
+		.append(new Jui(`<div class="form-check radio-check">`)
+			.append(directoryRadio)
+			.append(new Jui(`<label for="route-dir-radio">Directory</label>`))
+		)
+		.append(new Jui(`<div class="form-check radio-check"/>`)
+			.append(serverRadio)
+			.append(new Jui(`<label for="route-server-radio">Web server</label>`))
+		);
 	const directoryGroup = new Jui(`<div class="form-group d-none"/>`)
 		.append(new Jui(`<label>Directory path</label>`))
 		.append(targetDirectoryInput)
@@ -138,6 +142,61 @@ export function createRouteForm(action, route) {
 			.append(new Jui(`<span class="mx-1 text-muted col-form-label">:</span>`))
 			.append(targetPortInput)
 		);
+
+	const validateForm = function () {
+		let valid = true;
+
+		for (const input of [domainInput, portInput]) {
+			if (!input.val()) {
+				valid = false;
+				setValid(input, false);
+			} else {
+				setValid(input, true);
+			}
+		}
+
+		if (secureCheckbox.prop('checked')) {
+			portInput.val(443);
+			if (!certFileInput.val()) {
+				valid = false;
+				setValid(certFileInput, false);
+			} else {
+				setValid(certFileInput, true);
+			}
+			if (!keyFileInput.val()) {
+				valid = false;
+				setValid(keyFileInput, false);
+			} else {
+				setValid(keyFileInput, true);
+			}
+		} else {
+			portInput.val(80);
+		}
+
+		if (directoryRadio.prop('checked')) {
+			setValid(radioGroup, true);
+			if (!targetDirectoryInput.val()) {
+				valid = false;
+				setValid(targetDirectoryInput, false);
+			} else {
+				setValid(targetDirectoryInput, true);
+			}
+		} else if (serverRadio.prop('checked')) {
+			setValid(radioGroup, true);
+			if (!targetAddressInput.val() || !targetPortInput.val()) {
+				valid = false;
+				setValid(targetAddressInput, false);
+				setValid(targetPortInput, false);
+			} else {
+				setValid(targetAddressInput, true);
+				setValid(targetPortInput, true);
+			}
+		} else {
+			setValid(radioGroup, false);
+		}
+
+		return valid;
+	};
 
 	const menu = new Jui(`<form/>`)
 		.append(new Jui(`<h2>${label}</h2>`))
@@ -156,17 +215,7 @@ export function createRouteForm(action, route) {
 		)
 		.append(securityGroup)
 		.append(new Jui(`<h3>Target</h3>`))
-		.append(new Jui(`<div class="form-group">`)
-			.append(new Jui(`<div class="form-check radio-check">`)
-				.append(directoryRadio)
-				.append(new Jui(`<label for="route-dir-radio">Directory</label>`))
-			)
-			.append(new Jui(`<div class="form-check radio-check"/>`)
-				.append(serverRadio)
-				.append(new Jui(`<label for="route-server-radio">Web server</label>`))
-			)
-			.append(new Jui(`<span class="invalid-feedback">Please select the route type</span>`))
-		)
+		.append(radioGroup)
 		.append(directoryGroup)
 		.append(serverGroup)
 		.append(new Jui(`<input class="btn btn-success" type="submit" value="${label}">`))
