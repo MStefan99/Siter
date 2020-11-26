@@ -1,3 +1,5 @@
+// Shared library by MStefan99
+
 'use strict';
 
 const map = new Map();

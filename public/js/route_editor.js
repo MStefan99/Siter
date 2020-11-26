@@ -44,7 +44,7 @@ function setValid(element, valid) {
 }
 
 
-export function createRouteForm(action, route) {
+export function createRouteForm(action, route = {}) {
 	let url, method, label;
 
 	switch (action) {
@@ -68,50 +68,54 @@ export function createRouteForm(action, route) {
 
 	const domainInput = new Jui(`
 		<input id="route-domain" class="col" type="text"
-							 placeholder="domain" value="${route.domain || ''}">
+					 placeholder="domain" value="${route.domain || ''}">
 	`);
 	const portInput = new Jui(`
-	<input id="route-port" class="col" type="number"
-							 placeholder="80" value="${route.port || 80}">
+		<input id="route-port" class="col" type="number"
+					 placeholder="80" value="${route.port || 80}">
 	`);
 	const prefixInput = new Jui(`
-	<input id="route-prefix" class="col" type="text"
-							 placeholder="prefix" value="${route.prefix || ''}">
+		<input id="route-prefix" class="col" type="text"
+					 placeholder="prefix" value="${route.prefix || ''}">
 	`);
 	const secureCheckbox = new Jui(`
-	<input id="route-security-checkbox"
-							 type="checkbox" ${route.secure? 'checked' : ''}>
+		<input id="route-security-checkbox"
+					 type="checkbox" ${route.secure? 'checked' : ''}>
 	`);
 	const certFileInput = new Jui(`
 		<input id="route-cert-file" type="text"
-								 placeholder="/var/cert/cert.crt" value="${route.certFile || ''}">
+					 placeholder="/var/cert/cert.crt" value="${route.certFile || ''}">
 	`);
 	const keyFileInput = new Jui(`
-	<input id="route-key-file" type="text" 
-								 placeholder="/var/cert/key.pem" value="${route.keyFile || ''}">
+		<input id="route-key-file" type="text" 
+					 placeholder="/var/cert/key.pem" value="${route.keyFile || ''}">
 	`);
 	const directoryRadio = new Jui(`
-	<input id="route-dir-radio" class="target-radio"
-								 type="radio" name="target">
+		<input id="route-dir-radio" class="target-radio"
+					 type="radio" name="target"
+					 ${route.target === 'directory'? 'checked' : ''}>
 	`);
 	const serverRadio = new Jui(`
-	<input id="route-server-radio" class="target-radio"
-								 type="radio" name="target">
+		<input id="route-server-radio" class="target-radio"
+					 type="radio" name="target" 
+					 ${route.target === 'server'? 'checked' : ''}>
 	`);
 	const targetDirectoryInput = new Jui(`
-	<input id="route-target-dir" type="text" 
-							 placeholder="/var/dir/" value="${route.directory || ''}">
+		<input id="route-target-dir" type="text" 
+					 placeholder="/var/dir/" value="${route.tDirectory || ''}">
 	`);
 	const targetAddressInput = new Jui(`
-	<input id="route-target-server-addr" class="col" type="text"
-								 placeholder="localhost" value="${route.targetIP || ''}">
+		<input id="route-target-server-addr" class="col" type="text"
+					 placeholder="localhost" value="${route.tIP || ''}">
 	`);
 	const targetPortInput = new Jui(`
-	<input id="route-target-server-port" class="col" type="number" 
-								 placeholder="80" value="${route.targetPort || ''}">
+		<input id="route-target-server-port" class="col" type="number" 
+					 placeholder="80" value="${route.tPort || ''}">
 	`);
 
-	const securityGroup = new Jui(`<div class="d-none"/>`)
+	const securityGroup = new Jui(`
+			<div class="${route.secure? '' : 'd-none'}"/>
+		`)
 		.append(new Jui(`<div class="form-group"/>`)
 			.append(new Jui(`<label for="route-cert-file">Certificate file path</label>`))
 			.append(certFileInput)
@@ -131,11 +135,15 @@ export function createRouteForm(action, route) {
 			.append(serverRadio)
 			.append(new Jui(`<label for="route-server-radio">Web server</label>`))
 		);
-	const directoryGroup = new Jui(`<div class="form-group d-none"/>`)
+	const directoryGroup = new Jui(`
+			<div class="form-group ${route.target === 'directory'? '' : 'd-none'}"/>
+		`)
 		.append(new Jui(`<label>Directory path</label>`))
 		.append(targetDirectoryInput)
 		.append(new Jui(`<span class="invalid-feedback">No directory</span>`));
-	const serverGroup = new Jui(`<div class="form-group d-none"/>`)
+	const serverGroup = new Jui(`
+			<div class="form-group ${route.target === 'server'? '' : 'd-none'}"/>
+		`)
 		.append(new Jui(`<label>Server address</label>`))
 		.append(new Jui(`<div class="row form-group"/>`)
 			.append(targetAddressInput)
@@ -232,15 +240,17 @@ export function createRouteForm(action, route) {
 					prefix: prefixInput.val() || null,
 					secure: !!secureCheckbox.prop('checked'),
 					certFile: certFileInput.val() || null,
-					keyFile: keyFileInput.val() || null
+					keyFile: keyFileInput.val() || null,
+					tDirectory: targetDirectoryInput.val() || null,
+					tAddr: targetAddressInput.val() || null,
+					tPort: targetPortInput.val() || null,
+					tLocation: null
 				};
 
 				if (directoryRadio.prop('checked')) {
-					route.directory = targetDirectoryInput.val() || null;
-				} else {
-					route.directory = null;
-					route.targetIP = targetAddressInput.val() || null;
-					route.targetPort = targetPortInput.val() || null;
+					route.target = 'directory';
+				} else if (serverRadio.prop('checked')) {
+					route.target = 'server';
 				}
 
 				const res = await fetch(url, {
@@ -305,7 +315,7 @@ export function createRouteForm(action, route) {
 	});
 
 	createMenu(menu);
-}
+};
 
 
 new Jui('#add-route-button')

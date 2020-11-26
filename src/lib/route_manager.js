@@ -17,7 +17,8 @@ let siter;
 
 
 function isAValidPort(port) {
-	return Number.isInteger(port) && port > 0 && port < 65535;
+	port = Number.parseInt(port);
+	return port > 0 && port < 65535;
 }
 
 
@@ -37,12 +38,12 @@ async function init(defaultHandler) {
 
 	await db.each(`select *
                  from routes
-                 order by seq`, (err, row) => {
+                 order by seq`, (err, route) => {
 		if (err) {
 			console.log(err);
 		} else {
-			routes.push(row);
-			addServer(row);
+			routes.push(route);
+			addServer(route);
 		}
 	});
 	await db.each(`select key,
@@ -89,7 +90,7 @@ function getSecureContext(route) {
 
 
 function addServer(route) {
-	let server = servers.get(route.port);
+	let server = servers.get(Number.parseInt(route.port));
 
 	if (!server) {
 		if (route.secure) {
@@ -128,6 +129,10 @@ function updateServer(oldRoute, newRoute) {
 
 
 function removeServer(route) {
+	if (route.port === 80 ||
+		(securitySettings.secure && route.port === 443)) {
+		return;
+	}
 	let server = servers.get(route.port);
 
 	if (!routes.some(r => r.port === route.port)) {
@@ -161,8 +166,8 @@ function handleRequest(request, response) {
 		} else {
 			const postfix = url.replace(new RegExp(`^${route.prefix}`, 'i'), '');
 
-			if (route.directory) {  // Serving static files
-				const filePath = path.join(route.directory, ...postfix.split('/'));
+			if (route.target === 'directory') {  // Serving static files
+				const filePath = path.join(route.tDirectory, ...postfix.split('/'));
 
 				// trying requested file
 				sendFile(response, filePath, 200, () => {
@@ -175,10 +180,10 @@ function handleRequest(request, response) {
 						});
 					});
 				});
-			} else {  // Proxying requests to other servers
+			} else if (route.target === 'server') {  // Proxying requests to other servers
 				const options = {
-					hostname: route.targetIP,
-					port: route.targetPort,
+					hostname: route.tAddr,
+					port: route.tPort,
 					path: postfix,
 					method: request.method,
 					headers: request.headers
@@ -248,7 +253,7 @@ function getRoutes() {
 async function addRoute(route) {
 	route.seq = Number.parseInt(route.seq);
 	route.port = Number.parseInt(route.port);
-	route.targetPort = Number.parseInt(route.targetPort);
+	route.tPort = Number.parseInt(route.tPort);
 
 	const db = await openDB();
 	await db.run(`insert into routes(seq,
@@ -258,21 +263,26 @@ async function addRoute(route) {
                                    secure,
                                    keyFile,
                                    certFile,
-                                   directory,
-                                   targetIP,
-                                   targetPort)
+                                   target,
+                                   tDirectory,
+                                   tAddr,
+                                   tPort,
+                                   tLocation)
                 values ($seq, $domain, $port, $prefix, $secure,
-                        $keyFile, $certFile, $directory, $targetIP, $targetPort)`, {
-		$seq: isAValidPort(route.seq)? route.seq : 1,
+                        $keyFile, $certFile, $target,
+                        $tDirectory, $tAddr, $tPort, $tLocation)`, {
+		$seq: route.seq > 0? route.seq : 1,
 		$domain: route.domain,
 		$port: isAValidPort(route.port)? route.port : 80,
 		$prefix: route.prefix,
 		$secure: !!route.secure,
 		$keyFile: route.keyFile,
 		$certFile: route.certFile,
-		$directory: route.directory,
-		$targetIP: route.targetIP,
-		$targetPort: route.targetPort
+		$target: route.target,
+		$tDirectory: route.tDirectory,
+		$tAddr: route.tAddr,
+		$tPort: route.tPort,
+		$tLocation: route.tLocation
 	});
 	route.id = (await db.get(`select last_insert_rowid() as id`)).id;
 	await db.close();
@@ -287,10 +297,9 @@ async function updateRoute(routeID, newRoute) {
 	if (!routeID) {
 		return addRoute(newRoute);
 	}
-
 	newRoute.seq = Number.parseInt(newRoute.seq);
 	newRoute.port = Number.parseInt(newRoute.port);
-	newRoute.targetPort = Number.parseInt(newRoute.targetPort);
+	newRoute.tPort = Number.parseInt(newRoute.tPort);
 
 	const db = await openDB();
 	await db.run(`update routes
@@ -301,21 +310,25 @@ async function updateRoute(routeID, newRoute) {
                     secure=$secure,
                     keyFile=$keyFile,
                     certFile=$certFile,
-                    directory=$directory,
-                    targetIP=$targetIP,
-                    targetPort=$targetPort
+                    target=$target,
+                    tDirectory=$tDirectory,
+                    tAddr=$tAddr,
+                    tPort=$tPort,
+                    tLocation=$tLocation
                 where id = $id`, {
 		$id: routeID,
-		$seq: isAValidPort(newRoute.seq)? newRoute.seq : 1,
+		$seq: newRoute.seq > 0? newRoute.seq : 1,
 		$domain: newRoute.domain,
 		$port: isAValidPort(newRoute.port)? newRoute.port : 80,
 		$prefix: newRoute.prefix,
-		$secure: newRoute.secure || 0,
+		$secure: !!newRoute.secure,
 		$keyFile: newRoute.keyFile,
 		$certFile: newRoute.certFile,
-		$directory: newRoute.directory,
-		$targetIP: newRoute.targetIP,
-		$targetPort: newRoute.targetPort,
+		$target: newRoute.target,
+		$tDirectory: newRoute.tDirectory,
+		$tAddr: newRoute.tAddr,
+		$tPort: newRoute.tPort,
+		$tLocation: newRoute.tLocation
 	});
 
 	const i = routes.findIndex(route => route.id === routeID);
@@ -345,7 +358,6 @@ async function removeRoute(routeID) {
 		removeServer(route);
 	}
 }
-
 
 
 async function setSecurityOptions(options = {}) {

@@ -73,7 +73,7 @@ module.exports = (options) => {
 			next();
 		} else {
 			res.set('Retry-After',
-				Math.ceil((options.price - bucket.tokens / options.rate) * 60));
+				Math.ceil((options.price - bucket.tokens) * 60 / options.rate));
 			if (options.action) {
 				options.action(req, res);
 			}

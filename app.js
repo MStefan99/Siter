@@ -1,5 +1,17 @@
 'use strict';
 
+process.on('unhandledRejection', (reason, promise) => {
+	console.error('Unhandled Rejection: ', reason.stack);
+	process.exit(~0x1);
+});
+
+
+process.on('uncaughtException', (err, origin) => {
+	console.error('Uncaught exception: ', err.stack);
+	process.exit(~0x0);
+});
+
+
 const path = require('path');
 const express = require('express');
 
@@ -28,3 +40,5 @@ app.use(indexRouter);
 require('./src/lib/init').init().then(() => {
 	routeManager.start(app);
 });
+
+

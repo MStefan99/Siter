@@ -9,9 +9,12 @@ create table routes (
 	secure     integer not null default 0,
 	keyFile    text,
 	certFile   text,
-	directory  text,
-	targetIP   text,
-	targetPort integer
+	enabled    integer not null default 1,
+	target     text    not null,
+	tDirectory text,
+	tAddr      text,
+	tPort      integer,
+	tLocation  text
 );
 
 
