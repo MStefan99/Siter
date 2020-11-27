@@ -188,6 +188,7 @@ function handleRequest(request, response) {
 					method: request.method,
 					headers: request.headers
 				};
+				options.headers['x-forwarded-for'] = request.connection.remoteAddress;
 
 				const req = http.request(options);
 
