@@ -15,6 +15,16 @@ const servers = new Map();
 const securitySettings = {};
 let siter;
 
+const httpServer = http.createServer(handleRequest);
+const httpsServer = https.createServer({
+	SNICallback: (servername, cb) => {
+		const route = findRouteByDomain(servername) || {};
+		if (route.secure) {
+			cb(null, getSecureContext(route));
+		}
+	},
+}, handleRequest);
+
 
 function isAValidPort(port) {
 	port = Number.parseInt(port);
@@ -32,9 +42,24 @@ async function init(defaultHandler) {
 	siter = defaultHandler;
 	const db = await openDB();
 
-	const defaultServer = http.createServer(handleRequest);
-	defaultServer.listen(80);
-	servers.set(80, defaultServer);
+	const options = await db.all(`select key,
+                                       value
+                                from options
+                                where key in ('httpsEnabled',
+                                              'httpsRedirect',
+                                              'certFile',
+                                              'keyFile')`);
+	options.forEach(option => {
+		securitySettings[option.key] = option.value;
+	});
+
+	httpServer.listen(80);
+	servers.set(80, httpServer);
+
+	if (securitySettings.httpsEnabled) {
+		httpsServer.listen(443);
+		servers.set(443, httpsServer);
+	}
 
 	await db.each(`select *
                  from routes
@@ -46,15 +71,7 @@ async function init(defaultHandler) {
 			addServer(route);
 		}
 	});
-	await db.each(`select key,
-                        value
-                 from options
-                 where key in ('httpsEnabled',
-                               'httpsRedirect',
-                               'certFile',
-                               'keyFile')`, (err, row) => {
-		securitySettings[row.key] = row.value;
-	});
+
 	await db.close();
 }
 
@@ -130,7 +147,7 @@ function updateServer(oldRoute, newRoute) {
 
 function removeServer(route) {
 	if (route.port === 80 ||
-		(securitySettings.secure && route.port === 443)) {
+		(securitySettings.httpsEnabled && route.port === 443)) {
 		return;
 	}
 	let server = servers.get(route.port);
