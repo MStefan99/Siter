@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="0e2a5f2b-ea5f-4b7b-a225-f22586e5cf79" name="Mine Eclipse EC2" url="http://siter.mineeclipse.com">
+        <fileTransfer rootFolder="/home/ubuntu" accessType="SFTP" host="18.192.144.232" port="22" sshConfigId="971006c5-2101-4364-9775-892344260cd8" sshConfig="Mine Eclipse EC2" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
