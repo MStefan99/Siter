@@ -27,7 +27,7 @@ const httpsServer = https.createServer({
 
 
 function isAValidPort(port) {
-	port = Number.parseInt(port);
+	port = +port;
 	return port > 0 && port < 65535;
 }
 
@@ -107,7 +107,7 @@ function getSecureContext(route) {
 
 
 function addServer(route) {
-	let server = servers.get(Number.parseInt(route.port));
+	let server = servers.get(+route.port);
 
 	if (!server) {
 		if (route.secure) {
@@ -269,9 +269,9 @@ function getRoutes() {
 
 
 async function addRoute(route) {
-	route.seq = Number.parseInt(route.seq);
-	route.port = Number.parseInt(route.port);
-	route.tPort = Number.parseInt(route.tPort);
+	route.seq = +route.seq;
+	route.port = +route.port;
+	route.tPort = +route.tPort;
 
 	const db = await openDB();
 	await db.run(`insert into routes(seq,
@@ -315,9 +315,9 @@ async function updateRoute(routeID, newRoute) {
 	if (!routeID) {
 		return addRoute(newRoute);
 	}
-	newRoute.seq = Number.parseInt(newRoute.seq);
-	newRoute.port = Number.parseInt(newRoute.port);
-	newRoute.tPort = Number.parseInt(newRoute.tPort);
+	newRoute.seq = +newRoute.seq;
+	newRoute.port = +newRoute.port;
+	newRoute.tPort = +newRoute.tPort;
 
 	const db = await openDB();
 	await db.run(`update routes
@@ -363,6 +363,7 @@ async function updateRoute(routeID, newRoute) {
 
 async function removeRoute(routeID) {
 	const db = await openDB();
+	routeID = +routeID;
 
 	await db.run(`delete
                 from routes
