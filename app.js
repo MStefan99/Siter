@@ -39,6 +39,5 @@ app.use(indexRouter);
 
 require('./src/lib/init').init().then(() => {
 	routeManager.start(app);
+	console.log('Siter is now running! Open http://siter.localhost/ to get started.');
 });
-
-

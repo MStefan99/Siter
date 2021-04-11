@@ -205,4 +205,3 @@ fabric.properties
 log/
 # Compiled files
 *.css
-package-lock.json
