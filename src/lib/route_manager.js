@@ -7,7 +7,7 @@ const path = require('path');
 const fs = require('fs');
 
 const openDB = require('./db');
-const mimeMap = require('./mime_map');
+const mime = require('mime-types');
 const compiledViews = path.join(__dirname, '..', '..', 'views', 'compiled');
 
 const routes = [];
@@ -22,7 +22,7 @@ const httpsServer = https.createServer({
 		if (route.secure) {
 			cb(null, getSecureContext(route));
 		}
-	},
+	}
 }, handleRequest);
 
 
@@ -82,7 +82,7 @@ function findRouteByDomain(domain) {
 			secure: securitySettings.httpsEnabled,
 			certFile: securitySettings.certFile,
 			keyFile: securitySettings.keyFile
-		}
+		};
 	} else {
 		return routes.find(route =>
 			route.domain? domain.match(route.domain) : true);
@@ -117,7 +117,7 @@ function addServer(route) {
 					if (route.secure) {
 						cb(null, getSecureContext(route));
 					}
-				},
+				}
 			}, handleRequest);
 		} else {
 			server = http.createServer(handleRequest);
@@ -240,11 +240,8 @@ function sendFile(response, filePath, statusCode, errorCallback) {
 		} else {
 			const fileStream = fs.createReadStream(filePath);
 
-			const mime = mimeMap.get(filePath.replace(/^.*\./, '.'))
-				|| 'application/octet-stream';
-
 			response.writeHead(statusCode || 200, {
-				'content-type': mime,
+				'content-type': mime.contentType(path.extname(filePath)) || 'application/octet-stream',
 				'content-length': stats.size
 			});
 
@@ -333,7 +330,7 @@ async function updateRoute(routeID, newRoute) {
                     tAddr=$tAddr,
                     tPort=$tPort,
                     tLocation=$tLocation
-                where id = $id`, {
+                where id=$id`, {
 		$id: routeID,
 		$seq: newRoute.seq > 0? newRoute.seq : 1,
 		$domain: newRoute.domain,
@@ -367,7 +364,7 @@ async function removeRoute(routeID) {
 
 	await db.run(`delete
                 from routes
-                where id = $id`, {$id: routeID});
+                where id=$id`, {$id: routeID});
 	await db.close();
 
 	const route = routes.splice(routes
