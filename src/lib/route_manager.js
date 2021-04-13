@@ -181,7 +181,7 @@ function handleRequest(request, response) {
 		if (!route) {
 			sendFile(response, path.join(compiledViews, 'no_route.html'), 404);
 		} else {
-			const postfix = url.replace(new RegExp(`^${route.prefix}`, 'i'), '');
+			const postfix = url.replace(new RegExp(`^${route.prefix}|\\?.*$`, 'ig'), '');
 
 			if (route.target === 'directory') {  // Serving static files
 				const filePath = path.join(route.tDirectory, ...postfix.split('/'));
