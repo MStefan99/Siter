@@ -1,13 +1,13 @@
 'use strict';
 
 process.on('unhandledRejection', (reason, promise) => {
-	console.error('Unhandled Rejection: ', reason.stack);
+	console.error('Unhandled Rejection: ', reason);
 	process.exit(~0x1);
 });
 
 
 process.on('uncaughtException', (err, origin) => {
-	console.error('Uncaught exception: ', err.stack);
+	console.error('Uncaught exception: ', err);
 	process.exit(~0x0);
 });
 

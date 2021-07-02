@@ -2,46 +2,33 @@
 
 const crypto = require('crypto');
 
-const openDB = require('./db');
+const smartConfig = require('./config');
 const key = 'Siter secret key';
 
 
 module.exports = {
 	init: async () => {
-		const db = await openDB();
+		const config = await smartConfig;
 
-		const option = await db.get(`select *
-                               from options
-                               where key='passwordHash'`);
-
-		if (!option) {
+		if (!config.options?.passwordHash) {
 			const hmac = crypto.createHmac('sha256', key);
-			const hash = hmac.update('admin').digest('hex');
-
-			await db.run(`insert into options(key, value)
-                  values ('passwordHash', $hash)`,
-				{$hash: hash});
+			config.options.passwordHash = hmac.update('admin').digest('hex');
 		}
 	},
 
+
 	verifyPassword: async (password) => {
-		const db = await openDB();
+		const config = await smartConfig;
 		const hmac = crypto.createHmac('sha256', key);
 
-		const option = await db.get(`select *
-                                 from options
-                                 where key='passwordHash'`);
-
-		return hmac.update(password).digest('hex') === option.value;
+		return hmac.update(password).digest('hex') === config.options.passwordHash;
 	},
 
+
 	setPassword: async (newPassword) => {
-		const db = await openDB();
+		const config = await smartConfig;
 
 		const hmac = crypto.createHmac('sha256', key);
-		const hash = hmac.update(newPassword).digest('hex');
-
-		await db.run(`update options set value=$hash where key='passwordHash'`,
-			{$hash: hash});
+		config.options.passwordHash = hmac.update(newPassword).digest('hex');
 	},
 };

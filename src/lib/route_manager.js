@@ -6,7 +6,7 @@ const tls = require('tls');
 const path = require('path');
 const fs = require('fs');
 
-const openDB = require('./db');
+const smartConfig = require('./config');
 const mime = require('mime-types');
 const compiledViews = path.join(__dirname, '..', '..', 'views', 'compiled');
 
@@ -14,6 +14,7 @@ const routes = [];
 const servers = new Map();
 const securitySettings = {};
 let siter;
+
 
 const httpServer = http.createServer(handleRequest);
 const httpsServer = https.createServer({
@@ -32,7 +33,7 @@ function isAValidPort(port) {
 }
 
 
-async function init(defaultHandler) {
+async function start(defaultHandler) {
 	if (siter) {
 		throw new Error('Route Manager is already started');
 	}
@@ -40,18 +41,8 @@ async function init(defaultHandler) {
 		throw new Error('Default handler must be defined');
 	}
 	siter = defaultHandler;
-	const db = await openDB();
-
-	const options = await db.all(`select key,
-                                       value
-                                from options
-                                where key in ('httpsEnabled',
-                                              'httpsRedirect',
-                                              'certFile',
-                                              'keyFile')`);
-	options.forEach(option => {
-		securitySettings[option.key] = option.value;
-	});
+	const config = await smartConfig;
+	Object.assign(securitySettings, config.options);
 
 	httpServer.listen(80);
 	servers.set(80, httpServer);
@@ -61,18 +52,10 @@ async function init(defaultHandler) {
 		servers.set(443, httpsServer);
 	}
 
-	await db.each(`select *
-                 from routes
-                 order by seq`, (err, route) => {
-		if (err) {
-			console.log(err);
-		} else {
-			routes.push(route);
-			addServer(route);
-		}
-	});
-
-	await db.close();
+	for (const route of config.routes) {
+		routes.push(route);
+		addServer(route);
+	}
 }
 
 
@@ -146,8 +129,7 @@ function updateServer(oldRoute, newRoute) {
 
 
 function removeServer(route) {
-	if (route.port === 80 ||
-		(securitySettings.httpsEnabled && route.port === 443)) {
+	if (route.port === 80 || (securitySettings.httpsEnabled && route.port === 443)) {
 		return;
 	}
 	let server = servers.get(route.port);
@@ -261,49 +243,29 @@ function sendFile(response, filePath, statusCode, errorCallback) {
 
 
 function getRoutes() {
-	return routes;
+	return routes ?? {};
+}
+
+
+function sanitizeRoute(route) {
+	route.seq = +route.seq > 0? +route.seq : 1;
+	route.port = isAValidPort(+route.port)? +route.port : 80;
+	route.secure = !!route.secure;
+	route.tPort = +route.tPort;
+
+	return route;
 }
 
 
 async function addRoute(route) {
-	route.seq = +route.seq;
-	route.port = +route.port;
-	route.tPort = +route.tPort;
+	const config = await smartConfig;
+	route = sanitizeRoute(route);
 
-	const db = await openDB();
-	await db.run(`insert into routes(seq,
-                                   domain,
-                                   port,
-                                   prefix,
-                                   secure,
-                                   keyFile,
-                                   certFile,
-                                   target,
-                                   tDirectory,
-                                   tAddr,
-                                   tPort,
-                                   tLocation)
-                values ($seq, $domain, $port, $prefix, $secure,
-                        $keyFile, $certFile, $target,
-                        $tDirectory, $tAddr, $tPort, $tLocation)`, {
-		$seq: route.seq > 0? route.seq : 1,
-		$domain: route.domain,
-		$port: isAValidPort(route.port)? route.port : 80,
-		$prefix: route.prefix,
-		$secure: !!route.secure,
-		$keyFile: route.keyFile,
-		$certFile: route.certFile,
-		$target: route.target,
-		$tDirectory: route.tDirectory,
-		$tAddr: route.tAddr,
-		$tPort: route.tPort,
-		$tLocation: route.tLocation
-	});
-	route.id = (await db.get(`select last_insert_rowid() as id`)).id;
-	await db.close();
-
+	route.id = Math.random().toString(36);
+	config.routes.push(route);
 	routes.push(route);
 	addServer(route);
+
 	return route;
 }
 
@@ -312,39 +274,10 @@ async function updateRoute(routeID, newRoute) {
 	if (!routeID) {
 		return addRoute(newRoute);
 	}
-	newRoute.seq = +newRoute.seq;
-	newRoute.port = +newRoute.port;
-	newRoute.tPort = +newRoute.tPort;
+	newRoute = sanitizeRoute(newRoute);
 
-	const db = await openDB();
-	await db.run(`update routes
-                set seq=$seq,
-                    domain=$domain,
-                    port=$port,
-                    prefix=$prefix,
-                    secure=$secure,
-                    keyFile=$keyFile,
-                    certFile=$certFile,
-                    target=$target,
-                    tDirectory=$tDirectory,
-                    tAddr=$tAddr,
-                    tPort=$tPort,
-                    tLocation=$tLocation
-                where id=$id`, {
-		$id: routeID,
-		$seq: newRoute.seq > 0? newRoute.seq : 1,
-		$domain: newRoute.domain,
-		$port: isAValidPort(newRoute.port)? newRoute.port : 80,
-		$prefix: newRoute.prefix,
-		$secure: !!newRoute.secure,
-		$keyFile: newRoute.keyFile,
-		$certFile: newRoute.certFile,
-		$target: newRoute.target,
-		$tDirectory: newRoute.tDirectory,
-		$tAddr: newRoute.tAddr,
-		$tPort: newRoute.tPort,
-		$tLocation: newRoute.tLocation
-	});
+	const config = await smartConfig;
+	config.routes.splice(config.routes.findIndex(r => r.id === routeID), 1, newRoute);
 
 	const i = routes.findIndex(route => route.id === routeID);
 
@@ -359,16 +292,10 @@ async function updateRoute(routeID, newRoute) {
 
 
 async function removeRoute(routeID) {
-	const db = await openDB();
-	routeID = +routeID;
+	const config = await smartConfig;
 
-	await db.run(`delete
-                from routes
-                where id=$id`, {$id: routeID});
-	await db.close();
-
-	const route = routes.splice(routes
-		.findIndex(route => route.id === routeID), 1)[0];
+	config.routes.splice(config.routes.findIndex(r => r.id === routeID), 1);
+	const route = routes.splice(routes.findIndex(route => route.id === routeID), 1)[0];
 
 	if (route) {
 		removeServer(route);
@@ -377,20 +304,9 @@ async function removeRoute(routeID) {
 
 
 async function setSecurityOptions(options = {}) {
-	const db = await openDB();
+	const config = await smartConfig;
 
-	await db.run(`insert or
-                replace
-                into options(key, value)
-                values ('httpsEnabled', $httpsEnabled),
-                       ('httpsRedirect', $httpsRedirect),
-                       ('certFile', $certFile),
-                       ('keyFile', $keyFile)`, {
-		$httpsEnabled: options.httpsEnabled, $httpsRedirect: options.httpsRedirect,
-		$certFile: options.certFile, $keyFile: options.keyFile
-	});
-	await db.close();
-
+	Object.assign(config.options, options);
 	Object.assign(securitySettings, options);
 }
 
@@ -401,7 +317,7 @@ function getSecurityOptions() {
 
 
 module.exports = {
-	start: init,
+	start: start,
 
 	getRoutes: getRoutes,
 	addRoute: addRoute,

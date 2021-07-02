@@ -10,15 +10,14 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@mstefan99/smart-config": "^1.0.0",
+		"@mstefan99/express-flash": "^1.0.0",
 		"body-parser": "^1.19.0",
 		"cookie-parser": "^1.4.5",
 		"express": "^4.17.1",
-		"express-flash": "^1.0.0",
 		"mime-db": "^1.47.0",
 		"mime-types": "^2.1.30",
 		"pug": "^3.0.2",
-		"sqlite": "^4.0.18",
-		"sqlite3": "^4.2.0",
 		"uuid": "^8.3.2"
 	}
 }

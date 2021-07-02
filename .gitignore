@@ -205,3 +205,6 @@ fabric.properties
 log/
 # Compiled files
 *.css
+
+# Custom rules
+config.json

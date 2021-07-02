@@ -30,7 +30,7 @@ router.put('/:routeID', async (req, res) => {
 	}
 
 	const newRoute = await routeManager.updateRoute(
-		parseInt(req.params.routeID),
+		req.params.routeID,
 		req.body.route);
 	res.json(newRoute);
 });
