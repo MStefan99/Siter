@@ -50,7 +50,7 @@ function createRouteElement(route) {
 				)
 			)
 		)
-		.prop('data-route-id', route.id)
+		.attr('data-route-id', route.id)
 		.append(new Jui(`
 			<div class="route-mask border-bottom">
 				<h4>URL mask</h4>

@@ -1,5 +1,3 @@
-// Shared library by MStefan99
-
 'use strict';
 
 

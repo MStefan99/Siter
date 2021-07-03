@@ -275,6 +275,7 @@ async function updateRoute(routeID, newRoute) {
 		return addRoute(newRoute);
 	}
 	newRoute = sanitizeRoute(newRoute);
+	newRoute.id = routeID;
 
 	const config = await smartConfig;
 	config.routes.splice(config.routes.findIndex(r => r.id === routeID), 1, newRoute);

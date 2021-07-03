@@ -315,7 +315,7 @@ export function createRouteForm(action, route = {}) {
 	});
 
 	createMenu(menu);
-};
+}
 
 
 new Jui('#add-route-button')
