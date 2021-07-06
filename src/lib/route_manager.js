@@ -10,10 +10,10 @@ const smartConfig = require('./config');
 const mime = require('mime-types');
 const compiledViews = path.join(__dirname, '..', '..', 'views', 'compiled');
 
-const routes = [];
 const servers = new Map();
-const securitySettings = {};
 let siter;
+let config;
+smartConfig.then(c => config = c);
 
 
 const httpServer = http.createServer(handleRequest);
@@ -33,7 +33,7 @@ function isAValidPort(port) {
 }
 
 
-async function start(defaultHandler) {
+function start(defaultHandler) {
 	if (siter) {
 		throw new Error('Route Manager is already started');
 	}
@@ -41,19 +41,16 @@ async function start(defaultHandler) {
 		throw new Error('Default handler must be defined');
 	}
 	siter = defaultHandler;
-	const config = await smartConfig;
-	Object.assign(securitySettings, config.options);
 
 	httpServer.listen(80);
 	servers.set(80, httpServer);
 
-	if (securitySettings.httpsEnabled) {
+	if (config.options.httpsEnabled) {
 		httpsServer.listen(443);
 		servers.set(443, httpsServer);
 	}
 
 	for (const route of config.routes) {
-		routes.push(route);
 		addServer(route);
 	}
 }
@@ -62,19 +59,19 @@ async function start(defaultHandler) {
 function findRouteByDomain(domain) {
 	if (domain.match(/^siter\./)) {
 		return {
-			secure: securitySettings.httpsEnabled,
-			certFile: securitySettings.certFile,
-			keyFile: securitySettings.keyFile
+			secure: config.options.httpsEnabled,
+			certFile: config.options.certFile,
+			keyFile: config.options.keyFile
 		};
 	} else {
-		return routes.find(route =>
+		return config.routes.find(route =>
 			route.domain? domain.match(route.domain) : true);
 	}
 }
 
 
 function findRoute(host, port, url) {
-	return routes.find(route =>
+	return config.routes.find(route =>
 		(route.domain? host === route.domain : true) &&
 		(route.port === port) &&
 		(route.prefix? url.match(route.prefix) : true));
@@ -115,7 +112,7 @@ function updateServer(oldRoute, newRoute) {
 	if (oldRoute.port !== newRoute.port) {
 		let server = servers.get(oldRoute.port);
 
-		if (!routes.some(r => r.port === oldRoute.port)) {
+		if (!config.routes.some(r => r.port === oldRoute.port) && server) {
 			server.close();
 			server.listen(newRoute.port);
 
@@ -129,12 +126,12 @@ function updateServer(oldRoute, newRoute) {
 
 
 function removeServer(route) {
-	if (route.port === 80 || (securitySettings.httpsEnabled && route.port === 443)) {
+	if (route.port === 80 || (config.options.httpsEnabled && route.port === 443)) {
 		return;
 	}
 	let server = servers.get(route.port);
 
-	if (!routes.some(r => r.port === route.port)) {
+	if (!config.routes.some(r => r.port === route.port) && server) {
 		server.close();
 		servers.delete(route.port);
 	}
@@ -149,8 +146,8 @@ function handleRequest(request, response) {
 
 	if (host.match(/^siter\./)) {
 		if (!request.connection.encrypted &&
-			securitySettings.httpsEnabled &&
-			securitySettings.httpsRedirect) {
+			config.options.httpsEnabled &&
+			config.options.httpsRedirect) {
 			response.writeHead(303, {
 				Location: 'https://' + host + url
 			}).end();
@@ -243,7 +240,7 @@ function sendFile(response, filePath, statusCode, errorCallback) {
 
 
 function getRoutes() {
-	return routes ?? {};
+	return config.routes ?? {};
 }
 
 
@@ -253,50 +250,56 @@ function sanitizeRoute(route) {
 	route.secure = !!route.secure;
 	route.tPort = +route.tPort;
 
+	for (const prop in route) {
+		if (route.hasOwnProperty(prop)
+			&& (route[prop] === null || route[prop] === undefined)) {
+			delete route[prop];
+		}
+	}
+
+	if (!route.domain || !isAValidPort(+route.port)) {
+		throw new Error('Route domain or port is invalid');
+	} else if (route.secure && (!route.certFile || !route.keyFile)) {
+		throw new Error('Secure routes must have a certificate and a key file');
+	} else if (route.target === 'directory' && !route.tDirectory) {
+		throw new Error('Route target set to directory but no directory was specified');
+	} else if (route.target === 'server' && (!route.tAddr || !isAValidPort(+route.port))) {
+		throw new Error('Route target set to server but server address is invalid');
+	}
 	return route;
 }
 
 
-async function addRoute(route) {
-	const config = await smartConfig;
+function addRoute(route) {
 	route = sanitizeRoute(route);
 
-	route.id = Math.random().toString(36);
+	route.id = Math.random().toString(36).substr(2);
 	config.routes.push(route);
-	routes.push(route);
 	addServer(route);
 
 	return route;
 }
 
 
-async function updateRoute(routeID, newRoute) {
+function updateRoute(routeID, newRoute) {
 	if (!routeID) {
 		return addRoute(newRoute);
 	}
 	newRoute = sanitizeRoute(newRoute);
 	newRoute.id = routeID;
 
-	const config = await smartConfig;
-	config.routes.splice(config.routes.findIndex(r => r.id === routeID), 1, newRoute);
+	const oldRoute = config.routes.splice(config.routes.findIndex(r => r.id === routeID),
+		1, newRoute)[0];
 
-	const i = routes.findIndex(route => route.id === routeID);
-
-	if (i !== -1) {
-		const oldRoute = routes[i];
-		Object.assign(routes[i], newRoute);
-
+	if (oldRoute) {
 		updateServer(oldRoute, newRoute);
 	}
-	return routes[i];
+	return newRoute;
 }
 
 
-async function removeRoute(routeID) {
-	const config = await smartConfig;
-
-	config.routes.splice(config.routes.findIndex(r => r.id === routeID), 1);
-	const route = routes.splice(routes.findIndex(route => route.id === routeID), 1)[0];
+function removeRoute(routeID) {
+	const route = config.routes.splice(config.routes.findIndex(r => r.id === routeID), 1)[0];
 
 	if (route) {
 		removeServer(route);
@@ -304,16 +307,13 @@ async function removeRoute(routeID) {
 }
 
 
-async function setSecurityOptions(options = {}) {
-	const config = await smartConfig;
-
-	Object.assign(config.options, options);
-	Object.assign(securitySettings, options);
+function setSecurityOptions(options = {}) {
+	config.options = options;
 }
 
 
 function getSecurityOptions() {
-	return securitySettings;
+	return config.options;
 }
 
 

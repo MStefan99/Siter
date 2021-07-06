@@ -244,7 +244,6 @@ export function createRouteForm(action, route = {}) {
 					tDirectory: targetDirectoryInput.val() || null,
 					tAddr: targetAddressInput.val() || null,
 					tPort: targetPortInput.val() || null,
-					tLocation: null
 				};
 
 				if (directoryRadio.prop('checked')) {

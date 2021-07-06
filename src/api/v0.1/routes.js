@@ -11,17 +11,17 @@ router.get('/', (req, res) => {
 });
 
 
-router.post('/', async (req, res) => {
+router.post('/', (req, res) => {
 	if (!req.body.route) {
 		res.status(400).send('No route provided');
 	}
 
-	const route = await routeManager.addRoute(req.body.route);
+	const route = routeManager.addRoute(req.body.route);
 	res.status(201).json(route);
 });
 
 
-router.put('/:routeID', async (req, res) => {
+router.put('/:routeID', (req, res) => {
 	if (!req.params.routeID) {
 		res.status(400).send('No ID provided');
 	}
@@ -29,19 +29,19 @@ router.put('/:routeID', async (req, res) => {
 		res.status(400).send('No route provided');
 	}
 
-	const newRoute = await routeManager.updateRoute(
+	const newRoute = routeManager.updateRoute(
 		req.params.routeID,
 		req.body.route);
 	res.json(newRoute);
 });
 
 
-router.delete('/:routeID', async (req, res) => {
+router.delete('/:routeID', (req, res) => {
 	if (!req.params.routeID) {
 		res.status(400).send('No ID provided');
 	}
 
-	await routeManager.removeRoute(req.params.routeID);
+	routeManager.removeRoute(req.params.routeID);
 	res.sendStatus(200);
 });
 

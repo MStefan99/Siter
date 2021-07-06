@@ -207,4 +207,4 @@ log/
 *.css
 
 # Custom rules
-config.json
+config*.json
