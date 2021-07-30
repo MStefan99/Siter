@@ -29,8 +29,6 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use('/', express.static(path.join(__dirname, 'public')));
-app.use('/favicon.ico', express.static(path
-	.join(__dirname, 'public', 'img', 'icon.svg')));
 app.use('/api', apiRouter);
 app.use(authRouter);
 app.use(settingsRouter);

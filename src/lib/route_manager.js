@@ -8,7 +8,7 @@ const fs = require('fs');
 
 const smartConfig = require('./config');
 const mime = require('mime-types');
-const compiledViews = path.join(__dirname, '..', '..', 'views', 'compiled');
+const compiledViews = path.join(__dirname, '..', '..', 'views', 'standalone');
 
 const servers = new Map();
 let siter;
@@ -144,7 +144,7 @@ function handleRequest(request, response) {
 	const port = server.address().port;
 	const url = request.url;
 
-	if (host.match(/^siter\./)) {
+	if (host.match(/^siter\./) || url.match(/\?.*force-siter=true/)) {
 		if (!request.connection.encrypted &&
 			config.options.httpsEnabled &&
 			config.options.httpsRedirect) {
