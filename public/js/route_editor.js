@@ -106,7 +106,7 @@ export function createRouteForm(action, route = {}) {
 	`);
 	const targetAddressInput = new Jui(`
 		<input id="route-target-server-addr" class="col" type="text"
-					 placeholder="localhost" value="${route.tIP || ''}">
+					 placeholder="localhost" value="${route.tAddr || ''}">
 	`);
 	const targetPortInput = new Jui(`
 		<input id="route-target-server-port" class="col" type="number" 
