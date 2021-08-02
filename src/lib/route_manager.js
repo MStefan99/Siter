@@ -5,6 +5,7 @@ const https = require('https');
 const tls = require('tls');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 
 const smartConfig = require('./config');
 const mime = require('mime-types');
@@ -273,7 +274,7 @@ function sanitizeRoute(route) {
 function addRoute(route) {
 	route = sanitizeRoute(route);
 
-	route.id = Math.random().toString(36).substr(2);
+	route.id = crypto.randomUUID();
 	config.routes.push(route);
 	addServer(route);
 
