@@ -5,20 +5,33 @@ import * as notify from '/js/lib/notifications.js';
 
 const httpsCheckbox = document.querySelector('#https-checkbox');
 const redirectCheckbox = document.querySelector('#redirect-checkbox');
+const redirectLabel = document.querySelector('#redirect-label');
 const certFileInput = document.querySelector('#cert-file-input');
 const keyFileInput = document.querySelector('#key-file-input');
 
 
-document.querySelector('#https-link').href = window.location.href
-		.replace('http', 'https');
-
-
 redirectCheckbox.addEventListener('click', async e => {
+	const text = redirectLabel.innerText;
+
 	if (redirectCheckbox.checked) {
-		redirectCheckbox.checked = await notify.ask('Are you sure?',
-				'Please make sure that you can access the website using HTTPS first' +
-				'or you could lose access to the Siter web interface.',
-				'warning');
+		e.preventDefault();
+		redirectCheckbox.setAttribute('disabled', true);
+		redirectLabel.innerText = 'Checking HTTPS...';
+
+		fetch(window.location.href
+			.replace('http', 'https'), {})
+			.then(res => {
+				redirectCheckbox.checked = true;
+				redirectCheckbox.removeAttribute('disabled');
+				redirectLabel.innerText = text;
+			})
+			.catch(err => {
+				redirectLabel.innerText = 'HTTPS redirect unavailable';
+				notify.tell('Unable to use HTTPS',
+					'Siter is unavailable over HTTPS. If you try to enable ' +
+					'this mode anyway, you will lose access to Siter!',
+					'danger');
+			});
 	}
 });
 

@@ -47,12 +47,7 @@ block main
 						placeholder='Path to key file')
 				div.form-check
 					input#redirect-checkbox(type='checkbox' name='httpsRedirect')
-					label(for='redirect-checkbox') Enable HTTPS redirect
-					br
-					span.text-danger Warning! Only enable if you can access Siter
-						|
-						|
-						a#https-link via HTTPS
+					label#redirect-label(for='redirect-checkbox') Enable HTTPS redirect
 				input.btn.btn-primary(type='submit' value='Update')
 			script(async type='module' src='/js/settings.js')
 
