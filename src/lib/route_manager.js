@@ -9,7 +9,7 @@ const crypto = require('crypto');
 
 const smartConfig = require('./config');
 const mime = require('mime-types');
-const compiledViews = path.join(__dirname, '..', '..', 'views', 'standalone');
+const standaloneViews = path.join(__dirname, '..', '..', 'views', 'standalone');
 
 const servers = new Map();
 let siter;
@@ -145,97 +145,98 @@ function handleRequest(request, response) {
 	const port = server.address().port;
 	const url = request.url;
 
-	if (host.match(/^siter\./) || url.match(/\?.*force-siter=true/)) {
-		if (!request.connection.encrypted &&
-			config.options.httpsEnabled &&
-			config.options.httpsRedirect) {
-			response.writeHead(303, {
-				Location: 'https://' + host + url
-			}).end();
+	try {
+		if (host.match(/^siter\./) || url.match(/\?.*force-siter=true/)) {
+			if (!request.connection.encrypted &&
+				config.options.httpsEnabled &&
+				config.options.httpsRedirect) {
+				response.writeHead(303, {
+					Location: 'https://' + host + url
+				}).end();
+			} else {
+				siter(request, response);
+			}
 		} else {
-			siter(request, response);
-		}
-	} else {
-		const route = findRoute(host, port, url);
+			const route = findRoute(host, port, url);
 
-		if (!route) {
-			sendFile(response, path.join(compiledViews, 'no_route.html'), 404);
-		} else {
-			const postfix = url.replace(new RegExp(`^${route.prefix}|\\?.*$`, 'ig'), '');
+			if (!route) {
+				sendFile(response, path.join(standaloneViews, 'no_route.html'), 404);
+			} else {
+				const postfix = url.replace(new RegExp(`^${route.prefix}|\\?.*$`, 'ig'), '');
 
-			if (route.target === 'directory') {  // Serving static files
-				const filePath = path.join(route.tDirectory, ...postfix.split('/'));
+				if (route.target === 'directory') {  // Serving static files
+					const filePath = path.join(route.tDirectory, ...postfix.split('/'));
 
-				// trying requested file
-				sendFile(response, filePath, 200, () => {
-					// trying requested file with .html extension
-					sendFile(response, filePath + '.html', 200, () => {
+					// trying requested file
+					sendFile(response, filePath, 200)
+						// trying requested file with .html extension
+						.catch(() => sendFile(response, filePath + '.html', 200))
 						// trying to treat as a folder with index.html
-						sendFile(response, path.join(filePath, 'index.html'), 200, () => {
-							// file not found
-							sendFile(response, path.join(compiledViews, 'no_file.html'), 404);
-						});
+						.catch(() => sendFile(response, path.join(filePath, 'index.html'), 200))
+						// none of the options worked, sending 404
+						.catch(() => sendFile(response, path.join(standaloneViews, 'no_file.html'), 404));
+				} else if (route.target === 'server') {  // Proxying requests to other servers
+					const options = {
+						hostname: route.tAddr,
+						port: route.tPort,
+						path: postfix,
+						method: request.method,
+						headers: request.headers
+					};
+					options.headers['x-forwarded-for'] = request.connection.remoteAddress;
+
+					const req = http.request(options);
+
+					req.on('upgrade', (res, socket, head) => {
+						response.writeHead(res.statusCode, res.statusMessage, res.headers);
+						res.pipe(response);
+						request.socket.pipe(socket);
+						res.socket.pipe(response.socket);
+						// TODO: fix connection closing
 					});
-				});
-			} else if (route.target === 'server') {  // Proxying requests to other servers
-				const options = {
-					hostname: route.tAddr,
-					port: route.tPort,
-					path: postfix,
-					method: request.method,
-					headers: request.headers
-				};
-				options.headers['x-forwarded-for'] = request.connection.remoteAddress;
 
-				const req = http.request(options);
+					req.on('response', res => {
+						response.writeHead(res.statusCode, res.statusMessage, res.headers);
+						res.pipe(response);
+					});
 
-				req.on('upgrade', (res, socket, head) => {
-					response.writeHead(res.statusCode, res.statusMessage, res.headers);
-					res.pipe(response);
-					request.socket.pipe(socket);
-					res.socket.pipe(response.socket);
-					// TODO: fix connection closing
-				});
-
-				req.on('response', res => {
-					response.writeHead(res.statusCode, res.statusMessage, res.headers);
-					res.pipe(response);
-				});
-
-				request.pipe(req).on('error', err => {
-					sendFile(response, path.join(compiledViews, 'unavailable.html'), 503);
-				});
+					request.pipe(req).on('error', err => {
+						sendFile(response, path.join(standaloneViews, 'unavailable.html'), 503);
+					});
+				}
 			}
 		}
+	} catch (err) {
+		console.error(err);
+		sendFile(response, path.join(standaloneViews, 'internal.html'), 500);
 	}
 }
 
 
-function sendFile(response, filePath, statusCode, errorCallback) {
-	fs.stat(filePath, (err, stats) => {
-		if (err || stats.isDirectory()) {
-			if (errorCallback) {
-				errorCallback(err);
-			}
-		} else {
-			const fileStream = fs.createReadStream(filePath);
+function sendFile(response, filePath, statusCode) {
+	return new Promise((resolve, reject) => {
+		fs.stat(filePath, (err, stats) => {
+			if (err || stats.isDirectory()) {
+				reject(err);
+			} else {
+				const fileStream = fs.createReadStream(filePath);
 
-			response.writeHead(statusCode || 200, {
-				'content-type': mime.contentType(path.extname(filePath)) || 'application/octet-stream',
-				'content-length': stats.size
-			});
-
-			fileStream
-				.pipe(response)
-				.on('end', () => {
-					response.end();
-				})
-				.on('err', err => {
-					if (errorCallback) {
-						errorCallback(err);
-					}
+				response.writeHead(statusCode || 200, {
+					'content-type': mime.contentType(path.extname(filePath)) || 'application/octet-stream',
+					'content-length': stats.size
 				});
-		}
+
+				fileStream
+					.pipe(response)
+					.on('end', () => {
+						response.end();
+						resolve();
+					})
+					.on('err', err => {
+						reject(err);
+					});
+			}
+		});
 	});
 }
 

@@ -35,6 +35,13 @@ app.use(settingsRouter);
 app.use(indexRouter);
 
 
+app.use((err, req, res, next) => {
+	console.error(err);
+
+	res.status(500).sendFile(path.join(__dirname, 'views/standalone/internal.html'));
+});
+
+
 require('./src/lib/init').init().then(() => {
 	routeManager.start(app);
 	console.log('Siter is now running! Open http://siter.localhost/ to get started.');
