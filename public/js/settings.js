@@ -10,6 +10,13 @@ const certFileInput = document.querySelector('#cert-file-input');
 const keyFileInput = document.querySelector('#key-file-input');
 
 
+httpsCheckbox.addEventListener('click', e => {
+	if (!httpsCheckbox.checked) {
+		redirectCheckbox.checked = false;
+	}
+});
+
+
 redirectCheckbox.addEventListener('click', async e => {
 	const text = redirectLabel.innerText;
 
