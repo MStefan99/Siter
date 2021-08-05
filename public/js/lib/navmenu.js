@@ -19,15 +19,21 @@ export default function createMenu(selector) {
 		}
 	}
 	for (const header of headerList) {
+		const id = 'anchor-' + header.id;
+		header.parentNode.insertBefore(
+			new Jui(`
+				<div id="${id}" class="route-anchor"></div>
+			`).nodes[0], header);
+
 		new Jui(`
 			<li>
-				<a href="#${header.id}">
-					<${header.tagName.match(/H\d/) ? 'h2' : 'p'}>
+				<a href="#${id}">
+					<${header.tagName.match(/H\d/)? 'h2' : 'p'}>
 						${header.innerText}
-					</${header.tagName.match(/H\d/) ? 'h2' : 'p'}>
+					</${header.tagName.match(/H\d/)? 'h2' : 'p'}>
 				</a>
 			</li>
 		`)
-		.appendTo(menuList);
+			.appendTo(menuList);
 	}
 }
