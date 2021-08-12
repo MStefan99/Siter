@@ -5,6 +5,8 @@ const express = require('express');
 const router = express.Router();
 const middleware = require('../lib/middleware');
 
+const routeManager = require('../lib/route_manager');
+
 
 router.use(middleware.getSession());
 router.use(middleware.redirectIfNotAuthorized());
@@ -16,7 +18,9 @@ router.get('/', (req, res) => {
 
 
 router.get('/dashboard', (req, res) => {
-	res.render('dashboard');
+	res.render('dashboard', {
+		secure: !!routeManager.getSecurityOptions().httpsEnabled
+	});
 });
 
 

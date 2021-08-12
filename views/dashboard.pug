@@ -29,6 +29,11 @@ block main
 							span.text-muted .your-domain.tld:
 							b.port 80
 							span.text-muted /
+					div.route-security.border-bottom
+						h4 Security
+						p Secure: #[b= secure? 'yes' : 'no']
+						if !secure
+							p Please enable HTTPS in settings
 					div.route-target.border-bottom
 						h4 Target
 						p
