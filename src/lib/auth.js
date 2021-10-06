@@ -1,34 +1,58 @@
 'use strict';
 
 const crypto = require('crypto');
+const util = require('util');
+
+const pbkdf2 = util.promisify(crypto.pbkdf2);
 
 const smartConfig = require('./config');
-const key = 'Siter secret key';
+const PBKDF2ITERATIONS = 100000;
 
 
 module.exports = {
-	init: async () => {
-		const config = await smartConfig;
+	init: function () {
+		return new Promise(resolve => {
+			smartConfig.then(config => {
+				if (!config.options) {
+					config.options = {};
+				}
 
-		if (!config.options?.passwordHash) {
-			const hmac = crypto.createHmac('sha256', key);
-			config.options.passwordHash = hmac.update('admin').digest('hex');
-		}
+				if (!config.options.salt) {
+					const salt = crypto.randomBytes(32);
+					config.options.salt = salt.toString('base64');
+
+					pbkdf2('admin', salt, PBKDF2ITERATIONS, 32, 'sha3-256').then(key => {
+						config.options.key = key.toString('base64');
+						resolve();
+					});
+				}
+			});
+		});
 	},
 
 
-	verifyPassword: async (password) => {
-		const config = await smartConfig;
-		const hmac = crypto.createHmac('sha256', key);
-
-		return hmac.update(password).digest('hex') === config.options.passwordHash;
+	verifyPassword: function (password) {
+		return new Promise(resolve => {
+			smartConfig.then(config => {
+				const salt = Buffer.from(config.options.salt, 'base64');
+				pbkdf2(password, salt, PBKDF2ITERATIONS, 32, 'sha3-256').then(key =>
+						resolve(key.equals(Buffer.from(config.options.key, 'base64'))));
+			});
+		});
 	},
 
 
-	setPassword: async (newPassword) => {
-		const config = await smartConfig;
+	setPassword: function (newPassword) {
+		return new Promise(resolve => {
+			smartConfig.then(config => {
+				const salt = crypto.randomBytes(32);
+				config.options.salt = salt.toString('base64');
 
-		const hmac = crypto.createHmac('sha256', key);
-		config.options.passwordHash = hmac.update(newPassword).digest('hex');
-	},
+				pbkdf2(newPassword, salt, PBKDF2ITERATIONS, 32, 'sha3-256').then(key => {
+					config.options.key = key.toString('base64');
+					resolve();
+				});
+			});
+		});
+	}
 };
