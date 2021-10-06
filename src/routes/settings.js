@@ -73,7 +73,7 @@ router.post('/security', async (req, res) => {
 			type: 'danger'
 		}).redirect(303, '/settings/');
 	} else {
-		await routeManager.setSecurityOptions({
+		await routeManager.setNetOptions({
 			httpsEnabled: req.body.httpsEnabled,
 			httpsRedirect: req.body.httpsRedirect,
 			certFile: req.body.certFile,

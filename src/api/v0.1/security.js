@@ -7,7 +7,7 @@ const routeManager = require('../../lib/route_manager');
 
 
 router.get('/https', (req, res) => {
-	res.json(routeManager.getSecurityOptions());
+	res.json(routeManager.getNetOptions());
 });
 
 

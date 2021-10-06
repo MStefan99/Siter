@@ -43,12 +43,12 @@ function start(defaultHandler) {
 	}
 	siter = defaultHandler;
 
-	httpServer.listen(80);
-	servers.set(80, httpServer);
+	httpServer.listen(config.net.httpPort || 80);
+	servers.set(config.net.httpPort || 80, httpServer);
 
-	if (config.options.httpsEnabled) {
-		httpsServer.listen(443);
-		servers.set(443, httpsServer);
+	if (config.net.httpsEnabled) {
+		httpsServer.listen(config.net.httpsPort || 443);
+		servers.set(config.net.httpsPort || 443, httpsServer);
 	}
 
 	for (const route of config.routes) {
@@ -60,22 +60,22 @@ function start(defaultHandler) {
 function findRouteByDomain(domain) {
 	if (domain.match(/^siter\./)) {
 		return {
-			secure: config.options.httpsEnabled,
-			certFile: config.options.certFile,
-			keyFile: config.options.keyFile
+			secure: config.net.httpsEnabled,
+			certFile: config.net.certFile,
+			keyFile: config.net.keyFile
 		};
 	} else {
 		return config.routes.find(route =>
-			route.domain? domain.match(route.domain) : true);
+				route.domain? domain.match(route.domain) : true);
 	}
 }
 
 
 function findRoute(host, port, url) {
 	return config.routes.find(route =>
-		(route.domain? host === route.domain : true) &&
-		(route.port === port) &&
-		(route.prefix? url.match(route.prefix) : true));
+			(route.domain? host === route.domain : true) &&
+			(route.port === port) &&
+			(route.prefix? url.match(route.prefix) : true));
 }
 
 
@@ -127,7 +127,8 @@ function updateServer(oldRoute, newRoute) {
 
 
 function removeServer(route) {
-	if (route.port === 80 || (config.options.httpsEnabled && route.port === 443)) {
+	if (route.port === (config.net.httpPort || 80) ||
+			(config.net.httpsEnabled && route.port === (config.net.httpsPort || 443))) {
 		return;
 	}
 	let server = servers.get(route.port);
@@ -148,8 +149,8 @@ function handleRequest(request, response) {
 	try {
 		if (host.match(/^siter\./) || url.match(/\?.*force-siter=true/)) {
 			if (!request.connection.encrypted &&
-				config.options.httpsEnabled &&
-				config.options.httpsRedirect) {
+					config.net.httpsEnabled &&
+					config.net.httpsRedirect) {
 				response.writeHead(303, {
 					Location: 'https://' + host + url
 				}).end();
@@ -169,12 +170,12 @@ function handleRequest(request, response) {
 
 					// trying requested file
 					sendFile(response, filePath, 200)
-						// trying requested file with .html extension
-						.catch(() => sendFile(response, filePath + '.html', 200))
-						// trying to treat as a folder with index.html
-						.catch(() => sendFile(response, path.join(filePath, 'index.html'), 200))
-						// none of the options worked, sending 404
-						.catch(() => sendFile(response, path.join(standaloneViews, 'no_file.html'), 404));
+							// trying requested file with .html extension
+							.catch(() => sendFile(response, filePath + '.html', 200))
+							// trying to treat as a folder with index.html
+							.catch(() => sendFile(response, path.join(filePath, 'index.html'), 200))
+							// none of the options worked, sending 404
+							.catch(() => sendFile(response, path.join(standaloneViews, 'no_file.html'), 404));
 				} else if (route.target === 'server') {  // Proxying requests to other servers
 					const options = {
 						hostname: route.tAddr,
@@ -227,14 +228,14 @@ function sendFile(response, filePath, statusCode) {
 				});
 
 				fileStream
-					.pipe(response)
-					.on('end', () => {
-						response.end();
-						resolve();
-					})
-					.on('err', err => {
-						reject(err);
-					});
+						.pipe(response)
+						.on('end', () => {
+							response.end();
+							resolve();
+						})
+						.on('err', err => {
+							reject(err);
+						});
 			}
 		});
 	});
@@ -248,13 +249,13 @@ function getRoutes() {
 
 function sanitizeRoute(route) {
 	route.seq = +route.seq > 0? +route.seq : 1;
-	route.port = isAValidPort(+route.port)? +route.port : 80;
+	route.port = isAValidPort(+route.port)? +route.port : (config.net.httpPort || 80);
 	route.secure = !!route.secure;
 	route.tPort = +route.tPort;
 
 	for (const prop in route) {
 		if (route.hasOwnProperty(prop)
-			&& (route[prop] === null || route[prop] === undefined)) {
+				&& (route[prop] === null || route[prop] === undefined)) {
 			delete route[prop];
 		}
 	}
@@ -291,7 +292,7 @@ function updateRoute(routeID, newRoute) {
 	newRoute.id = routeID;
 
 	const oldRoute = config.routes.splice(config.routes.findIndex(r => r.id === routeID),
-		1, newRoute)[0];
+			1, newRoute)[0];
 
 	if (oldRoute) {
 		updateServer(oldRoute, newRoute);
@@ -309,13 +310,13 @@ function removeRoute(routeID) {
 }
 
 
-function setSecurityOptions(options = {}) {
-	config.options = options;
+function setNetOptions(options = {}) {
+	config.net = options;
 }
 
 
-function getSecurityOptions() {
-	return config.options;
+function getNetOptions() {
+	return config.net;
 }
 
 
@@ -327,6 +328,6 @@ module.exports = {
 	updateRoute: updateRoute,
 	removeRoute: removeRoute,
 
-	getSecurityOptions: getSecurityOptions,
-	setSecurityOptions: setSecurityOptions
+	setNetOptions: setNetOptions,
+	getNetOptions: getNetOptions
 };

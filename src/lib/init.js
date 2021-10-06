@@ -5,16 +5,24 @@ const auth = require('./auth');
 
 
 function init() {
-	return smartConfig.then(config => {
-		auth.init();
+	return new Promise(resolve => {
+		smartConfig.then(config => {
+			auth.init();
 
-		if (!config.sessions) {
-			config.sessions = [];
-		}
+			if (!config.net) {
+				config.net = {};
+			}
 
-		if (!config.routes) {
-			config.routes = [];
-		}
+			if (!config.sessions) {
+				config.sessions = [];
+			}
+
+			if (!config.routes) {
+				config.routes = [];
+			}
+
+			resolve();
+		});
 	});
 }
 
