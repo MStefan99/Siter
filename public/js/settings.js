@@ -26,19 +26,19 @@ redirectCheckbox.addEventListener('click', async e => {
 		redirectLabel.innerText = 'Checking HTTPS...';
 
 		fetch(window.location.href
-			.replace('http', 'https'), {})
-			.then(res => {
-				redirectCheckbox.checked = true;
-				redirectCheckbox.removeAttribute('disabled');
-				redirectLabel.innerText = text;
-			})
-			.catch(err => {
-				redirectLabel.innerText = 'HTTPS redirect unavailable';
-				notify.tell('Unable to use HTTPS',
-					'Siter is unavailable over HTTPS. If you try to enable ' +
-					'this mode anyway, you will lose access to Siter!',
-					'danger');
-			});
+				.replace('http', 'https'), {})
+				.then(res => {
+					redirectCheckbox.checked = true;
+					redirectCheckbox.removeAttribute('disabled');
+					redirectLabel.innerText = text;
+				})
+				.catch(err => {
+					redirectLabel.innerText = 'HTTPS redirect unavailable';
+					notify.tell('Unable to use HTTPS',
+							'Siter is unavailable over HTTPS. If you try to enable ' +
+							'this mode anyway, you will lose access to Siter!',
+							'danger');
+				});
 	}
 });
 

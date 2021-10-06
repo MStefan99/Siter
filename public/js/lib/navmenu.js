@@ -21,7 +21,7 @@ export default function createMenu(selector) {
 	for (const header of headerList) {
 		const id = 'anchor-' + header.id;
 		header.parentNode.insertBefore(
-			new Jui(`
+				new Jui(`
 				<div id="${id}" class="route-anchor"></div>
 			`).nodes[0], header);
 
@@ -34,6 +34,6 @@ export default function createMenu(selector) {
 				</a>
 			</li>
 		`)
-			.appendTo(menuList);
+				.appendTo(menuList);
 	}
 }

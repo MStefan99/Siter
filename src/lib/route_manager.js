@@ -35,8 +35,10 @@ function isAValidPort(port) {
 
 
 function start(defaultHandler) {
-	if (siter) {
-		throw new Error('Route Manager is already started');
+	if (siter) {  // Siter already started, restarting
+		for (const port of servers.keys()) {
+			removeServer({port}, true);
+		}
 	}
 	if (!defaultHandler) {
 		throw new Error('Default handler must be defined');
@@ -88,9 +90,9 @@ function getSecureContext(route) {
 
 
 function addServer(route) {
-	let server = servers.get(+route.port);
+	if (!servers.get(+route.port)) {
+		let server;
 
-	if (!server) {
 		if (route.secure) {
 			server = https.createServer({
 				SNICallback: (servername, cb) => {
@@ -103,46 +105,46 @@ function addServer(route) {
 		} else {
 			server = http.createServer(handleRequest);
 		}
+
 		server.listen(route.port);
-		servers.set(route.port, server);
+		servers.set(+route.port, server);
 	}
 }
 
 
 function updateServer(oldRoute, newRoute) {
 	if (oldRoute.port !== newRoute.port) {
-		let server = servers.get(oldRoute.port);
-
-		if (!config.routes.some(r => r.port === oldRoute.port) && server) {
-			server.close();
-			server.listen(newRoute.port);
-
-			servers.delete(oldRoute.port);
-			servers.set(newRoute.port, server);
-		} else {
-			addServer(newRoute);
-		}
+		removeServer(oldRoute);
+		addServer(newRoute);
 	}
 }
 
 
-function removeServer(route) {
-	if (route.port === (config.net.httpPort || 80) ||
-			(config.net.httpsEnabled && route.port === (config.net.httpsPort || 443))) {
+function removeServer(route, force = false) {
+	if (!force) {
+		if (route.port === (config.net.httpPort || 80) ||
+				(config.net.httpsEnabled && route.port === (config.net.httpsPort || 443))) {
+			return;  // Not removing Siter server
+		}
+
+		if (!config.routes.some(r => r.port === route.port)) {
+			return;  // Some routes are still using the server, thus not removing
+		}
+	}
+
+	const server = servers.get(+route.port);
+	if (!server) {
 		return;
 	}
-	let server = servers.get(route.port);
 
-	if (!config.routes.some(r => r.port === route.port) && server) {
-		server.close();
-		servers.delete(route.port);
-	}
+	server.close();
+	servers.delete(+route.port);
 }
 
 
 function handleRequest(request, response) {
 	const server = this;
-	const host = request.headers.host;
+	const host = request.headers.host.replace(/:.*/, '');
 	const port = server.address().port;
 	const url = request.url;
 
@@ -311,7 +313,8 @@ function removeRoute(routeID) {
 
 
 function setNetOptions(options = {}) {
-	config.net = options;
+	Object.assign(config.net, options);
+	start(siter);
 }
 
 

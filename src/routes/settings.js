@@ -77,7 +77,7 @@ router.post('/security', async (req, res) => {
 			httpsEnabled: req.body.httpsEnabled,
 			httpsRedirect: req.body.httpsRedirect,
 			certFile: req.body.certFile,
-			keyFile: req.body.keyFile,
+			keyFile: req.body.keyFile
 		});
 		res.flash({
 			title: 'Success!',

@@ -13,7 +13,7 @@ router.use(middleware.redirectIfNotAuthorized());
 
 
 router.get('/', (req, res) => {
-	res.redirect(303, '/dashboard/')
+	res.redirect(303, '/dashboard/');
 });
 
 
