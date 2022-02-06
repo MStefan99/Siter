@@ -165,9 +165,8 @@ function handleRequest(request, response) {
 			if (!route) {
 				sendFile(response, path.join(standaloneViews, 'no_route.html'), 404);
 			} else {
-				const postfix = url.replace(new RegExp(`^${route.prefix}|\\?.*$`, 'ig'), '');
-
 				if (route.target === 'directory') {  // Serving static files
+					const postfix = url.replace(new RegExp(`^${route.prefix}|\\?.*$`, 'ig'), '');
 					const filePath = path.join(route.tDirectory, ...postfix.split('/'));
 
 					// trying requested file
@@ -178,7 +177,9 @@ function handleRequest(request, response) {
 							.catch(() => sendFile(response, path.join(filePath, 'index.html'), 200))
 							// none of the options worked, sending 404
 							.catch(() => sendFile(response, path.join(standaloneViews, 'no_file.html'), 404));
+
 				} else if (route.target === 'server') {  // Proxying requests to other servers
+					const postfix = url.replace(new RegExp(`^${route.prefix}`, 'ig'), '');
 					const options = {
 						hostname: route.tAddr,
 						port: route.tPort,
