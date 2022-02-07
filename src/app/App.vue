@@ -1,4 +1,5 @@
 <template lang="pug">
+//- TODO: move entire dashboard inside
 div#route-container.row
 	div.route.mx-3
 		h3 Siter route
@@ -18,22 +19,31 @@ div#route-container.row
 			h4 Target
 			p
 				b Siter web interface
-	Route(v-for="route in routes" :routeData="route")
+	Route(v-for="route in sharedState.routes" :routeData="route")
+	RouteEditor(v-if="sharedState.appState.state !== 'idle'")
 </template>
 
 
 <script>
+'use strict';
+
+import * as notify from '../../public/js/lib/notifications';
+
+import store from './store.js';
 import Route from './Route.vue';
-import * as notify from '../public/js/lib/notifications';
+import RouteEditor from './RouteEditor.vue'
+
 
 export default {
 	components: {
-		Route
+		Route,
+		RouteEditor
 	},
 	name: 'App',
 	data() {
 		return {
-			routes: []
+			sharedState: store,
+			privateState: {}
 		};
 	},
 	async beforeMount() {
@@ -57,7 +67,7 @@ export default {
 					'Please restart the server and check whether you are logged in.',
 					'warning');
 		} else {
-			this.routes = await res.json();
+			this.sharedState.routes = await res.json();
 			// statusField.html('Your server is running fine');
 			// statusField.addClass('alert-success');
 		}
