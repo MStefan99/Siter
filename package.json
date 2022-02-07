@@ -4,11 +4,12 @@
 	"description": "",
 	"main": "app.js",
 	"scripts": {
-		"start": "node app.js"
+		"start": "node app.js",
+		"build": "webpack",
+		"serve": "webpack serve"
 	},
 	"keywords": [],
 	"author": "",
-	"license": "ISC",
 	"dependencies": {
 		"@mstefan99/smart-config": "^1.0.0",
 		"@mstefan99/express-flash": "^1.0.0",
@@ -19,5 +20,18 @@
 		"mime-types": "^2.1.30",
 		"pug": "^3.0.2",
 		"uuid": "^8.3.2"
+	},
+	"devDependencies": {
+		"webpack": "^5.59.0",
+		"webpack-cli": "^4.9.1",
+		"webpack-dev-server": "^4.3.1",
+		"vue": "^3.2.20",
+		"raw-loader": "^4.0.2",
+		"css-loader": "^6.4.0",
+		"style-loader": "^3.3.0",
+		"stylus-loader": "^6.2.0",
+		"pug-plain-loader": "^1.1.0",
+		"vue-loader": "^16.8.1",
+		"vue-template-compiler": "^2.6.14"
 	}
 }

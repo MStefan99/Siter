@@ -19,25 +19,7 @@ block main
 			h2#status Status
 			div.alert.alert-secondary.mx-3#status-field Waiting for server...
 			h2#routes Routes
-			div#route-container.row
-				div.route.mx-3
-					h3 Siter route
-					div.route-mask.border-bottom
-						h4 URL mask
-						a#route-siter.route-link(href='#')
-							b.domain siter
-							span.text-muted .your-domain.tld:
-							b.port 80
-							span.text-muted /
-					div.route-security.border-bottom
-						h4 Security
-						p Secure: #[b= secure? 'yes' : 'no']
-						if !secure
-							p Please enable HTTPS in settings
-					div.route-target.border-bottom
-						h4 Target
-						p
-							b Siter web interface
+			div#route-list
 			button.btn-primary.ml-3#add-route-button Add route
 
 		+help
@@ -50,5 +32,5 @@ block main
 			+helpSection('Target', '/html/help/routes/target.html')
 			+helpSection('Example setup', '/html/help/routes/examples.html')
 
-	script(async type="module" src="/js/routes.js")
-	script(async type="module" src="/js/route_editor.js")
+	script(async type="module" src="/dist/routes.js")
+	//script(async type="module" src="/js/route_editor.js")

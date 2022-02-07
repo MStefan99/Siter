@@ -2,7 +2,7 @@
 
 import Jui from './lib/jui.js';
 import * as notify from './lib/notifications.js';
-import * as routeUI from './routes.js';
+import * as routeUI from './routes-old.js';
 
 
 function remove(element) {
