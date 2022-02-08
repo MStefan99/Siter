@@ -6,7 +6,7 @@ export default function createMenu(selector) {
 	const headerList = document.querySelectorAll(selector);
 
 	while (menuList.firstChild) {
-		menuList.removeChild(menuList.firstChild)
+		menuList.removeChild(menuList.firstChild);
 	}
 
 	for (const header of headerList) {

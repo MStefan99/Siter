@@ -31,8 +31,8 @@ button.btn-primary.ml-3(@click="sharedState.startCreating()") Add route
 <script>
 'use strict';
 
-import * as notify from '../../public/js/lib/notifications';
-import createMenu from '../../public/js/lib/navmenu.js';
+import notify from '../../public/js/notifications';
+import createMenu from './navmenu.js';
 
 import store from './store.js';
 import Route from './Route.vue';

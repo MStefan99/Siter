@@ -39,7 +39,7 @@ div.route.mx-3(:data-route-id="routeData.id")
 <script>
 'use strict';
 
-import * as notify from '../../public/js/lib/notifications.js';
+import notify from '../../public/js/notifications.js';
 import store from './store.js';
 
 
@@ -61,11 +61,11 @@ export default {
 					+ '? This action cannot be undone.',
 					'warning'
 			)
-			.then(result => {
-				if (result) {
-					this.sharedState.deleteRoute(route);
-				}
-			});
+					.then(result => {
+						if (result) {
+							this.sharedState.deleteRoute(route);
+						}
+					});
 		}
 	}
 };
