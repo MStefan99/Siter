@@ -17,7 +17,6 @@ export default reactive({
 
 
 	startEditing(route) {
-		console.log('editing', route);
 		if (!route) {
 			return;
 		}
@@ -31,17 +30,41 @@ export default reactive({
 		this.appState.state = 'idle';
 		this.appState.route = {};
 
-		if (!route) return;
+		if (!route) {
+			return;
+		}
 
-		console.log("Updating route", route);
-		// check if route is saved. update if so, otherwise create
+		const idx = this.routes.findIndex(r => r.id === route.id);
+
+		// TODO: add error handling
+		if (idx >= 0) {  // Route already exists, editing
+			this.routes[idx] = route;
+			fetch('/api/v0.1/routes/' + route.id + '/', {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({route})
+			});
+		} else {  // New route, adding
+			this.routes.push(route);
+			fetch('/api/v0.1/routes/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({route})
+			});
+		}
 	},
 
 
 	deleteRoute(route) {
-		if (!route) return;
+		if (!route) {
+			return;
+		}
 
-		console.log("Deleting route", route);
+		console.log('Deleting route', route);
 		// delete route
 	},
 

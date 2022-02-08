@@ -1,17 +1,20 @@
 <template lang="pug">
 div.popup-backdrop(@click="closePopup($event)")
 	div.popup.shadow-sm
-		form
+		form(@input="updateValidation()" @submit.prevent="submit()")
 			h2 {{getTitle()}}
 
 			h3 URL mask
 			div.row.form-group
-				input.col(type="text" placeholder="example.com" v-model="sharedState.appState.route.domain")
+				input.col(type="text" placeholder="example.com" v-model="sharedState.appState.route.domain"
+					:class="privateState.form.domainValid? 'is-valid' : 'is-invalid'")
 				span.mx-1.text-muted.col-form-label :
 				input.col(type="number" min="1" max="65535" placeholder="80"
-					v-model="sharedState.appState.route.port")
+					v-model="sharedState.appState.route.port"
+					:class="privateState.form.portValid? 'is-valid' : 'is-invalid'")
 				span.mx-1.text-muted.col-form-label /
-				input.col(type="text" placeholder="store" v-model="sharedState.appState.route.prefix")
+				input.col(type="text" placeholder="store" v-model="sharedState.appState.route.prefix"
+					:class="privateState.form.prefixValid? 'is-valid' : 'is-invalid'")
 
 			h3 Security
 			div.form-check
@@ -21,12 +24,14 @@ div.popup-backdrop(@click="closePopup($event)")
 			div(v-if="sharedState.appState.route.secure")
 				div.form-group
 					label(for="route-cert-file") Certificate file location
-					input#route-cert-file(type="text" placeholder="/var/cert/certificate.crt")
+					input#route-cert-file(type="text" placeholder="/var/cert/certificate.crt"
+						:class="privateState.form.certFileValid? 'is-valid' : 'is-invalid'")
 					span.invalid-feedback No certificate file
 
 				div.form-group
 					label(for="route-key-file") Key file location
-					input#route-key-file(type="text" placeholder="/var/cert/key.pem")
+					input#route-key-file(type="text" placeholder="/var/cert/key.pem"
+						:class="privateState.form.keyFileValid? 'is-valid' : 'is-invalid'")
 					span.invalid-feedback No key file
 
 			h3 Target
@@ -43,20 +48,23 @@ div.popup-backdrop(@click="closePopup($event)")
 
 			div.form-group(v-if="sharedState.appState.route.target === 'directory'")
 				label Directory location
-				input(type="text" placeholder="/var/dir/" v-model="sharedState.appState.route.tDirectory")
+				input(type="text" placeholder="/var/dir/" v-model="sharedState.appState.route.tDirectory"
+					:class="privateState.form.targetDirValid? 'is-valid' : 'is-invalid'")
 				span.invalid-feedback No location provided
 
 			div.form-group(v-if="sharedState.appState.route.target === 'server'")
 				label Server address
 				div.row
 					input.col(type="text" placeholder="localhost"
-						v-model="sharedState.appState.route.tAddr")
+						v-model="sharedState.appState.route.tAddr"
+						:class="privateState.form.targetAddressValid? 'is-valid' : 'is-invalid'")
 					span.mx-1.text-muted.col-form-label :
 					input.col(type="number" min="1" max="65535" placeholder="80"
-						v-model="sharedState.appState.route.tPort")
-					span.invalid-feedback Invalid port provided
+						v-model="sharedState.appState.route.tPort"
+						:class="privateState.form.targetPortValid? 'is-valid' : 'is-invalid'")
 
-			input.btn.btn-success(type="submit" :value="getTitle()")
+			input.btn.btn-success(type="submit" :value="getTitle()"
+				:disabled="!privateState.form.valid")
 </template>
 
 
@@ -71,7 +79,9 @@ export default {
 	data() {
 		return {
 			sharedState: store,
-			privateState: {}
+			privateState: {
+				form: {}
+			}
 		};
 	},
 	methods: {
@@ -91,7 +101,54 @@ export default {
 			if (event.target.classList.contains('popup-backdrop')) {
 				this.sharedState.returnToIdle();
 			}
+		},
+
+
+		updateValidation() {
+			const route = this.sharedState.appState.route;
+			const result = this.privateState.form;
+
+			result.domainValid = !!route.domain.match(/^[a-z0-9.\-]+$/);
+			result.portValid = +route.port > 0 && +route.port < 65536;
+			result.prefixValid = !!route.prefix.match(/^[a-z0-9\/\-]*$/);
+
+			result.certFileValid = !!route.certFile?.length;
+			result.keyFileValid = !!route.keyFile?.length;
+
+			result.targetDirValid = !!route.tDirectory?.length;
+
+			result.targetAddressValid = !!route.tAddr?.match(/^[a-z0-9.\-]+$/);
+			result.targetPortValid = +route.tPort > 0 && +route.port < 65536;
+
+			result.valid = !(
+					// Check URL mask
+					(!result.domainValid || !result.portValid || !result.prefixValid)
+					// Check security if enabled
+					|| (route.secure && (!result.certFileValid || !result.keyFileValid))
+					// Check directory if enabled
+					|| (route.target === 'directory' && !result.targetDirValid)
+					// Check server if enabled
+					|| (route.target === 'server' && (!result.targetAddressValid || !result.targetPortValid)));
+		},
+
+
+		submit() {
+			const route = this.sharedState.appState.route;
+			const result = this.privateState.form;
+
+			this.updateValidation();
+
+			if (!result.valid) {
+				return;
+			}
+
+			this.sharedState.commitRoute(route);
 		}
+	},
+
+
+	beforeMount() {
+		this.updateValidation();
 	}
 };
 </script>
