@@ -32,6 +32,7 @@ button.btn-primary.ml-3(@click="sharedState.startCreating()") Add route
 'use strict';
 
 import * as notify from '../../public/js/lib/notifications';
+import createMenu from '../../public/js/lib/navmenu.js';
 
 import store from './store.js';
 import Route from './Route.vue';
@@ -91,7 +92,7 @@ export default {
 
 		if (!res.ok) {
 			this.sharedState.appState.serverStatus = 'broken';
-			await notify.tell('Server error',
+			notify.tell('Server error',
 					'Server is available but returned an invalid response. ' +
 					'Please restart the server and check whether you are logged in.',
 					'warning');
@@ -99,6 +100,11 @@ export default {
 			this.sharedState.appState.serverStatus = 'ok';
 			this.sharedState.routes = await res.json();
 		}
+	},
+
+
+	updated() {
+		createMenu('#dashboard h2, a.route-link');
 	}
 };
 </script>
