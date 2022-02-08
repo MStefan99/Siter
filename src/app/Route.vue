@@ -5,7 +5,7 @@ div.route.mx-3(:data-route-id="routeData.id")
 		img.icon.edit-icon.clickable.mr-2(src="/img/pencil.svg" alt="Settings icon"
 			@click="sharedState.startEditing(routeData)")
 		img.icon.edit-icon.clickable(src="/img/trash_can.svg" alt="Remove icon"
-			@click="sharedState.deleteRoute(routeData)")
+			@click="deleteRoute(routeData)")
 	div.route-mask.border-bottom
 		h4 URL mask
 		a.route-link(target="_blank" :id="'rlink-' + routeData.id"
@@ -39,6 +39,7 @@ div.route.mx-3(:data-route-id="routeData.id")
 <script>
 'use strict';
 
+import * as notify from '../../public/js/lib/notifications.js';
 import store from './store.js';
 
 
@@ -49,6 +50,22 @@ export default {
 		return {
 			sharedState: store,
 			privateState: {}
+		};
+	},
+	methods: {
+		deleteRoute(route) {
+			notify.ask('Are you sure to delete this route?',
+					'Are you sure you want to delete the route '
+					+ (route.secure? 'https' : 'http') + '://'
+					+ route.domain + ':' + route.port + '/' + (route.prefix || '')
+					+ '? This action cannot be undone.',
+					'warning'
+			)
+			.then(result => {
+				if (result) {
+					this.sharedState.deleteRoute(route);
+				}
+			});
 		}
 	}
 };
