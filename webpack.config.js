@@ -8,7 +8,7 @@ const {VueLoaderPlugin} = require('vue-loader');
 module.exports = {
 	mode: 'development',
 	entry: {
-		routes: './src/app/routes.js'
+		app: './src/app/app.js'
 	},
 	output: {
 		path: path.resolve(__dirname, 'public/dist/'),

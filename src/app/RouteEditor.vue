@@ -1,7 +1,7 @@
 <template lang="pug">
 div.popup-backdrop(@click="closePopup($event)")
 	div.popup.shadow-sm
-		form(@input="updateValidation()" @submit.prevent="submit()")
+		form(@change="updateValidation()" @submit.prevent="submit()")
 			h2 {{getTitle()}}
 
 			h3 URL mask
@@ -108,9 +108,10 @@ export default {
 			const route = this.sharedState.appState.route;
 			const result = this.privateState.form;
 
-			result.domainValid = !!route.domain.match(/^[a-z0-9.\-]+$/);
+			result.domainValid = route.domain !== undefined? !!route.domain.match(/^[a-z0-9.\-]+$/) : false;
 			result.portValid = +route.port > 0 && +route.port < 65536;
-			result.prefixValid = !!route.prefix.match(/^[a-z0-9\/\-]*$/);
+			result.prefixValid = route.prefix !== undefined?
+					!!route.prefix.match(/^[a-z0-9\/\-]*$/) : true;
 
 			result.certFileValid = !!route.certFile?.length;
 			result.keyFileValid = !!route.keyFile?.length;
@@ -122,7 +123,7 @@ export default {
 
 			result.valid = !(
 					// Check URL mask
-					(!result.domainValid || !result.portValid || !result.prefixValid)
+					(!result.domainValid || !result.portValid || !result.prefixValid || !route.target)
 					// Check security if enabled
 					|| (route.secure && (!result.certFileValid || !result.keyFileValid))
 					// Check directory if enabled

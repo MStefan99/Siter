@@ -1,5 +1,8 @@
 <template lang="pug">
-//- TODO: move entire dashboard inside
+h1#title Dashboard
+h2#status Status
+div.alert.mx-3(:class="getServerClass()") {{getServerStatus()}}
+h2#routes Routes
 div#route-container.row
 	div.route.mx-3
 		h3 Siter route
@@ -21,6 +24,7 @@ div#route-container.row
 				b Siter web interface
 	Route(v-for="route in sharedState.routes" :routeData="route")
 	RouteEditor(v-if="sharedState.appState.state !== 'idle'")
+button.btn-primary.ml-3(@click="sharedState.startCreating()") Add route
 </template>
 
 
@@ -31,7 +35,7 @@ import * as notify from '../../public/js/lib/notifications';
 
 import store from './store.js';
 import Route from './Route.vue';
-import RouteEditor from './RouteEditor.vue'
+import RouteEditor from './RouteEditor.vue';
 
 
 export default {
@@ -46,30 +50,54 @@ export default {
 			privateState: {}
 		};
 	},
+	methods: {
+		getServerStatus() {
+			switch (this.sharedState.appState.serverStatus) {
+				case 'pending':
+					return 'Waiting for server...';
+				case 'unavailable':
+					return 'Server did not respond. Please check if the server is working.';
+				case 'broken':
+					return 'Server is available but received response was invalid. Please check server version.';
+				case 'ok':
+					return 'Your server is working fine!';
+			}
+		},
+
+
+		getServerClass() {
+			switch (this.sharedState.appState.serverStatus) {
+				case 'pending':
+				case 'broken':
+					return 'alert-warning';
+				case 'unavailable':
+					return 'alert-danger';
+				case 'ok':
+					return 'alert-success';
+			}
+		}
+	},
+
+
 	async beforeMount() {
 		const res = await fetch('/api/v0.1/routes/')
 				.catch(err => {
-					// statusField.html('Server unavailable');
-					// statusField.removeClass('alert-secondary');
-					// statusField.addClass('alert-danger');
+					this.sharedState.appState.serverStatus = 'unavailable';
 					notify.tell('Server unavailable',
 							'Server refused to connect. Please check your firewall settings and ' +
 							'restart Siter.',
 							'danger');
 				});
 
-		// statusField.removeClass('alert-secondary');
 		if (!res.ok) {
-			// statusField.html('Server error');
-			// statusField.addClass('alert-warning');
+			this.sharedState.appState.serverStatus = 'broken';
 			await notify.tell('Server error',
 					'Server is available but returned an invalid response. ' +
 					'Please restart the server and check whether you are logged in.',
 					'warning');
 		} else {
+			this.sharedState.appState.serverStatus = 'ok';
 			this.sharedState.routes = await res.json();
-			// statusField.html('Your server is running fine');
-			// statusField.addClass('alert-success');
 		}
 	}
 };
