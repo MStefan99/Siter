@@ -11,8 +11,8 @@
 	"keywords": [],
 	"author": "",
 	"dependencies": {
-		"@mstefan99/smart-config": "^1.0.0",
 		"@mstefan99/express-flash": "^1.0.0",
+		"@mstefan99/smart-config": "^1.0.0",
 		"body-parser": "^1.19.0",
 		"cookie-parser": "^1.4.5",
 		"express": "^4.17.1",
@@ -22,16 +22,16 @@
 		"uuid": "^8.3.2"
 	},
 	"devDependencies": {
-		"webpack": "^5.59.0",
-		"webpack-cli": "^4.9.1",
-		"webpack-dev-server": "^4.3.1",
-		"vue": "^3.2.20",
-		"raw-loader": "^4.0.2",
 		"css-loader": "^6.4.0",
+		"pug-plain-loader": "^1.1.0",
+		"raw-loader": "^4.0.2",
 		"style-loader": "^3.3.0",
 		"stylus-loader": "^6.2.0",
-		"pug-plain-loader": "^1.1.0",
+		"vue": "^3.2.20",
 		"vue-loader": "^16.8.1",
-		"vue-template-compiler": "^2.6.14"
+		"vue-template-compiler": "^2.6.14",
+		"webpack": "^5.59.0",
+		"webpack-cli": "^4.9.1",
+		"webpack-dev-server": "^4.3.1"
 	}
 }
