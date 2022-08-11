@@ -208,3 +208,4 @@ log/
 
 # Custom rules
 config*.json
+public/dist

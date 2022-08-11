@@ -1,6 +1,6 @@
 'use strict';
 
-import * as notify from '/js/lib/notifications.js';
+import notify from '/js/notifications.js';
 
 
 const httpsCheckbox = document.querySelector('#https-checkbox');
