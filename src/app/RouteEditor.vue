@@ -25,12 +25,14 @@ div.popup-backdrop(@click="closePopup($event)")
 				div.form-group
 					label(for="route-cert-file") Certificate file location
 					input#route-cert-file(type="text" placeholder="/var/cert/certificate.crt"
+            v-model="sharedState.appState.route.certFile"
 						:class="privateState.form.certFileValid? 'is-valid' : 'is-invalid'")
 					span.invalid-feedback No certificate file
 
 				div.form-group
 					label(for="route-key-file") Key file location
 					input#route-key-file(type="text" placeholder="/var/cert/key.pem"
+            v-model="sharedState.appState.route.keyFile"
 						:class="privateState.form.keyFileValid? 'is-valid' : 'is-invalid'")
 					span.invalid-feedback No key file
 
