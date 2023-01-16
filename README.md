@@ -3,7 +3,7 @@
 ![Siter logo][logo]
 
 ![Siter version](https://img.shields.io/badge/Siter-beta-orange?style=flat-square)
-[![CodeFactor](https://www.codefactor.io/repository/github/mstefan99/siter/badge?s=59c31d18f4d3b3d7470ad0c0cb5481b7e48e33f5&style=flat-square)](https://www.codefactor.io/repository/github/mstefan99/siter)
+![Maintenance](https://img.shields.io/maintenance/yes/2023?style=flat-square)
 ![GitHub issues](https://img.shields.io/github/issues/MStefan99/Siter?style=flat-square)
 
 ## What is Siter?
@@ -17,11 +17,10 @@ used by a lot of people. Siter was designed to be fast and reliable,
 features an easy-to-use web interface and can be set up in minutes!
 
 ## Installation
-First, [download][download_node] and install Node.js on your device.
-Then navigate to the [releases], choose the latest stable release and
-follow instructions specific for that release.
-When you are done with the setup, open [Siter Dashboard][dashboard]
-to configure Siter.
+- Install Node.js
+- Run `setup.sh`
+- Run `node app.js`
+- Open [Siter Dashboard][dashboard] and use `admin` as the password. Don't forget to change the password in settings
 
 ## Getting started
 Siter Dashboard is made to be simple and easy to use. But if you still have
@@ -33,7 +32,6 @@ You can also view help pages in HTML format [here][help].
 
 
 [logo]: public/img/logo_200x200px.png
-[download_node]: https://nodejs.org/en/download/
-[releases]: https://github.com/MStefan99/Siter/releases
 [dashboard]: http://siter.localhost
 [help]: public/html/help
+
