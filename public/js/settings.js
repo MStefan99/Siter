@@ -43,7 +43,7 @@ redirectCheckbox.addEventListener('click', async e => {
 });
 
 
-fetch('/api/v0.1/security/https/').then(async res => {
+fetch('/api/security/https/').then(async res => {
 	const options = await res.json();
 
 	httpsCheckbox.checked = options.httpsEnabled;

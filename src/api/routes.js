@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 
-const routeManager = require('../../lib/route_manager');
+const routeManager = require('../lib/route_manager');
 
 
 router.get('/', (req, res) => {

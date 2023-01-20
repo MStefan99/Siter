@@ -82,10 +82,14 @@ function findRoute(host, port, url) {
 
 
 function getSecureContext(route) {
-	return tls.createSecureContext({
-		key: fs.readFileSync(route.keyFile),
-		cert: fs.readFileSync(route.certFile)
-	});
+	try {
+		return tls.createSecureContext({
+			key: fs.readFileSync(route.keyFile),
+			cert: fs.readFileSync(route.certFile)
+		});
+	} catch {
+		return {}
+	}
 }
 
 

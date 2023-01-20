@@ -41,7 +41,7 @@ export default reactive({
 
 		// TODO: add error handling
 		if (idx >= 0) {  // Route already exists, editing
-			fetch('/api/v0.1/routes/' + route.id + '/', {
+			fetch('/api/routes/' + route.id + '/', {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json'
@@ -51,7 +51,7 @@ export default reactive({
 					.then(res => res.json())
 					.then(route => this.routes[idx] = route);
 		} else {  // New route, adding
-			fetch('/api/v0.1/routes/', {
+			fetch('/api/routes/', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -75,7 +75,7 @@ export default reactive({
 
 		// TODO: add error handling
 		if (idx >= 0) {
-			fetch('/api/v0.1/routes/' + route.id + '/', {
+			fetch('/api/routes/' + route.id + '/', {
 				method: 'DELETE'
 			})
 					.then(res => {

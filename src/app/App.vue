@@ -99,7 +99,7 @@ export default {
 				this.sharedState.routes.splice(targetIndex, 0, sourceRoute);
 			}
 
-			fetch('/api/v0.1/routes/reorder', {
+			fetch('/api/routes/reorder', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -111,7 +111,7 @@ export default {
 
 
 	async beforeMount() {
-		const res = await fetch('/api/v0.1/routes/')
+		const res = await fetch('/api/routes/')
 				.catch(err => {
 					this.sharedState.appState.serverStatus = 'unavailable';
 					notify.tell('Server unavailable',
