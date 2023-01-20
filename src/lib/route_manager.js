@@ -68,16 +68,16 @@ function findRouteByDomain(domain) {
 		};
 	} else {
 		return config.routes.find(route =>
-				route.domain? domain.match(route.domain) : true);
+			route.domain ? domain.match(route.domain) : true);
 	}
 }
 
 
 function findRoute(host, port, url) {
 	return config.routes.find(route =>
-			(route.domain? host === route.domain : true) &&
-			(route.port === port) &&
-			(route.prefix? url.match(route.prefix) : true));
+		(route.domain ? host === route.domain : true) &&
+		(route.port === port) &&
+		(route.prefix ? url.match(route.prefix) : true));
 }
 
 
@@ -123,7 +123,7 @@ function updateServer(oldRoute, newRoute) {
 function removeServer(route, force = false) {
 	if (!force) {
 		if (route.port === (config.net.httpPort || 80) ||
-				(config.net.httpsEnabled && route.port === (config.net.httpsPort || 443))) {
+			(config.net.httpsEnabled && route.port === (config.net.httpsPort || 443))) {
 			return;  // Not removing Siter server
 		}
 
@@ -151,8 +151,8 @@ function handleRequest(request, response) {
 	try {
 		if (host.match(/^siter\./) || url.match(/\?.*force-siter=true/)) {
 			if (!request.connection.encrypted &&
-					config.net.httpsEnabled &&
-					config.net.httpsRedirect) {
+				config.net.httpsEnabled &&
+				config.net.httpsRedirect) {
 				response.writeHead(303, {
 					Location: 'https://' + host + url
 				}).end();
@@ -171,12 +171,12 @@ function handleRequest(request, response) {
 
 					// trying requested file
 					sendFile(response, filePath, 200)
-							// trying requested file with .html extension
-							.catch(() => sendFile(response, filePath + '.html', 200))
-							// trying to treat as a folder with index.html
-							.catch(() => sendFile(response, path.join(filePath, 'index.html'), 200))
-							// none of the options worked, sending 404
-							.catch(() => sendFile(response, path.join(standaloneViews, 'no_file.html'), 404));
+						// trying requested file with .html extension
+						.catch(() => sendFile(response, filePath + '.html', 200))
+						// trying to treat as a folder with index.html
+						.catch(() => sendFile(response, path.join(filePath, 'index.html'), 200))
+						// none of the options worked, sending 404
+						.catch(() => sendFile(response, path.join(standaloneViews, 'no_file.html'), 404));
 
 				} else if (route.target === 'server') {  // Proxying requests to other servers
 					const postfix = url.replace(new RegExp(`^${route.prefix}`, 'ig'), '');
@@ -231,14 +231,14 @@ function sendFile(response, filePath, statusCode) {
 				});
 
 				fileStream
-						.pipe(response)
-						.on('end', () => {
-							response.end();
-							resolve();
-						})
-						.on('err', err => {
-							reject(err);
-						});
+					.pipe(response)
+					.on('end', () => {
+						response.end();
+						resolve();
+					})
+					.on('err', err => {
+						reject(err);
+					});
 			}
 		});
 	});
@@ -251,14 +251,14 @@ function getRoutes() {
 
 
 function sanitizeRoute(route) {
-	route.seq = +route.seq > 0? +route.seq : 1;
-	route.port = isAValidPort(+route.port)? +route.port : (config.net.httpPort || 80);
+	route.seq = +route.seq > 0 ? +route.seq : 1;
+	route.port = isAValidPort(+route.port) ? +route.port : (config.net.httpPort || 80);
 	route.secure = !!route.secure;
 	route.tPort = +route.tPort;
 
 	for (const prop in route) {
 		if (route.hasOwnProperty(prop)
-				&& (route[prop] === null || route[prop] === undefined)) {
+			&& (route[prop] === null || route[prop] === undefined)) {
 			delete route[prop];
 		}
 	}
@@ -295,7 +295,7 @@ function updateRoute(routeID, newRoute) {
 	newRoute.id = routeID;
 
 	const oldRoute = config.routes.splice(config.routes.findIndex(r => r.id === routeID),
-			1, newRoute)[0];
+		1, newRoute)[0];
 
 	if (oldRoute) {
 		updateServer(oldRoute, newRoute);
@@ -312,6 +312,21 @@ function removeRoute(routeID) {
 	}
 }
 
+function reorder(newOrder) {
+	const routes = [];
+
+	while (newOrder.length) {
+		const id = newOrder.shift();
+		const idx = config.routes.findIndex(r => r.id === id);
+
+		routes.push(config.routes[idx]);
+		config.routes.splice(idx, 1);
+	}
+
+	routes.concat(config.routes);
+	config.routes = routes;
+}
+
 
 function setNetOptions(options = {}) {
 	Object.assign(config.net, options);
@@ -325,13 +340,14 @@ function getNetOptions() {
 
 
 module.exports = {
-	start: start,
+	start,
 
-	getRoutes: getRoutes,
-	addRoute: addRoute,
-	updateRoute: updateRoute,
-	removeRoute: removeRoute,
+	getRoutes,
+	addRoute,
+	updateRoute,
+	removeRoute,
+	reorder,
 
-	setNetOptions: setNetOptions,
-	getNetOptions: getNetOptions
+	setNetOptions,
+	getNetOptions
 };

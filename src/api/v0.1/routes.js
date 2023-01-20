@@ -30,8 +30,8 @@ router.put('/:routeID', (req, res) => {
 	}
 
 	const newRoute = routeManager.updateRoute(
-			req.params.routeID,
-			req.body.route);
+		req.params.routeID,
+		req.body.route);
 	res.json(newRoute);
 });
 
@@ -42,6 +42,16 @@ router.delete('/:routeID', (req, res) => {
 	}
 
 	routeManager.removeRoute(req.params.routeID);
+	res.sendStatus(200);
+});
+
+
+router.post('/reorder', (req, res) => {
+	if (!req.body) {
+		res.status(400).send('Invalid order');
+	}
+
+	routeManager.reorder(req.body);
 	res.sendStatus(200);
 });
 

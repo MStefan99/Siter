@@ -209,3 +209,4 @@ log/
 # Custom rules
 config*.json
 public/dist
+package-lock.json

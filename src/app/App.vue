@@ -3,7 +3,7 @@ h1#title Dashboard
 h2#status Status
 div.alert.mx-3(:class="getServerClass()") {{getServerStatus()}}
 h2#routes Routes
-div#route-container.row
+div#route-container.row(@dragover.prevent @drop.prevent="routeDrop($event)")
 	div.route.mx-3
 		h3 Siter route
 		div.route-mask.border-bottom
@@ -22,7 +22,7 @@ div#route-container.row
 			h4 Target
 			p
 				b Siter web interface
-	Route(v-for="route in sharedState.routes" :routeData="route")
+	Route(v-for="route in sharedState.routes" :routeData="route" draggable="true" @dragstart="routeDrag($event, route)")
 	RouteEditor(v-if="sharedState.appState.state !== 'idle'")
 button.btn-primary.ml-3(@click="sharedState.startCreating()") Add route
 </template>
@@ -76,6 +76,36 @@ export default {
 				case 'ok':
 					return 'alert-success';
 			}
+		},
+
+		routeDrag(e, route) {
+			e.dataTransfer.setData('text/plain', route.id);
+		},
+
+		routeDrop(e) {
+			const sourceID = e.dataTransfer.getData('text/plain');
+			const targetID = e.target.closest('.route').getAttribute('data-route-id');
+
+			if (!targetID) {
+				// Dropped on blank space, reorder using coordinates
+			}
+
+			if (sourceID) {
+				const sourceIndex = this.sharedState.routes.findIndex(r => r.id === sourceID);
+				const sourceRoute = this.sharedState.routes[sourceIndex];
+				const targetIndex = this.sharedState.routes.findIndex(r => r.id === targetID);
+
+				this.sharedState.routes.splice(sourceIndex, 1);
+				this.sharedState.routes.splice(targetIndex, 0, sourceRoute);
+			}
+
+			fetch('/api/v0.1/routes/reorder', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(this.sharedState.routes.map(r => r.id))
+			});
 		}
 	},
 
