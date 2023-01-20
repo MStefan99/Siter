@@ -334,6 +334,7 @@ function reorder(newOrder) {
 
 function setNetOptions(options = {}) {
 	Object.assign(config.net, options);
+	config.net.httpsEnabled = !!options.httpsEnabled;
 	start(siter);
 }
 

@@ -1,9 +1,12 @@
 'use strict';
 
-const menu = document.querySelector('#side-menu');
+const backdrop = document.querySelector('#menu-backdrop');
 const toggle = document.querySelector('#menu-toggle');
 
-
 toggle.addEventListener('click', e => {
-	menu.classList.toggle('hidden');
+	backdrop.classList.toggle('hidden');
+});
+
+backdrop.addEventListener('click', e => {
+	backdrop.classList.add('hidden');
 });

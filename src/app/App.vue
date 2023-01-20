@@ -33,7 +33,6 @@ button.btn-primary.ml-3(@click="sharedState.startCreating()") Add route
 'use strict';
 
 import notify from '../../public/js/notifications';
-import createMenu from './navmenu.js';
 
 import store from './store.js';
 import Route from './Route.vue';
@@ -96,7 +95,7 @@ export default {
 				}
 			}
 
-			if (!targetID) {
+			if (!targetID || targetID === sourceID) {
 				return;
 			}
 
@@ -140,11 +139,6 @@ export default {
 			this.sharedState.appState.serverStatus = 'ok';
 			this.sharedState.routes = await res.json();
 		}
-	},
-
-
-	updated() {
-		createMenu('#dashboard h2, a.route-link');
 	}
 };
 </script>
