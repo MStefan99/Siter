@@ -22,7 +22,8 @@ div#route-container.row(@dragover.prevent @drop.prevent="routeDrop($event)")
 			h4 Target
 			p
 				b Siter web interface
-	Route(v-for="route in sharedState.routes" :routeData="route" draggable="true" @dragstart="routeDrag($event, route)")
+	TransitionGroup(name="list")
+		Route(v-for="route in sharedState.routes" :key="route.id" :routeData="route" draggable="true" @dragstart="routeDrag($event, route)")
 	RouteEditor(v-if="sharedState.appState.state !== 'idle'")
 button.btn-primary.ml-3(@click="sharedState.startCreating()") Add route
 </template>
@@ -84,18 +85,27 @@ export default {
 
 		routeDrop(e) {
 			const sourceID = e.dataTransfer.getData('text/plain');
-			const targetID = e.target.closest('.route').getAttribute('data-route-id');
+			let targetID = e.target.closest('.route')?.getAttribute('data-route-id');
 
 			if (!targetID) {
-				// Dropped on blank space, reorder using coordinates
+				for (const el of Array.from(document.getElementsByClassName('route')).reverse()) {
+					const rect = el.getBoundingClientRect();
+					if (e.clientY > rect.top && e.clientY < rect.bottom && e.clientX < rect.left) {
+						targetID = el.getAttribute('data-route-id');
+					}
+				}
+			}
+
+			if (!targetID) {
+				return;
 			}
 
 			if (sourceID) {
 				const sourceIndex = this.sharedState.routes.findIndex(r => r.id === sourceID);
 				const sourceRoute = this.sharedState.routes[sourceIndex];
-				const targetIndex = this.sharedState.routes.findIndex(r => r.id === targetID);
-
 				this.sharedState.routes.splice(sourceIndex, 1);
+
+				const targetIndex = this.sharedState.routes.findIndex(r => r.id === targetID);
 				this.sharedState.routes.splice(targetIndex, 0, sourceRoute);
 			}
 
@@ -138,3 +148,21 @@ export default {
 	}
 };
 </script>
+
+<style>
+.list-move,
+.list-enter-active,
+.list-leave-active {
+	transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+	opacity: 0;
+	transform: translateX(30px);
+}
+
+.list-leave-active {
+	position: absolute;
+}
+</style>
