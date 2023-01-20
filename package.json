@@ -5,8 +5,8 @@
 	"main": "app.js",
 	"scripts": {
 		"backend": "node app.js",
-		"frontend": "webpack --watch",
-		"build": "webpack",
+		"frontend": "webpack --watch --config webpack.dev.js",
+		"build": "webpack --config webpack.prod.js",
 		"dev": "run-p backend frontend"
 	},
 	"keywords": [],

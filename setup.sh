@@ -21,7 +21,7 @@ npm i
 echo "Dependencies installed!"
 
 echo "Building..."
-npx webpack build
+npm run build
 echo "Build complete!"
 
 echo "Installed successfully! Run \"node app.js\" to start Siter"
