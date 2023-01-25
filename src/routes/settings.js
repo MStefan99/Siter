@@ -50,7 +50,7 @@ router.post('/password', async (req, res) => {
 
 		res.flash({
 			title: 'Success!',
-			info: 'You can now log in with a new password.' +
+			info: 'You can now log in with a new password. ' +
 					'You have been logged out on all devices.',
 			type: 'success'
 		}).redirect(303, '/login/');

@@ -27,8 +27,20 @@ const app = express();
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
+app.set('x-powered-by', false);
 
-app.use('/', express.static(path.join(__dirname, 'public')));
+app.use((req, res, next) => {
+	res.set('X-Content-Type-Options', 'nosniff');
+	res.set('Cache-Control', 'no-cache');
+	next();
+});
+
+app.use('/', express.static(path.join(__dirname, 'public'), {
+	setHeaders(res) {
+		res.set('Cache-Control', 'max-age=31536000 immutable public')
+	}
+}));
+
 app.use('/api', apiRouter);
 app.use(authRouter);
 app.use(settingsRouter);

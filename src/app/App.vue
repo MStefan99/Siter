@@ -34,7 +34,7 @@ div#route-container.row(@dragover.prevent @drop.prevent="routeDrop($event)")
 		Route(v-for="route in sharedState.routes" :key="route.id" :routeData="route" draggable="true" @dragstart="routeDrag($event, route)")
 	Transition(name="popup")
 		RouteEditor(v-if="sharedState.appState.state !== 'idle'")
-button.btn-primary.ml-3(@click="sharedState.startCreating()") Add route
+button.btn-primary.ml-3(type="button" @click="sharedState.startCreating()") Add route
 </template>
 
 
