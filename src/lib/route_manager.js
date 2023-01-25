@@ -20,9 +20,11 @@ smartConfig.then(c => config = c);
 const httpServer = http.createServer(handleRequest);
 const httpsServer = https.createServer({
 	SNICallback: (servername, cb) => {
-		const route = findRouteByDomain(servername) || {};
+		const route = findRouteByDomain(servername);
 		if (route.secure) {
 			cb(null, getSecureContext(route));
+		} else {
+			cb(new Error('Secure request to a non-secure route could not be handled'), null);
 		}
 	}
 }, handleRequest);
@@ -153,7 +155,9 @@ function handleRequest(request, response) {
 	const url = request.url;
 
 	try {
-		if (host.match(/^siter\./) || url.match(/\?.*force-siter=true/)) {
+		if (url.match(/\?.*force-siter=true/)) {
+			siter(request, response);
+		} else if (host.match(/^siter\./)) {
 			if (!request.connection.encrypted &&
 				config.net.httpsEnabled &&
 				config.net.httpsRedirect) {
