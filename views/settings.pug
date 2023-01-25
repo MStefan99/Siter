@@ -16,18 +16,19 @@ block main
 			h1#title Settings
 			h2 Password
 			form#password-form.mx-3(action='/password/' method='post')
+				input#username(type='text' autocomplete='username' value='admin' hidden)
 				div.form-group
 					label(for='old-pwd') Old password
 					input#old-pwd(type='password' placeholder='password'
-						name='oldPassword' required)
+						name='oldPassword' autocomplete='current-password' required)
 				div.form-group
 					label(for='new-pwd') New password
 					input#new-pwd(type='password' placeholder='new-password'
-						name='newPassword' required)
+						name='newPassword' autocomplete='new-password' required)
 				div.form-group
 					label(for='new-pwd-repeat') Repeat new password
 					input#new-pwd-repeat(type='password' placeholder='new-password'
-						name='newPasswordRepeat' required)
+						name='newPasswordRepeat' autocomplete='new-password' required)
 				input.btn.btn-primary(type='submit' value='Update')
 
 			h2 Security

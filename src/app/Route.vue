@@ -40,8 +40,8 @@ div.route.mx-3(:data-route-id="routeData.id")
 			b {{routeData.tDirectory}}
 		div(v-if="routeData.target === 'server'")
 			p.server Server
-			a(:href="'http://' + routeData.tAddr + ':' + routeData.tPort + '/'")
-				b.target-addr http://{{routeData.tAddr}}:{{routeData.tPort}}
+			a(:href="(routeData.tPort === 443? 'https://': 'http://') + routeData.tAddr + ':' + routeData.tPort + '/'")
+				b.target-addr {{routeData.tAddr}}:{{routeData.tPort}}
 </template>
 
 

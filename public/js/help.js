@@ -1,6 +1,5 @@
 'use strict';
 
-
 const helpElements = document.querySelectorAll('div[data-help-src]');
 
 for (const helpElement of helpElements) {

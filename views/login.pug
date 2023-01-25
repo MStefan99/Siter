@@ -3,9 +3,10 @@ extends layout
 block main
 	form#login-form(action="/login/" method="post")
 		h4 Sign in to Siter!
+		input#username(type='text' autocomplete='username' value='admin' hidden)
 		label(for="password") Password
 		input#password(type="password" name="password"
-			autofocus placeholder="Your password")
+			autofocus placeholder="Your password" autocomplete="current-password")
 		if !secure
 			p.bold.text-danger Your connection is not secure!
 			p.bold.text-danger Do not submit your password unless Siter is running locally.
