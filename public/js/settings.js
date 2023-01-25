@@ -26,7 +26,7 @@ redirectCheckbox.addEventListener('click', async e => {
 		redirectLabel.innerText = 'Checking HTTPS...';
 
 		fetch(window.location.href
-				.replace('http', 'https'), {})
+				.replace(/https?/, 'https'), {mode: 'no-cors'})
 				.then(res => {
 					redirectCheckbox.checked = true;
 					redirectCheckbox.removeAttribute('disabled');
@@ -43,7 +43,7 @@ redirectCheckbox.addEventListener('click', async e => {
 });
 
 
-fetch('/api/security/https/').then(async res => {
+fetch('/api/security/').then(async res => {
 	const options = await res.json();
 
 	httpsCheckbox.checked = options.httpsEnabled;

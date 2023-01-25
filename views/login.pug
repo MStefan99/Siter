@@ -6,4 +6,7 @@ block main
 		label(for="password") Password
 		input#password(type="password" name="password"
 			autofocus placeholder="Your password")
+		if !secure
+			p.bold.text-danger Your connection is not secure!
+			p.bold.text-danger Do not submit your password unless Siter is running locally.
 		input.btn.btn-success(type="submit")

@@ -8,16 +8,24 @@ div#route-container.row(@dragover.prevent @drop.prevent="routeDrop($event)")
 		h3 Siter route
 		div.route-mask.border-bottom
 			h4 URL mask
-			a#route-siter.route-link(href='#')
+			a#route-siter.route-link(href="#")
 				b.domain siter
 				span.text-muted .your-domain.tld:
 				b.port 80
 				span.text-muted /
 		div.route-security.border-bottom
 			h4 Security
-			p Secure: #[b= secure? 'yes' : 'no']
-			if !secure
-				p Please enable HTTPS in settings
+			div(v-if="privateState.secure")
+				p Secure:
+					|
+					|
+					b Yes
+			div(v-else)
+				p Secure:
+					|
+					|
+					b.text-danger No
+				div Please enable HTTPS redirect in settings
 		div.route-target.border-bottom
 			h4 Target
 			p
@@ -120,26 +128,33 @@ export default {
 	},
 
 
-	async beforeMount() {
-		const res = await fetch('/api/routes/')
+	beforeMount() {
+		fetch('/api/routes/')
 				.catch(err => {
 					this.sharedState.appState.serverStatus = 'unavailable';
 					notify.tell('Server unavailable',
 							'Server refused to connect. Please check your firewall settings and ' +
 							'restart Siter.',
 							'danger');
-				});
+				}).then(res => {
+			if (!res.ok) {
+				this.sharedState.appState.serverStatus = 'broken';
+				notify.tell('Server error',
+						'Server is available but returned an invalid response. ' +
+						'Please restart the server and check whether you are logged in.',
+						'warning');
+			} else {
+				this.sharedState.appState.serverStatus = 'ok';
+				return res.json();
+			}
+		}).then(routes => this.sharedState.routes = routes);
 
-		if (!res.ok) {
-			this.sharedState.appState.serverStatus = 'broken';
-			notify.tell('Server error',
-					'Server is available but returned an invalid response. ' +
-					'Please restart the server and check whether you are logged in.',
-					'warning');
-		} else {
-			this.sharedState.appState.serverStatus = 'ok';
-			this.sharedState.routes = await res.json();
-		}
+		fetch('/api/security')
+				.then(res => {
+					if (res.ok) {
+						return res.json();
+					}
+				}).then(settings => this.privateState.secure = settings.httpsRedirect);
 	}
 };
 </script>

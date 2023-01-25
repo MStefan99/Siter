@@ -3,7 +3,7 @@
 const backdrop = document.querySelector('#menu-backdrop');
 const toggle = document.querySelector('#menu-toggle');
 
-toggle.addEventListener('click', e => {
+toggle?.addEventListener('click', e => {
 	backdrop.classList.toggle('hidden');
 });
 

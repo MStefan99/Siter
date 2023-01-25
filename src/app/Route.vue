@@ -18,7 +18,16 @@ div.route.mx-3(:data-route-id="routeData.id")
 			b.prefix {{routeData.prefix}}
 	div.route-security.border-bottom
 		h4 Security
-		p Secure: #[b {{routeData.secure? 'yes' : 'no'}}]
+		div(v-if="routeData.secure")
+			p Secure:
+				|
+				|
+				b Yes
+		div(v-else)
+			p Secure:
+				|
+				|
+				b.text-danger No
 		div(v-if="routeData.secure")
 			p Certificate file location:
 			b.cert-file {{routeData.certFile}}
@@ -45,7 +54,11 @@ import store from './store.js';
 
 export default {
 	name: 'Route',
-	props: ['routeData'],
+	props: {
+		routeData: {
+			secure: Boolean
+		}
+	},
 	data() {
 		return {
 			sharedState: store,
