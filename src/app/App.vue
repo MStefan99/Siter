@@ -24,7 +24,8 @@ div#route-container.row(@dragover.prevent @drop.prevent="routeDrop($event)")
 				b Siter web interface
 	TransitionGroup(name="list")
 		Route(v-for="route in sharedState.routes" :key="route.id" :routeData="route" draggable="true" @dragstart="routeDrag($event, route)")
-	RouteEditor(v-if="sharedState.appState.state !== 'idle'")
+	Transition(name="popup")
+		RouteEditor(v-if="sharedState.appState.state !== 'idle'")
 button.btn-primary.ml-3(@click="sharedState.startCreating()") Add route
 </template>
 
@@ -147,7 +148,7 @@ export default {
 .list-move,
 .list-enter-active,
 .list-leave-active {
-	transition: all 0.5s ease;
+	transition: opacity .5s ease, transform .5s ease;
 }
 
 .list-enter-from,
@@ -158,5 +159,16 @@ export default {
 
 .list-leave-active {
 	position: absolute;
+}
+
+.popup-enter-active,
+.popup-leave-active {
+	transition: opacity .2s ease, transform .2s ease;
+}
+
+.popup-enter-from,
+.popup-leave-to {
+	transform: scale(1.1);
+	opacity: 0;
 }
 </style>
