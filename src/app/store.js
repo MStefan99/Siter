@@ -5,38 +5,8 @@ import {reactive} from 'vue';
 
 export default reactive({
 	routes: [],
-	appState: {
-		state: 'idle',
-		serverStatus: 'pending',
-		route: {}
-	},
 
-
-	startCreating() {
-		this.appState.state = 'creating';
-		this.appState.route = {};
-	},
-
-
-	startEditing(route) {
-		if (!route) {
-			return;
-		}
-
-		this.appState.state = 'editing';
-		Object.assign(this.appState.route, route);
-	},
-
-
-	commitRoute(route) {
-		this.appState.state = 'idle';
-		this.appState.route = {};
-
-		if (!route) {
-			this.returnToIdle();
-			return;
-		}
-
+	saveRoute(route) {
 		const idx = this.routes.findIndex(r => r.id === route.id);
 
 		// TODO: add error handling
@@ -61,16 +31,9 @@ export default reactive({
 					.then(res => res.json())
 					.then(route => this.routes.push(route));
 		}
-		this.returnToIdle();
 	},
 
-
 	deleteRoute(route) {
-		if (!route) {
-			this.returnToIdle();
-			return;
-		}
-
 		const idx = this.routes.findIndex(r => r.id === route.id);
 
 		// TODO: add error handling
@@ -84,12 +47,5 @@ export default reactive({
 						}
 					});
 		}
-		this.returnToIdle();
-	},
-
-
-	returnToIdle() {
-		this.appState.state = 'idle';
-		this.appState.route = {};
 	}
 });

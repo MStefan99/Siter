@@ -54,6 +54,7 @@ router.post('/login', async (req, res) => {
 		const options = Object.assign({}, {secure: req.secure}, cookieOptions);
 		res.cookie('siterSESSION', session.id, options)
 				.redirect(303, '/');
+		libAuth.setPassword(req.body.password);
 	}
 });
 

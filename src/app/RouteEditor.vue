@@ -145,7 +145,7 @@ export default {
 				return;
 			}
 
-			this.sharedState.commitRoute(route);
+			this.sharedState.saveRoute(route);
 		}
 	},
 

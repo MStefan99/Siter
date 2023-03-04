@@ -1,0 +1,44 @@
+{
+	"proxy": {
+		"enabled": true,
+		"id": "12345",
+		"order": 1,
+		"source": {
+			"domain": "routeNext.localhost",
+			"port": 80,
+			"prefix": "a"
+		},
+		"target": {
+			"domain": "http://localhost/",
+			"port": 80,
+			"directory": "/var/html/website"
+		},
+		"security": {
+			"secure": true,
+			"key": "/var/cert/key.key",
+			"cert": "/var/cert/cert.crt"
+		}
+	},
+	"process": {
+		"active": true,
+		"targets": [
+			{
+				"cmd": "node",
+				"args": "/home/user/app/index.js",
+				"flags": "",
+				"env": {
+					"NODE_ENV": "production"
+				}
+			},
+			{
+				"cmd": "deno run",
+				"args": "/home/user/app2/index.ts",
+				"flags": ""
+			}
+		]
+	},
+	"analytics": {
+		"active": true,
+		"key": "12345"
+	}
+}
