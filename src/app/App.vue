@@ -32,10 +32,11 @@
 				p
 					b Siter web interface
 		TransitionGroup(name="list")
-			Route(v-for="route in store.routes" :key="route.id" :appData="route" draggable="true" @dragstart="routeDrag($event, route)")
+			Route(v-for="route in store.routes" :key="route.id" :appData="route" @edit="editRoute = route"
+				draggable="true" @dragstart="routeDrag($event, route)")
 		Transition(name="popup")
-			RouteEditor(v-if="editRoute")
-	button.btn-primary.ml-3(type="button" @click="editRoute = {}") Add route
+			RouteEditor(v-if="editRoute" :app="editRoute" @udpate="r => route = r" @close="editRoute = null")
+	button.btn-primary.ml-3(type="button" @click="editRoute = app") Add route
 </template>
 
 
@@ -47,6 +48,7 @@ import notify from '../../public/js/notifications';
 import store from './store.js';
 import Route from './Route.vue';
 import RouteEditor from './RouteEditor.vue';
+import app from './app';
 import {onMounted, ref} from "vue";
 
 const serverStatus = ref('pending');
@@ -65,7 +67,6 @@ function getServerStatus() {
 			return 'Your server is working fine!';
 	}
 }
-
 
 function getServerClass() {
 	switch (serverStatus.value) {

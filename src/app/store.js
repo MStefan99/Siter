@@ -6,6 +6,10 @@ import {reactive} from 'vue';
 export default reactive({
 	routes: [],
 
+	getRoute(id) {
+		return this.routes.find(r => r.id === id);
+	},
+
 	saveRoute(route) {
 		const idx = this.routes.findIndex(r => r.id === route.id);
 
