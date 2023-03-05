@@ -15,7 +15,7 @@ router.use(bodyParser.json());
 router.use(middleware.getSession());
 router.use(middleware.rejectIfNotAuthorized());
 
-router.use('/routes', routeRouter);
+router.use('/apps', routeRouter);
 
 router.get('/security', (req, res) => {
 	res.json(routeManager.getNetOptions());

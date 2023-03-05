@@ -18,20 +18,20 @@ div.popup-backdrop(v-if="app" @click.self="$emit('close')")
 
 			h3 Security
 			div.form-check
-				input#route-secure-checkbox(type="checkbox" v-model="app.server.source.secure")
-				label(for="route-secure-checkbox") Enable HTTPS
+				input#app-secure-checkbox(type="checkbox" v-model="app.server.source.secure")
+				label(for="app-secure-checkbox") Enable HTTPS
 
 			div(v-if="app.server.source.secure")
 				div.form-group
-					label(for="route-cert-file") Certificate file location
-					input#route-cert-file(type="text" placeholder="/var/cert/certificate.crt"
+					label(for="app-cert-file") Certificate file location
+					input#app-cert-file(type="text" placeholder="/var/cert/certificate.crt"
 						v-model="app.server.source.cert"
 						:class="validation.certFileValid? 'is-valid' : 'is-invalid'")
 					span.invalid-feedback No certificate file
 
 				div.form-group
-					label(for="route-key-file") Key file location
-					input#route-key-file(type="text" placeholder="/var/cert/key.pem"
+					label(for="app-key-file") Key file location
+					input#app-key-file(type="text" placeholder="/var/cert/key.pem"
 						v-model="app.server.source.key"
 						:class="validation.keyFileValid? 'is-valid' : 'is-invalid'")
 					span.invalid-feedback No key file
@@ -39,13 +39,13 @@ div.popup-backdrop(v-if="app" @click.self="$emit('close')")
 			h3 Target
 			div.form-group
 				div.form-check
-					input#route-dir-radio(type="radio" name="target" :value="true"
+					input#app-dir-radio(type="radio" name="target" :value="true"
 						v-model="directory")
-					label(for="route-dir-radio") Directory
+					label(for="app-dir-radio") Directory
 				div.form-check
-					input#route-server-radio(type="radio" name="target" :value="false"
+					input#app-server-radio(type="radio" name="target" :value="false"
 						v-model="directory")
-					label(for="route-server-radio") Web server
+					label(for="app-server-radio") Web server
 					span.invalid-feedback Please select the target type
 
 			div.form-group(v-if="directory")
@@ -73,7 +73,7 @@ div.popup-backdrop(v-if="app" @click.self="$emit('close')")
 <script setup>
 'use strict';
 
-import store from './store.js';
+import store from '../store.js';
 import {onMounted, ref} from "vue";
 
 const props = defineProps(['editing', 'app']);
@@ -84,9 +84,9 @@ const validation = ref({});
 
 function getTitle() {
 	if (props.editing) {
-		return 'Edit route';
+		return 'Edit app';
 	} else {
-		return 'Add route';
+		return 'Add app';
 	}
 }
 
@@ -125,7 +125,7 @@ function save() {
 	}
 
 	emit('update', app.value);
-	store.saveRoute(app.value);
+	store.saveapp(app.value);
 }
 
 

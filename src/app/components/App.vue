@@ -1,14 +1,14 @@
 <template lang="pug">
-div.route.mx-3
-	h3 Route
-	div.route-icon-container.float-right
+div.app.mx-3
+	h3 app
+	div.app-icon-container.float-right
 		img.icon.edit-icon.clickable.mr-2(src="/img/pencil.svg" alt="Settings icon"
 			@click="$emit('edit', appData.id)")
 		img.icon.edit-icon.clickable(src="/img/trash_can.svg" alt="Remove icon"
-			@click="deleteRoute(appData)")
-	div.route-mask.border-bottom
+			@click="deleteapp(appData)")
+	div.app-mask.border-bottom
 		h4 URL mask
-		a.route-link(target="_blank"
+		a.app-link(target="_blank"
 			:href="(appData.server.source.secure? 'https://' : 'http://') + \
 			appData.server.source.hostname + ':' + appData.server.source.port + '/' + \
 			(appData.server.source.pathname || '')")
@@ -17,7 +17,7 @@ div.route.mx-3
 			b.port {{appData.server.source.port}}
 			span.text-muted /
 			b.prefix {{appData.server.source.pathname}}
-	div.route-security.border-bottom
+	div.app-security.border-bottom
 		h4 Security
 		div(v-if="appData.server.source.secure")
 			p Secure:
@@ -34,7 +34,7 @@ div.route.mx-3
 			b.cert-file {{appData.server.source.cert}}
 			p Key file location:
 			b.key-file {{appData.server.source.key}}
-	div.route-target.border-bottom
+	div.app-target.border-bottom
 		h4 Target
 		div(v-if="appData.server.target.directory?.length")
 			p.directory Directory
@@ -49,23 +49,23 @@ div.route.mx-3
 <script setup>
 'use strict';
 
-import notify from '../../public/js/notifications.js';
-import store from './store.js';
+import notify from '../../../public/js/notifications.js';
+import store from '../store.js';
 
 defineProps(['appData']);
 defineEmits(['edit']);
 
-function deleteRoute(route) {
-	notify.ask('Are you sure to delete this route?',
-		'Are you sure you want to delete the route '
-		+ (route.secure ? 'https' : 'http') + '://'
-		+ route.domain + ':' + route.port + '/' + (route.prefix || '')
+function deleteapp(app) {
+	notify.ask('Are you sure to delete this app?',
+		'Are you sure you want to delete the app '
+		+ (app.secure ? 'https' : 'http') + '://'
+		+ app.domain + ':' + app.port + '/' + (app.prefix || '')
 		+ '? This action cannot be undone.',
 		'warning'
 	)
 		.then(result => {
 			if (result) {
-				store.deleteRoute(route);
+				store.deleteapp(app);
 			}
 		});
 }

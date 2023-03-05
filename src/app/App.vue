@@ -1,20 +1,20 @@
 <template lang="pug">
-#app
-	h1#title Dashboard
-	h2#status Status
+#apps
+	h1 Dashboard
+	h2 Status
 	div.alert.mx-3(:class="getServerClass()") {{getServerStatus()}}
-	h2#routes Routes
-	div#route-container.row(@dragover.prevent @drop.prevent="routeDrop($event)")
-		div.route.mx-3
-			h3 Siter route
-			div.route-mask.border-bottom
+	h2 apps
+	div#app-container.row(@dragover.prevent @drop.prevent="appDrop($event)")
+		div.app.mx-3
+			h3 Siter app
+			div.app-mask.border-bottom
 				h4 URL mask
-				a#route-siter.route-link(href="#")
+				a.app-link(href="#")
 					b.domain siter
 					span.text-muted .your-domain.tld:
 					b.port 80
 					span.text-muted /
-			div.route-security.border-bottom
+			div.app-security.border-bottom
 				h4 Security
 				div(v-if="secure")
 					p Secure:
@@ -27,16 +27,16 @@
 						|
 						b.text-danger No
 					div Please enable HTTPS redirect in settings
-			div.route-target.border-bottom
+			div.app-target.border-bottom
 				h4 Target
 				p
 					b Siter web interface
 		TransitionGroup(name="list")
-			Route(v-for="route in store.routes" :key="route.id" :appData="route" @edit="editRoute = route"
-				draggable="true" @dragstart="routeDrag($event, route)")
+			App(v-for="app in store.apps" :key="app.id" :appData="app" @edit="editapp = app"
+				draggable="true" @dragstart="appDrag($event, app)")
 		Transition(name="popup")
-			RouteEditor(v-if="editRoute" :app="editRoute" @udpate="r => route = r" @close="editRoute = null")
-	button.btn-primary.ml-3(type="button" @click="editRoute = app") Add route
+			AppEditor(v-if="editapp" :app="editapp" @udpate="r => app = r" @close="editapp = null")
+	button.btn-primary.ml-3(type="button" @click="editapp = app") Add app
 </template>
 
 
@@ -46,14 +46,14 @@
 import notify from '../../public/js/notifications';
 
 import store from './store.js';
-import Route from './Route.vue';
-import RouteEditor from './RouteEditor.vue';
+import App from './components/App.vue';
+import AppEditor from './components/AppEditor.vue';
 import app from './app';
 import {onMounted, ref} from "vue";
 
 const serverStatus = ref('pending');
 const secure = ref(null);
-const editRoute = ref(null);
+const editapp = ref(null);
 
 function getServerStatus() {
 	switch (serverStatus.value) {
@@ -80,19 +80,19 @@ function getServerClass() {
 	}
 }
 
-function routeDrag(e, route) {
-	e.dataTransfer.setData('text/plain', route.id);
+function appDrag(e, app) {
+	e.dataTransfer.setData('text/plain', app.id);
 }
 
-function routeDrop(e) {
+function appDrop(e) {
 	const sourceID = e.dataTransfer.getData('text/plain');
-	let targetID = e.target.closest('.route')?.getAttribute('data-route-id');
+	let targetID = e.target.closest('.app')?.getAttribute('data-app-id');
 
 	if (!targetID) {
-		for (const el of Array.from(document.getElementsByClassName('route')).reverse()) {
+		for (const el of Array.from(document.getElementsByClassName('app')).reverse()) {
 			const rect = el.getBoundingClientRect();
 			if (e.clientY > rect.top && e.clientY < rect.bottom && e.clientX < rect.left) {
-				targetID = el.getAttribute('data-route-id');
+				targetID = el.getAttribute('data-app-id');
 			}
 		}
 	}
@@ -102,25 +102,25 @@ function routeDrop(e) {
 	}
 
 	if (sourceID) {
-		const sourceIndex = store.routes.findIndex(r => r.id === sourceID);
-		const sourceRoute = store.routes[sourceIndex];
-		store.routes.splice(sourceIndex, 1);
+		const sourceIndex = store.apps.findIndex(r => r.id === sourceID);
+		const sourceApp = store.apps[sourceIndex];
+		store.apps.splice(sourceIndex, 1);
 
-		const targetIndex = store.routes.findIndex(r => r.id === targetID);
-		store.routes.splice(targetIndex, 0, sourceRoute);
+		const targetIndex = store.apps.findIndex(r => r.id === targetID);
+		store.apps.splice(targetIndex, 0, sourceApp);
 	}
 
-	fetch('/api/routes/reorder', {
+	fetch('/api/apps/reorder', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify(store.routes.map(r => r.id))
+		body: JSON.stringify(store.apps.map(r => r.id))
 	});
 }
 
 onMounted(() => {
-	fetch('/api/routes/')
+	fetch('/api/apps/')
 		.catch(err => {
 			serverStatus.value = 'unavailable';
 			notify.tell('Server unavailable',
@@ -138,7 +138,7 @@ onMounted(() => {
 			serverStatus.value = 'ok';
 			return res.json();
 		}
-	}).then(routes => store.routes = routes);
+	}).then(apps => store.apps = apps);
 
 	fetch('/api/security')
 		.then(res => {

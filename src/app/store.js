@@ -4,50 +4,50 @@ import {reactive} from 'vue';
 
 
 export default reactive({
-	routes: [],
+	apps: [],
 
-	getRoute(id) {
-		return this.routes.find(r => r.id === id);
+	getApp(id) {
+		return this.apps.find(r => r.id === id);
 	},
 
-	saveRoute(route) {
-		const idx = this.routes.findIndex(r => r.id === route.id);
+	saveApp(app) {
+		const idx = this.apps.findIndex(r => r.id === app.id);
 
 		// TODO: add error handling
-		if (idx >= 0) {  // Route already exists, editing
-			fetch('/api/routes/' + route.id + '/', {
+		if (idx >= 0) {  // app already exists, editing
+			fetch('/api/apps/' + app.id + '/', {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({route})
+				body: JSON.stringify({app})
 			})
 					.then(res => res.json())
-					.then(route => this.routes[idx] = route);
-		} else {  // New route, adding
-			fetch('/api/routes/', {
+					.then(app => this.apps[idx] = app);
+		} else {  // New app, adding
+			fetch('/api/apps/', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({route})
+				body: JSON.stringify({app})
 			})
 					.then(res => res.json())
-					.then(route => this.routes.push(route));
+					.then(app => this.apps.push(app));
 		}
 	},
 
-	deleteRoute(route) {
-		const idx = this.routes.findIndex(r => r.id === route.id);
+	deleteApp(app) {
+		const idx = this.apps.findIndex(r => r.id === app.id);
 
 		// TODO: add error handling
 		if (idx >= 0) {
-			fetch('/api/routes/' + route.id + '/', {
+			fetch('/api/apps/' + app.id + '/', {
 				method: 'DELETE'
 			})
 					.then(res => {
 						if (res.ok) {
-							this.routes.splice(idx, 1);
+							this.apps.splice(idx, 1);
 						}
 					});
 		}
