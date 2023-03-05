@@ -32,7 +32,7 @@
 				p
 					b Siter web interface
 		TransitionGroup(name="list")
-			Route(v-for="route in store.routes" :key="route.id" :routeData="route" draggable="true" @dragstart="routeDrag($event, route)")
+			Route(v-for="route in store.routes" :key="route.id" :appData="route" draggable="true" @dragstart="routeDrag($event, route)")
 		Transition(name="popup")
 			RouteEditor(v-if="editRoute")
 	button.btn-primary.ml-3(type="button" @click="editRoute = {}") Add route
@@ -117,7 +117,6 @@ function routeDrop(e) {
 		body: JSON.stringify(store.routes.map(r => r.id))
 	});
 }
-
 
 onMounted(() => {
 	fetch('/api/routes/')

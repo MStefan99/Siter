@@ -9,7 +9,7 @@ const webpack = require('webpack');
 module.exports = {
 	mode: 'production',
 	entry: {
-		app: './src/app/app.js'
+		app: './src/app/index.js'
 	},
 	output: {
 		path: path.resolve(__dirname, 'public/dist/'),
