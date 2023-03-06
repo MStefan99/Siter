@@ -70,16 +70,16 @@ function findAppByDomain(domain) {
 		};
 	} else {
 		return config.apps.find(app =>
-			app.route.source.hostname ? domain.match(app.route.source.hostname) : true);
+			app.hosting.source.hostname ? domain.match(app.hosting.source.hostname) : true);
 	}
 }
 
 
 function findApp(host, port, url) {
 	return config.apps.find(app =>
-		(app.route.source.hostname ? host === app.route.source.hostname : true) &&
-		(app.route.source.port === port) &&
-		(app.route.source.pathname ? url.match(app.route.source.pathname) : true));
+		(app.hosting.source.hostname ? host === app.hosting.source.hostname : true) &&
+		(app.hosting.source.port === port) &&
+		(app.hosting.source.pathname ? url.match(app.hosting.source.pathname) : true));
 }
 
 
@@ -87,8 +87,8 @@ function getSecureContext(app) {
 	try {
 		return tls.createSecureContext({
 			// TODO: async
-			key: fs.readFileSync(app.route.source.key),
-			cert: fs.readFileSync(app.route.source.cert)
+			key: fs.readFileSync(app.hosting.source.key),
+			cert: fs.readFileSync(app.hosting.source.cert)
 		});
 	} catch {
 		return {}
@@ -97,14 +97,14 @@ function getSecureContext(app) {
 
 
 function addServer(app) {
-	if (!servers.get(+app.route.source.port)) {
+	if (!servers.get(+app.hosting.source.port)) {
 		let server;
 
-		if (app.route.source.secure) {
+		if (app.hosting.source.secure) {
 			server = https.createServer({
 				SNICallback: (servername, cb) => {
 					const app = findAppByDomain(servername) || {};
-					if (app.route.source.secure) {
+					if (app.hosting.source.secure) {
 						cb(null, getSecureContext(app));
 					}
 				}
@@ -113,14 +113,14 @@ function addServer(app) {
 			server = http.createServer(handleRequest);
 		}
 
-		server.listen(app.route.source.port);
-		servers.set(+app.route.source.port, server);
+		server.listen(app.hosting.source.port);
+		servers.set(+app.hosting.source.port, server);
 	}
 }
 
 
 function updateServer(oldApp, newApp) {
-	if (oldApp.route.source.port !== newApp.route.source.port) {
+	if (oldapp.hosting.source.port !== newapp.hosting.source.port) {
 		removeServer(oldApp);
 		addServer(newApp);
 	}
@@ -129,23 +129,23 @@ function updateServer(oldApp, newApp) {
 
 function removeServer(app, force = false) {
 	if (!force) {
-		if (app.route.source.port === (config.net.httpPort || 80) ||
-			(config.net.httpsEnabled && app.route.source.port === (config.net.httpsPort || 443))) {
+		if (app.hosting.source.port === (config.net.httpPort || 80) ||
+			(config.net.httpsEnabled && app.hosting.source.port === (config.net.httpsPort || 443))) {
 			return;  // Not removing Siter server
 		}
 
-		if (!config.apps.some(a => a.route.source.port === app.route.source.port)) {
+		if (!config.apps.some(a => a.route.source.port === app.hosting.source.port)) {
 			return;  // Some apps are still using the server, thus not removing
 		}
 	}
 
-	const server = servers.get(+app.route.source.port);
+	const server = servers.get(+app.hosting.source.port);
 	if (!server) {
 		return;
 	}
 
 	server.close();
-	servers.delete(+app.route.source.port);
+	servers.delete(+app.hosting.source.port);
 }
 
 
@@ -174,9 +174,9 @@ function handleRequest(request, response) {
 			if (!app) {
 				sendFile(response, path.join(standaloneViews, 'no_app.html'), 404);
 			} else {
-				if (app.route.target.directory?.length) {  // Serving static files
-					const postfix = url.replace(new RegExp(`^${app.route.source.pathname}|\\?.*$`, 'ig'), '');
-					const filePath = path.join(app.route.target.directory, ...postfix.split('/'));
+				if (app.hosting.target.directory?.length) {  // Serving static files
+					const postfix = url.replace(new RegExp(`^${app.hosting.source.pathname}|\\?.*$`, 'ig'), '');
+					const filePath = path.join(app.hosting.target.directory, ...postfix.split('/'));
 
 					// trying requested file
 					sendFile(response, filePath, 200)
@@ -188,10 +188,10 @@ function handleRequest(request, response) {
 						.catch(() => sendFile(response, path.join(standaloneViews, 'no_file.html'), 404));
 
 				} else {  // Proxying requests to other servers
-					const postfix = url.replace(new RegExp(`^${app.route.source.pathname}`, 'ig'), '');
+					const postfix = url.replace(new RegExp(`^${app.hosting.source.pathname}`, 'ig'), '');
 					const options = {
-						hostname: app.route.target.hostname,
-						port: app.route.target.port,
+						hostname: app.hosting.target.hostname,
+						port: app.hosting.target.port,
 						path: postfix,
 						method: request.method,
 						headers: request.headers
@@ -255,15 +255,15 @@ function sendFile(response, filePath, statusCode) {
 
 
 function getApps() {
-	return config.apps ?? {};
+	return config.apps ?? [];
 }
 
 
 function sanitizeApp(app) {
-	app.route.order = +app.route.order > 0 ? +app.route.order : 1;
-	app.route.source.port = isAValidPort(+app.route.source.port) ? +app.route.source.port : (config.net.httpPort || 80);
-	app.route.source.secure = !!app.route.source.secure;
-	app.route.target.port = +app.route.target.port;
+	app.hosting.order = +app.hosting.order > 0 ? +app.hosting.order : 1;
+	app.hosting.source.port = isAValidPort(+app.hosting.source.port) ? +app.hosting.source.port : (config.net.httpPort || 80);
+	app.hosting.source.secure = !!app.hosting.source.secure;
+	app.hosting.target.port = +app.hosting.target.port;
 
 	for (const prop in app) {
 		if (app.hasOwnProperty(prop)
@@ -272,11 +272,11 @@ function sanitizeApp(app) {
 		}
 	}
 
-	if (!app.route.source.hostname || !isAValidPort(+app.route.source.port)) {
+	if (!app.hosting.source.hostname || !isAValidPort(+app.hosting.source.port)) {
 		throw new Error('App domain or port is invalid');
-	} else if (app.route.source.secure && (!app.route.source.cert || !app.route.source.key)) {
+	} else if (app.hosting.source.secure && (!app.hosting.source.cert || !app.hosting.source.key)) {
 		throw new Error('Secure apps must have a certificate and a key file');
-	} else if (!app.route.target.directory && (!app.route.target.hostname || !isAValidPort(+app.route.target.port))) {
+	} else if (!app.hosting.target.directory && (!app.hosting.target.hostname || !isAValidPort(+app.hosting.target.port))) {
 		throw new Error('App target set to server but server address is invalid');
 	}
 	return app;

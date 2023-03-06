@@ -2,7 +2,8 @@
 
 export default {
 	id: null,
-	route: {
+	name: '',
+	hosting: {
 		active: false,
 		order: 0,
 		source: {
@@ -20,7 +21,7 @@ export default {
 			directory: ''
 		}
 	},
-	process: {
+	pm: {
 		active: false,
 		targets: []
 	},
