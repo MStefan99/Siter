@@ -9,10 +9,10 @@ const webpack = require('webpack');
 module.exports = {
 	mode: 'development',
 	entry: {
-		app: './src/app/index.js'
+		app: './frontend/index.js'
 	},
 	output: {
-		path: path.resolve(__dirname, 'public/dist/'),
+		path: path.resolve(__dirname, 'frontend', 'public', 'dist'),
 		filename: '[name].js'
 	},
 	module: {

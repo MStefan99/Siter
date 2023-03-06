@@ -208,5 +208,5 @@ log/
 
 # Custom rules
 config*.json
-public/dist
+frontend/public/dist
 package-lock.json

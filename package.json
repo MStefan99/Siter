@@ -2,9 +2,9 @@
 	"name": "siter",
 	"version": "1.0.0",
 	"description": "",
-	"main": "app.js",
+	"main": "backend/app.js",
 	"scripts": {
-		"backend": "nodemon app.js",
+		"backend": "nodemon backend/app.js",
 		"frontend": "webpack --watch --config webpack.dev.js",
 		"build": "webpack --config webpack.prod.js",
 		"dev": "run-p backend frontend"

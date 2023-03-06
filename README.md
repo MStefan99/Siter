@@ -31,7 +31,7 @@ to use in your case.
 You can also view help pages in HTML format [here][help].
 
 
-[logo]: public/img/logo_200x200px.png
+[logo]: frontend/public/img/logo_200x200px.png
 [dashboard]: http://siter.localhost
-[help]: public/html/help
+[help]: frontend/public/html/help
 

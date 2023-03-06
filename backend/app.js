@@ -15,12 +15,12 @@ process.on('uncaughtException', (err, origin) => {
 const path = require('path');
 const express = require('express');
 
-const appManager = require('./src/lib/app_manager');
+const appManager = require('./lib/app_manager');
 
-const indexRouter = require('./src/routes/index');
-const authRouter = require('./src/routes/auth');
-const settingsRouter = require('./src/routes/settings');
-const apiRouter = require('./src/api/router');
+const indexRouter = require('./routes');
+const authRouter = require('./routes/auth');
+const settingsRouter = require('./routes/settings');
+const apiRouter = require('./api/router');
 
 const app = express();
 
@@ -35,7 +35,7 @@ app.use((req, res, next) => {
 	next();
 });
 
-app.use('/', express.static(path.join(__dirname, 'public'), {
+app.use('/', express.static(path.join(__dirname, '..', 'frontend', 'public'), {
 	setHeaders(res) {
 		res.set('Cache-Control', 'max-age=31536000 immutable public')
 	}
@@ -54,7 +54,7 @@ app.use((err, req, res, next) => {
 });
 
 
-require('./src/lib/init').init().then(() => {
+require('./lib/init').init().then(() => {
 	appManager.start(app);
 	console.log('Siter is now running! Open http://siter.localhost/ to get started.');
 });

@@ -49,7 +49,7 @@ div.app.mx-3
 <script setup>
 'use strict';
 
-import notify from '../../../public/js/notifications.js';
+import notify from '../public/js/notifications.js';
 import store from '../store.js';
 
 defineProps(['appData']);

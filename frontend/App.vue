@@ -43,7 +43,7 @@
 <script setup>
 'use strict';
 
-import notify from '../../public/js/notifications';
+import notify from './public/js/notifications';
 
 import store from './store.js';
 import App from './components/App.vue';
