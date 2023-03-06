@@ -50,15 +50,15 @@
 						label(for="target-dir-radio") Directory
 					.form-check
 						input#target-server-radio(type="radio" name="target" :value="false" v-model="directory")
-						label(for="target-server-radio") Web route
+						label(for="target-server-radio") Web server
 						span.invalid-feedback Please select the target type
 				.form-group(v-if="directory")
 					label Directory location
-					input(type="text" placeholder="/var/dir/" v-model="app.hosting.target.directory"
+					FilePicker(v-model="app.hosting.target.directory"
 						:class="validation.targetDirValid? 'is-valid' : 'is-invalid'")
 					span.invalid-feedback No location provided
 				.form-group(v-else)
-					label route address
+					label Server address
 					.row
 						input.col(type="text" placeholder="localhost" v-model="app.hosting.target.hostname"
 							:class="validation.targetAddressValid? 'is-valid' : 'is-invalid'")
@@ -90,6 +90,7 @@
 import store from '../store.js';
 import {computed, onMounted, ref} from "vue";
 import {validate} from "../../common/validate";
+import FilePicker from "./FilePicker.vue";
 
 const props = defineProps(['editing', 'app']);
 const emit = defineEmits(['update', 'close']);
@@ -106,6 +107,8 @@ function getTitle() {
 }
 
 function save() {
+	!directory.value && (app.value.hosting.target.directory = '');
+
 	if (!validate(app.value)) {
 		return;
 	}

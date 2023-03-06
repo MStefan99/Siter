@@ -149,31 +149,4 @@ onMounted(() => {
 });
 </script>
 
-<style>
-.list-move,
-.list-enter-active,
-.list-leave-active {
-	transition: opacity .5s ease, transform .5s ease;
-}
-
-.list-enter-from,
-.list-leave-to {
-	opacity: 0;
-	transform: translateX(30px);
-}
-
-.list-leave-active {
-	position: absolute;
-}
-
-.popup-enter-active,
-.popup-leave-active {
-	transition: opacity .2s ease, transform .2s ease;
-}
-
-.popup-enter-from,
-.popup-leave-to {
-	transform: scale(1.1);
-	opacity: 0;
-}
-</style>
+<style></style>

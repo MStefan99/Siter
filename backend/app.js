@@ -21,6 +21,7 @@ const viewsRouter = require('./routes/views');
 const authRouter = require('./routes/auth');
 const settingsRouter = require('./routes/settings');
 const appRouter = require('./routes/apps');
+const fileRouter = require('./routes/files');
 
 const app = express();
 
@@ -41,10 +42,11 @@ app.use('/', express.static(path.join(__dirname, '..', 'frontend', 'public'), {
 	}
 }));
 
-app.use('/apps', appRouter);
 app.use(viewsRouter);
 app.use(authRouter);
 app.use(settingsRouter);
+app.use('/apps', appRouter);
+app.use(fileRouter);
 
 
 app.use((err, req, res, next) => {
