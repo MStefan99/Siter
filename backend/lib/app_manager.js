@@ -97,33 +97,37 @@ function getSecureContext(app) {
 
 
 function addServer(app) {
-	if (!servers.get(+app.hosting.source.port)) {
-		let server;
-
-		if (app.hosting.source.secure) {
-			server = https.createServer({
-				SNICallback: (servername, cb) => {
-					const app = findAppByDomain(servername) || {};
-					if (app.hosting.source.secure) {
-						cb(null, getSecureContext(app));
-					}
-				}
-			}, handleRequest);
-		} else {
-			server = http.createServer(handleRequest);
-		}
-
-		server.listen(app.hosting.source.port);
-		servers.set(+app.hosting.source.port, server);
+	if (!app.hosting.active) {
+		return; // Hosting disabled
 	}
+
+	if (servers.get(+app.hosting.source.port)) {
+		return; // Server already exists
+	}
+
+	let server;
+	if (app.hosting.source.secure) {
+		server = https.createServer({
+			SNICallback: (servername, cb) => {
+				const app = findAppByDomain(servername) || {};
+				if (app.hosting.source.secure) {
+					cb(null, getSecureContext(app));
+				}
+			}
+		}, handleRequest);
+	} else {
+		server = http.createServer(handleRequest);
+	}
+
+	server.listen(app.hosting.source.port);
+	servers.set(+app.hosting.source.port, server);
 }
 
 
 function updateServer(oldApp, newApp) {
-	if (oldApp.hosting.source.port !== newApp.hosting.source.port) {
-		removeServer(oldApp);
-		addServer(newApp);
-	}
+	removeServer(oldApp);
+	addServer(newApp);
+	console.log('Servers', Array.from(servers.keys()));
 }
 
 
@@ -134,7 +138,7 @@ function removeServer(app, force = false) {
 			return;  // Not removing Siter server
 		}
 
-		if (!config.apps.some(a => a.route.source.port === app.hosting.source.port)) {
+		if (!config.apps.some(a => a.hosting.source.port === app.hosting.source.port)) {
 			return;  // Some apps are still using the server, thus not removing
 		}
 	}
