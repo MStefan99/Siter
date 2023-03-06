@@ -57,10 +57,8 @@ defineEmits(['edit']);
 
 function deleteApp(app) {
 	notify.ask('Are you sure to delete this app?',
-		'Are you sure you want to delete the app '
-		+ (app.secure ? 'https' : 'http') + '://'
-		+ app.domain + ':' + app.port + '/' + (app.prefix || '')
-		+ '? This action cannot be undone.',
+		'Are you sure you want to delete the app ' +
+		app.name + '? This action cannot be undone.',
 		'warning'
 	)
 		.then(result => {

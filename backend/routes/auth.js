@@ -30,22 +30,25 @@ router.post('/login', async (req, res) => {
 			info: 'Please enter the password to log in',
 			type: 'danger'
 		})
-				.redirect(303, '/login/');
-	} else if (!await libAuth.verifyPassword(req.body.password)) {
+			.redirect(303, '/login/');
+		return;
+	}
+	if (!await libAuth.verifyPassword(req.body.password)) {
 		res.flash({
 			title: 'Wrong password',
 			info: 'You have entered the wrong password',
 			type: 'danger'
 		})
-				.redirect(303, '/login/');
-	} else {
-		const session = await libSession.createSession(req.ip, req.headers['user-agent']);
-
-		const options = Object.assign({}, {secure: req.secure}, cookieOptions);
-		res.cookie('siterSESSION', session.id, options)
-				.redirect(303, '/');
-		libAuth.setPassword(req.body.password);
+			.redirect(303, '/login/');
+		return;
 	}
+
+	const session = await libSession.createSession(req.ip, req.headers['user-agent']);
+
+	const options = Object.assign({}, {secure: req.secure}, cookieOptions);
+	res.cookie('siterSESSION', session.id, options)
+		.redirect(303, '/');
+	libAuth.setPassword(req.body.password);
 });
 
 
@@ -59,7 +62,7 @@ router.get('/logout', async (req, res) => {
 
 	const options = Object.assign({}, {secure: req.secure}, cookieOptions);
 	res.clearCookie('siterSESSION', options)
-			.redirect(303, '/login/');
+		.redirect(303, '/login/');
 });
 
 

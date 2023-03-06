@@ -4,6 +4,11 @@
 		form(@submit.prevent="save()")
 			h2 {{getTitle()}}
 
+			h3 Name
+			.form-group
+				label(for="name-input") App name
+				input#name-input(type="text" v-model="app.name" placeholder="Name")
+
 			h3 Hosting
 			.form-check
 				input#route-check(type="checkbox" v-model="app.hosting.active" :true-value="true" :false-value="false")
@@ -24,32 +29,28 @@
 
 				h3 Security
 				.form-check
-					input#app-secure-checkbox(type="checkbox" v-model="app.hosting.source.secure")
-					label(for="app-secure-checkbox") Enable HTTPS
+					input#source-secure-check(type="checkbox" v-model="app.hosting.source.secure")
+					label(for="source-secure-check") Enable HTTPS
 				div(v-if="app.hosting.source.secure")
 					.form-group
-						label(for="app-cert-file") Certificate file location
-						input#app-cert-file(type="text" placeholder="/var/cert/certificate.crt"
-							v-model="app.hosting.source.cert"
+						label(for="cert-input") Certificate file location
+						input#cert-input(type="text" placeholder="/var/cert/certificate.crt" v-model="app.hosting.source.cert"
 							:class="validation.certFileValid? 'is-valid' : 'is-invalid'")
 						span.invalid-feedback No certificate file
 					.form-group
-						label(for="app-key-file") Key file location
-						input#app-key-file(type="text" placeholder="/var/cert/key.pem"
-							v-model="app.hosting.source.key"
+						label(for="key-input") Key file location
+						input#key-input(type="text" placeholder="/var/cert/key.pem" v-model="app.hosting.source.key"
 							:class="validation.keyFileValid? 'is-valid' : 'is-invalid'")
 						span.invalid-feedback No key file
 
 				h3 Target
 				.form-group
 					.form-check
-						input#app-dir-radio(type="radio" name="target" :value="true"
-							v-model="directory")
-						label(for="app-dir-radio") Directory
+						input#target-dir-radio(type="radio" name="target" :value="true" v-model="directory")
+						label(for="target-dir-radio") Directory
 					.form-check
-						input#app-route-radio(type="radio" name="target" :value="false"
-							v-model="directory")
-						label(for="app-route-radio") Web route
+						input#target-server-radio(type="radio" name="target" :value="false" v-model="directory")
+						label(for="target-server-radio") Web route
 						span.invalid-feedback Please select the target type
 				.form-group(v-if="directory")
 					label Directory location
@@ -59,12 +60,10 @@
 				.form-group(v-else)
 					label route address
 					.row
-						input.col(type="text" placeholder="localhost"
-							v-model="app.hosting.target.hostname"
+						input.col(type="text" placeholder="localhost" v-model="app.hosting.target.hostname"
 							:class="validation.targetAddressValid? 'is-valid' : 'is-invalid'")
 						span.mx-1.text-muted.col-form-label :
-						input.col(type="number" min="1" max="65535" placeholder="80"
-							v-model="app.hosting.target.port"
+						input.col(type="number" min="1" max="65535" placeholder="80" v-model="app.hosting.target.port"
 							:class="validation.targetPortValid? 'is-valid' : 'is-invalid'")
 
 			h3 Process manager
@@ -81,8 +80,7 @@
 			.pm(v-if="app.analytics?.active")
 				p Analytics
 
-			input.btn.btn-success(type="submit" :value="getTitle()"
-				:disabled="!validation.valid")
+			input.btn.btn-success(type="submit" value="Save app" :disabled="!validation.valid")
 </template>
 
 

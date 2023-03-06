@@ -21,8 +21,9 @@ router.get('/', (req, res) => {
 
 
 router.post('/', (req, res) => {
-	if (!req.body.route) {
+	if (!req.body) {
 		res.status(400).send('No route provided');
+		return;
 	}
 
 	const route = appManager.addApp(req.body);
@@ -33,9 +34,11 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
 	if (!req.params.id) {
 		res.status(400).send('No ID provided');
+		return;
 	}
-	if (!req.body.route) {
+	if (!req.body) {
 		res.status(400).send('No route provided');
+		return;
 	}
 
 	const newRoute = appManager.updateApp(
@@ -48,6 +51,7 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
 	if (!req.params.id) {
 		res.status(400).send('No ID provided');
+		return;
 	}
 
 	appManager.removeApp(req.params.id);
@@ -58,6 +62,7 @@ router.delete('/:id', (req, res) => {
 router.post('/reorder', (req, res) => {
 	if (!req.body) {
 		res.status(400).send('Invalid order');
+		return;
 	}
 
 	appManager.reorder(req.body);

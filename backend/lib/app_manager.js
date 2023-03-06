@@ -120,7 +120,7 @@ function addServer(app) {
 
 
 function updateServer(oldApp, newApp) {
-	if (oldapp.hosting.source.port !== newapp.hosting.source.port) {
+	if (oldApp.hosting.source.port !== newApp.hosting.source.port) {
 		removeServer(oldApp);
 		addServer(newApp);
 	}

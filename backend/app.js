@@ -17,7 +17,7 @@ const express = require('express');
 
 const appManager = require('./lib/app_manager');
 
-const pagesRouter = require('./routes/pages');
+const viewsRouter = require('./routes/views');
 const authRouter = require('./routes/auth');
 const settingsRouter = require('./routes/settings');
 const appRouter = require('./routes/apps');
@@ -42,7 +42,7 @@ app.use('/', express.static(path.join(__dirname, '..', 'frontend', 'public'), {
 }));
 
 app.use('/apps', appRouter);
-app.use(pagesRouter);
+app.use(viewsRouter);
 app.use(authRouter);
 app.use(settingsRouter);
 
