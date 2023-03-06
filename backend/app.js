@@ -1,5 +1,16 @@
 'use strict';
 
+const path = require('path');
+const express = require('express');
+
+const viewsRouter = require('./routes/views');
+const authRouter = require('./routes/auth');
+const settingsRouter = require('./routes/settings');
+const appRouter = require('./routes/apps');
+const fileRouter = require('./routes/files');
+
+const appManager = require('./lib/app_manager');
+
 process.on('unhandledRejection', (reason, promise) => {
 	console.error('Unhandled Rejection: ', reason);
 	process.exit(~0x1);
@@ -11,17 +22,6 @@ process.on('uncaughtException', (err, origin) => {
 	process.exit(~0x0);
 });
 
-
-const path = require('path');
-const express = require('express');
-
-const appManager = require('./lib/app_manager');
-
-const viewsRouter = require('./routes/views');
-const authRouter = require('./routes/auth');
-const settingsRouter = require('./routes/settings');
-const appRouter = require('./routes/apps');
-const fileRouter = require('./routes/files');
 
 const app = express();
 

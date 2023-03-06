@@ -5,6 +5,8 @@ const https = require('https');
 const tls = require('tls');
 const path = require('path');
 const fs = require('fs');
+const process = require('process');
+const childProcess = require('child_process');
 const crypto = require('crypto');
 
 const smartConfig = require('./config');
@@ -12,6 +14,7 @@ const mime = require('mime-types');
 const standaloneViews = path.join(__dirname, '..', 'views', 'standalone');
 
 const servers = new Map();
+const processes = new Map();
 let siter;
 let config;
 smartConfig.then(c => config = c);
@@ -57,9 +60,15 @@ function start(defaultHandler) {
 
 	for (const app of config.apps) {
 		addServer(app);
+		addProcesses(app);
 	}
 }
 
+function stop() {
+	for (const app of config.apps) {
+		removeProcesses(app);
+	}
+}
 
 function findAppByDomain(domain) {
 	if (domain.match(/^siter\./)) {
@@ -124,13 +133,6 @@ function addServer(app) {
 }
 
 
-function updateServer(oldApp, newApp) {
-	removeServer(oldApp);
-	addServer(newApp);
-	console.log('Servers', Array.from(servers.keys()));
-}
-
-
 function removeServer(app, force = false) {
 	if (!force) {
 		if (app.hosting.source.port === (config.net.httpPort || 80) ||
@@ -150,6 +152,58 @@ function removeServer(app, force = false) {
 
 	server.close();
 	servers.delete(+app.hosting.source.port);
+}
+
+
+function updateServer(oldApp, newApp) {
+	removeServer(oldApp);
+	addServer(newApp);
+}
+
+function startProcess(cmd, cwd, env) {
+	env.PATH = process.env.PATH;
+
+	const child = childProcess.exec(cmd, {cwd, env});
+	const restart = () => setTimeout(() => startProcess(cmd, cwd, env), 5000);
+
+	child.stderr.pipe(process.stderr);
+	processes.set(cmd, {process: child, restart});
+	child.on('exit', restart);
+}
+
+function stopProcess(cmd) {
+	const {process, restart} = processes.get(cmd);
+	process.off('exit', restart);
+
+	process.kill('SIGKILL');
+}
+
+function addProcesses(app) {
+	if (!app.pm.active) {
+		return; // Process manager disabled
+	}
+
+	for (const pr of app.pm.processes) {
+		const cmd = `${pr.cmd} ${pr.flags} ${pr.path}`;
+		if (processes.has(cmd)) {
+			return; // Process already launched
+		}
+
+		startProcess(cmd, path.dirname(pr.path), pr.env);
+	}
+}
+
+function removeProcesses(app) {
+	for (const pr of app.pm.processes) {
+		const cmd = `${pr.cmd} ${pr.flags} ${pr.path}`;
+
+		stopProcess(cmd);
+	}
+}
+
+function updateProcesses(oldApp, newApp) {
+	removeProcesses(oldApp);
+	addProcesses(newApp);
 }
 
 
@@ -202,7 +256,7 @@ function handleRequest(request, response) {
 					};
 					options.headers['x-forwarded-for'] = request.connection.remoteAddress;
 
-					const req = http.request(options);
+					const req = app.hosting.target.secure ? https.request(options) : http.request(options);
 
 					req.on('upgrade', (res, socket, head) => {
 						response.writeHead(res.statusCode, res.statusMessage, res.headers);
@@ -293,6 +347,7 @@ function addApp(app) {
 	app.id = crypto.randomUUID();
 	config.apps.push(app);
 	addServer(app);
+	addProcesses(app);
 
 	return app;
 }
@@ -310,6 +365,7 @@ function updateApp(appID, newApp) {
 
 	if (oldApp) {
 		updateServer(oldApp, newApp);
+		updateProcesses(oldApp, newApp);
 	}
 	return newApp;
 }
@@ -320,6 +376,7 @@ function removeApp(appID) {
 
 	if (app) {
 		removeServer(app);
+		removeProcesses(app);
 	}
 }
 
@@ -354,6 +411,7 @@ function getNetOptions() {
 
 module.exports = {
 	start,
+	stop,
 
 	getApps,
 	addApp,

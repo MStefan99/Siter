@@ -23,10 +23,11 @@ export default {
 	},
 	pm: {
 		active: false,
-		targets: []
+		processes: []
 	},
 	analytics: {
 		active: false,
+		url: '',
 		key: ''
 	}
 }
