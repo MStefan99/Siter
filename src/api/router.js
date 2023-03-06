@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 
 const middleware = require('../lib/middleware');
 const routeRouter = require('./routes');
-const routeManager = require("../lib/route_manager");
+const appManager = require("../lib/app_manager");
 
 
 router.use(cookieParser());
@@ -18,7 +18,7 @@ router.use(middleware.rejectIfNotAuthorized());
 router.use('/apps', routeRouter);
 
 router.get('/security', (req, res) => {
-	res.json(routeManager.getNetOptions());
+	res.json(appManager.getNetOptions());
 });
 
 router.all('/', (req, res) => {

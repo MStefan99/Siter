@@ -20,11 +20,11 @@ smartConfig.then(c => config = c);
 const httpServer = http.createServer(handleRequest);
 const httpsServer = https.createServer({
 	SNICallback: (servername, cb) => {
-		const route = findRouteByDomain(servername);
-		if (route.secure) {
-			cb(null, getSecureContext(route));
+		const app = findAppByDomain(servername);
+		if (app.secure) {
+			cb(null, getSecureContext(app));
 		} else {
-			cb(new Error('Secure request to a non-secure route could not be handled'), null);
+			cb(new Error('Secure request to a non-secure app could not be handled'), null);
 		}
 	}
 }, handleRequest);
@@ -55,13 +55,13 @@ function start(defaultHandler) {
 		servers.set(config.net.httpsPort || 443, httpsServer);
 	}
 
-	for (const route of config.routes) {
-		addServer(route);
+	for (const app of config.apps) {
+		addServer(app);
 	}
 }
 
 
-function findRouteByDomain(domain) {
+function findAppByDomain(domain) {
 	if (domain.match(/^siter\./)) {
 		return {
 			secure: config.net.httpsEnabled,
@@ -69,25 +69,25 @@ function findRouteByDomain(domain) {
 			keyFile: config.net.keyFile
 		};
 	} else {
-		return config.routes.find(route =>
-			route.domain ? domain.match(route.domain) : true);
+		return config.apps.find(app =>
+			app.domain ? domain.match(app.domain) : true);
 	}
 }
 
 
-function findRoute(host, port, url) {
-	return config.routes.find(route =>
-		(route.domain ? host === route.domain : true) &&
-		(route.port === port) &&
-		(route.prefix ? url.match(route.prefix) : true));
+function findApp(host, port, url) {
+	return config.apps.find(app =>
+		(app.domain ? host === app.domain : true) &&
+		(app.port === port) &&
+		(app.prefix ? url.match(app.prefix) : true));
 }
 
 
-function getSecureContext(route) {
+function getSecureContext(app) {
 	try {
 		return tls.createSecureContext({
-			key: fs.readFileSync(route.keyFile),
-			cert: fs.readFileSync(route.certFile)
+			key: fs.readFileSync(app.keyFile),
+			cert: fs.readFileSync(app.certFile)
 		});
 	} catch {
 		return {}
@@ -95,16 +95,16 @@ function getSecureContext(route) {
 }
 
 
-function addServer(route) {
-	if (!servers.get(+route.port)) {
+function addServer(app) {
+	if (!servers.get(+app.port)) {
 		let server;
 
-		if (route.secure) {
+		if (app.secure) {
 			server = https.createServer({
 				SNICallback: (servername, cb) => {
-					const route = findRouteByDomain(servername) || {};
-					if (route.secure) {
-						cb(null, getSecureContext(route));
+					const app = findAppByDomain(servername) || {};
+					if (app.secure) {
+						cb(null, getSecureContext(app));
 					}
 				}
 			}, handleRequest);
@@ -112,39 +112,39 @@ function addServer(route) {
 			server = http.createServer(handleRequest);
 		}
 
-		server.listen(route.port);
-		servers.set(+route.port, server);
+		server.listen(app.port);
+		servers.set(+app.port, server);
 	}
 }
 
 
-function updateServer(oldRoute, newRoute) {
-	if (oldRoute.port !== newRoute.port) {
-		removeServer(oldRoute);
-		addServer(newRoute);
+function updateServer(oldApp, newApp) {
+	if (oldApp.port !== newApp.port) {
+		removeServer(oldApp);
+		addServer(newApp);
 	}
 }
 
 
-function removeServer(route, force = false) {
+function removeServer(app, force = false) {
 	if (!force) {
-		if (route.port === (config.net.httpPort || 80) ||
-			(config.net.httpsEnabled && route.port === (config.net.httpsPort || 443))) {
+		if (app.port === (config.net.httpPort || 80) ||
+			(config.net.httpsEnabled && app.port === (config.net.httpsPort || 443))) {
 			return;  // Not removing Siter server
 		}
 
-		if (!config.routes.some(r => r.port === route.port)) {
-			return;  // Some routes are still using the server, thus not removing
+		if (!config.apps.some(r => r.port === app.port)) {
+			return;  // Some apps are still using the server, thus not removing
 		}
 	}
 
-	const server = servers.get(+route.port);
+	const server = servers.get(+app.port);
 	if (!server) {
 		return;
 	}
 
 	server.close();
-	servers.delete(+route.port);
+	servers.delete(+app.port);
 }
 
 
@@ -168,14 +168,14 @@ function handleRequest(request, response) {
 				siter(request, response);
 			}
 		} else {
-			const route = findRoute(host, port, url);
+			const app = findApp(host, port, url);
 
-			if (!route) {
-				sendFile(response, path.join(standaloneViews, 'no_route.html'), 404);
+			if (!app) {
+				sendFile(response, path.join(standaloneViews, 'no_app.html'), 404);
 			} else {
-				if (route.target === 'directory') {  // Serving static files
-					const postfix = url.replace(new RegExp(`^${route.prefix}|\\?.*$`, 'ig'), '');
-					const filePath = path.join(route.tDirectory, ...postfix.split('/'));
+				if (app.target === 'directory') {  // Serving static files
+					const postfix = url.replace(new RegExp(`^${app.prefix}|\\?.*$`, 'ig'), '');
+					const filePath = path.join(app.tDirectory, ...postfix.split('/'));
 
 					// trying requested file
 					sendFile(response, filePath, 200)
@@ -186,11 +186,11 @@ function handleRequest(request, response) {
 						// none of the options worked, sending 404
 						.catch(() => sendFile(response, path.join(standaloneViews, 'no_file.html'), 404));
 
-				} else if (route.target === 'server') {  // Proxying requests to other servers
-					const postfix = url.replace(new RegExp(`^${route.prefix}`, 'ig'), '');
+				} else if (app.target === 'server') {  // Proxying requests to other servers
+					const postfix = url.replace(new RegExp(`^${app.prefix}`, 'ig'), '');
 					const options = {
-						hostname: route.tAddr,
-						port: route.tPort,
+						hostname: app.tAddr,
+						port: app.tPort,
 						path: postfix,
 						method: request.method,
 						headers: request.headers
@@ -253,86 +253,84 @@ function sendFile(response, filePath, statusCode) {
 }
 
 
-function getRoutes() {
-	return config.routes ?? {};
+function getApps() {
+	return config.apps ?? {};
 }
 
 
-function sanitizeRoute(route) {
-	route.seq = +route.seq > 0 ? +route.seq : 1;
-	route.port = isAValidPort(+route.port) ? +route.port : (config.net.httpPort || 80);
-	route.secure = !!route.secure;
-	route.tPort = +route.tPort;
+function sanitizeApp(app) {
+	app.route.order = +app.route.order > 0 ? +app.route.order : 1;
+	app.route.source.port = isAValidPort(+app.route.source.port) ? +app.route.source.port : (config.net.httpPort || 80);
+	app.route.source.secure = !!app.route.source.secure;
+	app.route.target.port = +app.route.target.port;
 
-	for (const prop in route) {
-		if (route.hasOwnProperty(prop)
-			&& (route[prop] === null || route[prop] === undefined)) {
-			delete route[prop];
+	for (const prop in app) {
+		if (app.hasOwnProperty(prop)
+			&& (app[prop] === null || app[prop] === undefined)) {
+			delete app[prop];
 		}
 	}
 
-	if (!route.domain || !isAValidPort(+route.port)) {
-		throw new Error('Route domain or port is invalid');
-	} else if (route.secure && (!route.certFile || !route.keyFile)) {
-		throw new Error('Secure routes must have a certificate and a key file');
-	} else if (route.target === 'directory' && !route.tDirectory) {
-		throw new Error('Route target set to directory but no directory was specified');
-	} else if (route.target === 'server' && (!route.tAddr || !isAValidPort(+route.port))) {
-		throw new Error('Route target set to server but server address is invalid');
+	if (!app.route.source.hostname || !isAValidPort(+app.route.source.port)) {
+		throw new Error('App domain or port is invalid');
+	} else if (app.route.source.secure && (!app.route.source.cert || !app.route.source.key)) {
+		throw new Error('Secure apps must have a certificate and a key file');
+	} else if (!app.route.target.directory && (!app.route.target.directory || !isAValidPort(+app.route.target.port))) {
+		throw new Error('App target set to server but server address is invalid');
 	}
-	return route;
+	return app;
 }
 
 
-function addRoute(route) {
-	route = sanitizeRoute(route);
+function addApp(app) {
+	app = sanitizeApp(app);
 
-	route.id = crypto.randomUUID();
-	config.routes.push(route);
-	addServer(route);
+	app.id = crypto.randomUUID();
+	config.apps.push(app);
+	addServer(app);
 
-	return route;
+	return app;
 }
 
 
-function updateRoute(routeID, newRoute) {
-	if (!routeID) {
-		return addRoute(newRoute);
+function updateApp(appID, newApp) {
+	if (!appID) {
+		return addApp(newApp);
 	}
-	newRoute = sanitizeRoute(newRoute);
-	newRoute.id = routeID;
+	newApp = sanitizeApp(newApp);
+	newApp.id = appID;
 
-	const oldRoute = config.routes.splice(config.routes.findIndex(r => r.id === routeID),
-		1, newRoute)[0];
+	const oldApp = config.apps.splice(config.apps.findIndex(r => r.id === appID),
+		1, newApp)[0];
 
-	if (oldRoute) {
-		updateServer(oldRoute, newRoute);
+	if (oldApp) {
+		updateServer(oldApp, newApp);
 	}
-	return newRoute;
+	return newApp;
 }
 
 
-function removeRoute(routeID) {
-	const route = config.routes.splice(config.routes.findIndex(r => r.id === routeID), 1)[0];
+function removeApp(appID) {
+	const app = config.apps.splice(config.apps.findIndex(r => r.id === appID), 1)[0];
 
-	if (route) {
-		removeServer(route);
+	if (app) {
+		removeServer(app);
 	}
 }
 
 function reorder(newOrder) {
-	const routes = [];
+	const apps = [];
 
 	while (newOrder.length) {
 		const id = newOrder.shift();
-		const idx = config.routes.findIndex(r => r.id === id);
+		const idx = config.apps.findIndex(r => r.id === id);
 
-		routes.push(config.routes[idx]);
-		config.routes.splice(idx, 1);
+		apps.push(config.apps[idx]);
+		config.apps.splice(idx, 1);
 	}
 
-	routes.concat(config.routes);
-	config.routes = routes;
+	apps.concat(config.apps);
+	config.apps = apps;
 }
 
 
@@ -352,10 +350,10 @@ function getNetOptions() {
 module.exports = {
 	start,
 
-	getRoutes,
-	addRoute,
-	updateRoute,
-	removeRoute,
+	getApps,
+	addApp,
+	updateApp,
+	removeApp,
 	reorder,
 
 	setNetOptions,

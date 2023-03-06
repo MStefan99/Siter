@@ -5,7 +5,7 @@ const express = require('express');
 const router = express.Router();
 const middleware = require('../lib/middleware');
 
-const routeManager = require('../lib/route_manager');
+const appManager = require('../lib/app_manager');
 
 
 router.use(middleware.getSession());
@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
 
 router.get('/dashboard', (req, res) => {
 	res.render('dashboard', {
-		secure: !!routeManager.getNetOptions().httpsEnabled
+		secure: !!appManager.getNetOptions().httpsEnabled
 	});
 });
 

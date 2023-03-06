@@ -15,7 +15,7 @@ process.on('uncaughtException', (err, origin) => {
 const path = require('path');
 const express = require('express');
 
-const routeManager = require('./src/lib/route_manager');
+const appManager = require('./src/lib/app_manager');
 
 const indexRouter = require('./src/routes/index');
 const authRouter = require('./src/routes/auth');
@@ -55,6 +55,6 @@ app.use((err, req, res, next) => {
 
 
 require('./src/lib/init').init().then(() => {
-	routeManager.start(app);
+	appManager.start(app);
 	console.log('Siter is now running! Open http://siter.localhost/ to get started.');
 });

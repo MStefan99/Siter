@@ -3,11 +3,11 @@
 const express = require('express');
 const router = express.Router();
 
-const routeManager = require('../lib/route_manager');
+const appManager = require('../lib/app_manager');
 
 
 router.get('/', (req, res) => {
-	res.json(routeManager.getRoutes());
+	res.json(appManager.getApps());
 });
 
 
@@ -16,7 +16,7 @@ router.post('/', (req, res) => {
 		res.status(400).send('No route provided');
 	}
 
-	const route = routeManager.addRoute(req.body.route);
+	const route = appManager.addApp(req.body.route);
 	res.status(201).json(route);
 });
 
@@ -29,7 +29,7 @@ router.put('/:routeID', (req, res) => {
 		res.status(400).send('No route provided');
 	}
 
-	const newRoute = routeManager.updateRoute(
+	const newRoute = appManager.updateApp(
 		req.params.routeID,
 		req.body.route);
 	res.json(newRoute);
@@ -41,7 +41,7 @@ router.delete('/:routeID', (req, res) => {
 		res.status(400).send('No ID provided');
 	}
 
-	routeManager.removeRoute(req.params.routeID);
+	appManager.removeApp(req.params.routeID);
 	res.sendStatus(200);
 });
 
@@ -51,7 +51,7 @@ router.post('/reorder', (req, res) => {
 		res.status(400).send('Invalid order');
 	}
 
-	routeManager.reorder(req.body);
+	appManager.reorder(req.body);
 	res.sendStatus(200);
 });
 

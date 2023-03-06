@@ -2,9 +2,9 @@
 
 export default {
 	id: null,
-	order: 0,
-	server: {
+	route: {
 		active: false,
+		order: 0,
 		source: {
 			hostname: '',
 			port: 80,

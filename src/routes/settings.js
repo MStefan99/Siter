@@ -9,7 +9,7 @@ const libAuth = require('../lib/auth');
 const libSession = require('../lib/session');
 const flash = require('@mstefan99/express-flash');
 const middleware = require('../lib/middleware');
-const routeManager = require('../lib/route_manager');
+const appManager = require('../lib/app_manager');
 
 
 router.use(bodyParser.urlencoded({extended: true}));
@@ -73,7 +73,7 @@ router.post('/security', async (req, res) => {
 			type: 'danger'
 		}).redirect(303, '/settings/');
 	} else {
-		await routeManager.setNetOptions({
+		await appManager.setNetOptions({
 			httpsEnabled: req.body.httpsEnabled,
 			httpsRedirect: req.body.httpsRedirect,
 			certFile: req.body.certFile,
