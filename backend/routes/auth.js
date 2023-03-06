@@ -23,16 +23,6 @@ router.use(flash());
 router.use(middleware.getSession());
 
 
-router.get('/about', (req, res) => {
-	res.render('about');
-});
-
-
-router.get('/login', (req, res) => {
-	res.render('login', {secure: req.secure});
-});
-
-
 router.post('/login', async (req, res) => {
 	if (!req.body.password) {
 		res.flash({

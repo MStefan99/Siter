@@ -17,10 +17,10 @@ const express = require('express');
 
 const appManager = require('./lib/app_manager');
 
-const indexRouter = require('./routes');
+const pagesRouter = require('./routes/pages');
 const authRouter = require('./routes/auth');
 const settingsRouter = require('./routes/settings');
-const apiRouter = require('./api/router');
+const appRouter = require('./routes/apps');
 
 const app = express();
 
@@ -41,15 +41,14 @@ app.use('/', express.static(path.join(__dirname, '..', 'frontend', 'public'), {
 	}
 }));
 
-app.use('/api', apiRouter);
+app.use('/apps', appRouter);
+app.use(pagesRouter);
 app.use(authRouter);
 app.use(settingsRouter);
-app.use(indexRouter);
 
 
 app.use((err, req, res, next) => {
 	console.error(err);
-
 	res.status(500).sendFile(path.join(__dirname, 'views/standalone/internal.html'));
 });
 

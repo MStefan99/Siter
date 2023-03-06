@@ -19,6 +19,11 @@ router.use(middleware.getSession());
 router.use(middleware.redirectIfNotAuthorized());
 
 
+router.get('/security', (req, res) => {
+	res.json(appManager.getNetOptions());
+});
+
+
 router.post('/password', async (req, res) => {
 	if (!req.body.oldPassword) {
 		res.flash({

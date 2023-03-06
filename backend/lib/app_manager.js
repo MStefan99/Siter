@@ -9,7 +9,7 @@ const crypto = require('crypto');
 
 const smartConfig = require('./config');
 const mime = require('mime-types');
-const standaloneViews = path.join(__dirname, '..', '..', 'views', 'standalone');
+const standaloneViews = path.join(__dirname, '..', 'views', 'standalone');
 
 const servers = new Map();
 let siter;
@@ -70,24 +70,25 @@ function findAppByDomain(domain) {
 		};
 	} else {
 		return config.apps.find(app =>
-			app.domain ? domain.match(app.domain) : true);
+			app.route.source.hostname ? domain.match(app.route.source.hostname) : true);
 	}
 }
 
 
 function findApp(host, port, url) {
 	return config.apps.find(app =>
-		(app.domain ? host === app.domain : true) &&
-		(app.port === port) &&
-		(app.prefix ? url.match(app.prefix) : true));
+		(app.route.source.hostname ? host === app.route.source.hostname : true) &&
+		(app.route.source.port === port) &&
+		(app.route.source.pathname ? url.match(app.route.source.pathname) : true));
 }
 
 
 function getSecureContext(app) {
 	try {
 		return tls.createSecureContext({
-			key: fs.readFileSync(app.keyFile),
-			cert: fs.readFileSync(app.certFile)
+			// TODO: async
+			key: fs.readFileSync(app.route.source.key),
+			cert: fs.readFileSync(app.route.source.cert)
 		});
 	} catch {
 		return {}
@@ -96,14 +97,14 @@ function getSecureContext(app) {
 
 
 function addServer(app) {
-	if (!servers.get(+app.port)) {
+	if (!servers.get(+app.route.source.port)) {
 		let server;
 
-		if (app.secure) {
+		if (app.route.source.secure) {
 			server = https.createServer({
 				SNICallback: (servername, cb) => {
 					const app = findAppByDomain(servername) || {};
-					if (app.secure) {
+					if (app.route.source.secure) {
 						cb(null, getSecureContext(app));
 					}
 				}
@@ -112,14 +113,14 @@ function addServer(app) {
 			server = http.createServer(handleRequest);
 		}
 
-		server.listen(app.port);
-		servers.set(+app.port, server);
+		server.listen(app.route.source.port);
+		servers.set(+app.route.source.port, server);
 	}
 }
 
 
 function updateServer(oldApp, newApp) {
-	if (oldApp.port !== newApp.port) {
+	if (oldApp.route.source.port !== newApp.route.source.port) {
 		removeServer(oldApp);
 		addServer(newApp);
 	}
@@ -128,23 +129,23 @@ function updateServer(oldApp, newApp) {
 
 function removeServer(app, force = false) {
 	if (!force) {
-		if (app.port === (config.net.httpPort || 80) ||
-			(config.net.httpsEnabled && app.port === (config.net.httpsPort || 443))) {
+		if (app.route.source.port === (config.net.httpPort || 80) ||
+			(config.net.httpsEnabled && app.route.source.port === (config.net.httpsPort || 443))) {
 			return;  // Not removing Siter server
 		}
 
-		if (!config.apps.some(r => r.port === app.port)) {
+		if (!config.apps.some(a => a.route.source.port === app.route.source.port)) {
 			return;  // Some apps are still using the server, thus not removing
 		}
 	}
 
-	const server = servers.get(+app.port);
+	const server = servers.get(+app.route.source.port);
 	if (!server) {
 		return;
 	}
 
 	server.close();
-	servers.delete(+app.port);
+	servers.delete(+app.route.source.port);
 }
 
 
@@ -173,9 +174,9 @@ function handleRequest(request, response) {
 			if (!app) {
 				sendFile(response, path.join(standaloneViews, 'no_app.html'), 404);
 			} else {
-				if (app.target === 'directory') {  // Serving static files
-					const postfix = url.replace(new RegExp(`^${app.prefix}|\\?.*$`, 'ig'), '');
-					const filePath = path.join(app.tDirectory, ...postfix.split('/'));
+				if (app.route.target.directory?.length) {  // Serving static files
+					const postfix = url.replace(new RegExp(`^${app.route.source.pathname}|\\?.*$`, 'ig'), '');
+					const filePath = path.join(app.route.target.directory, ...postfix.split('/'));
 
 					// trying requested file
 					sendFile(response, filePath, 200)
@@ -186,11 +187,11 @@ function handleRequest(request, response) {
 						// none of the options worked, sending 404
 						.catch(() => sendFile(response, path.join(standaloneViews, 'no_file.html'), 404));
 
-				} else if (app.target === 'server') {  // Proxying requests to other servers
-					const postfix = url.replace(new RegExp(`^${app.prefix}`, 'ig'), '');
+				} else {  // Proxying requests to other servers
+					const postfix = url.replace(new RegExp(`^${app.route.source.pathname}`, 'ig'), '');
 					const options = {
-						hostname: app.tAddr,
-						port: app.tPort,
+						hostname: app.route.target.hostname,
+						port: app.route.target.port,
 						path: postfix,
 						method: request.method,
 						headers: request.headers
@@ -275,7 +276,7 @@ function sanitizeApp(app) {
 		throw new Error('App domain or port is invalid');
 	} else if (app.route.source.secure && (!app.route.source.cert || !app.route.source.key)) {
 		throw new Error('Secure apps must have a certificate and a key file');
-	} else if (!app.route.target.directory && (!app.route.target.directory || !isAValidPort(+app.route.target.port))) {
+	} else if (!app.route.target.directory && (!app.route.target.hostname || !isAValidPort(+app.route.target.port))) {
 		throw new Error('App target set to server but server address is invalid');
 	}
 	return app;

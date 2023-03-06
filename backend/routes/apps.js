@@ -4,6 +4,15 @@ const express = require('express');
 const router = express.Router();
 
 const appManager = require('../lib/app_manager');
+const middleware = require("../lib/middleware");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+
+
+router.use(bodyParser.json());
+router.use(cookieParser());
+router.use(middleware.getSession());
+router.use(middleware.redirectIfNotAuthorized());
 
 
 router.get('/', (req, res) => {
@@ -16,13 +25,13 @@ router.post('/', (req, res) => {
 		res.status(400).send('No route provided');
 	}
 
-	const route = appManager.addApp(req.body.route);
+	const route = appManager.addApp(req.body);
 	res.status(201).json(route);
 });
 
 
-router.put('/:routeID', (req, res) => {
-	if (!req.params.routeID) {
+router.put('/:id', (req, res) => {
+	if (!req.params.id) {
 		res.status(400).send('No ID provided');
 	}
 	if (!req.body.route) {
@@ -30,18 +39,18 @@ router.put('/:routeID', (req, res) => {
 	}
 
 	const newRoute = appManager.updateApp(
-		req.params.routeID,
-		req.body.route);
+		req.params.id,
+		req.body);
 	res.json(newRoute);
 });
 
 
-router.delete('/:routeID', (req, res) => {
-	if (!req.params.routeID) {
+router.delete('/:id', (req, res) => {
+	if (!req.params.id) {
 		res.status(400).send('No ID provided');
 	}
 
-	appManager.removeApp(req.params.routeID);
+	appManager.removeApp(req.params.id);
 	res.sendStatus(200);
 });
 

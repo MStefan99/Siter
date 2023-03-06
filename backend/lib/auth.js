@@ -30,7 +30,6 @@ module.exports = {
 		});
 	},
 
-
 	verifyPassword: function (password) {
 		return new Promise(resolve => {
 			smartConfig.then(config => {
@@ -40,7 +39,6 @@ module.exports = {
 			});
 		});
 	},
-
 
 	setPassword: function (newPassword) {
 		return new Promise(resolve => {

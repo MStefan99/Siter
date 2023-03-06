@@ -110,7 +110,7 @@ function appDrop(e) {
 		store.apps.splice(targetIndex, 0, sourceApp);
 	}
 
-	fetch('/api/apps/reorder', {
+	fetch('/apps/reorder', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
@@ -120,7 +120,7 @@ function appDrop(e) {
 }
 
 onMounted(() => {
-	fetch('/api/apps/')
+	fetch('/apps/')
 		.catch(err => {
 			serverStatus.value = 'unavailable';
 			notify.tell('Server unavailable',
@@ -140,7 +140,7 @@ onMounted(() => {
 		}
 	}).then(apps => store.apps = apps);
 
-	fetch('/api/security')
+	fetch('/security')
 		.then(res => {
 			if (res.ok) {
 				return res.json();

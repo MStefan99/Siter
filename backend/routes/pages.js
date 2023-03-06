@@ -4,11 +4,23 @@ const express = require('express');
 
 const router = express.Router();
 const middleware = require('../lib/middleware');
+const cookieParser = require("cookie-parser");
 
-const appManager = require('../lib/app_manager');
 
-
+router.use(cookieParser());
 router.use(middleware.getSession());
+
+
+router.get('/about', (req, res) => {
+	res.render('about');
+});
+
+
+router.get('/login', (req, res) => {
+	res.render('login', {secure: req.secure});
+});
+
+
 router.use(middleware.redirectIfNotAuthorized());
 
 
@@ -18,9 +30,7 @@ router.get('/', (req, res) => {
 
 
 router.get('/dashboard', (req, res) => {
-	res.render('dashboard', {
-		secure: !!appManager.getNetOptions().httpsEnabled
-	});
+	res.render('dashboard');
 });
 
 

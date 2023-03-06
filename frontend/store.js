@@ -15,22 +15,22 @@ export default reactive({
 
 		// TODO: add error handling
 		if (idx >= 0) {  // app already exists, editing
-			fetch('/api/apps/' + app.id + '/', {
+			fetch('/apps/' + app.id + '/', {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({app})
+				body: JSON.stringify(app)
 			})
 					.then(res => res.json())
 					.then(app => this.apps[idx] = app);
 		} else {  // New app, adding
-			fetch('/api/apps/', {
+			fetch('/apps/', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({app})
+				body: JSON.stringify(app)
 			})
 					.then(res => res.json())
 					.then(app => this.apps.push(app));
@@ -42,7 +42,7 @@ export default reactive({
 
 		// TODO: add error handling
 		if (idx >= 0) {
-			fetch('/api/apps/' + app.id + '/', {
+			fetch('/apps/' + app.id + '/', {
 				method: 'DELETE'
 			})
 					.then(res => {

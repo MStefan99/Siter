@@ -2,7 +2,6 @@
 
 const libSession = require('./session');
 
-
 async function getSession(req, res, next) {
 	if (!req.cookies) {
 		throw new Error('This middleware requires cookie-parser');
@@ -17,7 +16,6 @@ async function getSession(req, res, next) {
 	next();
 }
 
-
 function redirectIfNotAuthorized(req, res, next) {
 	if (req.session === undefined) {
 		throw new Error('Please call getSession middleware first');
@@ -29,7 +27,6 @@ function redirectIfNotAuthorized(req, res, next) {
 	}
 }
 
-
 function rejectIfNotAuthorized(req, res, next) {
 	if (!req.session) {
 		res.status(403).send('Not authorized');
@@ -37,7 +34,6 @@ function rejectIfNotAuthorized(req, res, next) {
 		next();
 	}
 }
-
 
 module.exports = {
 	getSession: () => getSession,

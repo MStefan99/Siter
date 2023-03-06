@@ -3,7 +3,6 @@
 const smartConfig = require('./config');
 const auth = require('./auth');
 
-
 function init() {
 	return new Promise(resolve => {
 		smartConfig.then(config => {
@@ -17,8 +16,8 @@ function init() {
 				config.sessions = [];
 			}
 
-			if (!config.routes) {
-				config.routes = [];
+			if (!config.apps) {
+				config.apps = [];
 			}
 
 			resolve();
@@ -26,7 +25,4 @@ function init() {
 	});
 }
 
-
-module.exports = {
-	init: init
-};
+module.exports = {init};
