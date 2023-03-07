@@ -71,12 +71,12 @@
 				input#pm-check(type="checkbox" v-model="app.pm.active" :true-value="true" :false-value="false")
 				label(for="pm-check") Enable process manager
 			.pm(v-if="app.pm?.active")
-				p Processes
+				ProcessEditor(v-model="app.pm.processes")
 
 			h3 Analytics
 			.form-check
 				input#analytics-check(type="checkbox" v-model="app.analytics.active" :true-value="true" :false-value="false")
-				label(for="analytics-check") Enable process manager
+				label(for="analytics-check") Enable analytics
 			.pm(v-if="app.analytics?.active")
 				p Analytics
 
@@ -91,6 +91,7 @@ import store from '../store.js';
 import {computed, onMounted, ref} from "vue";
 import {validate} from "../../common/validate";
 import FilePicker from "./FilePicker.vue";
+import ProcessEditor from "./ProcessEditor.vue";
 
 const props = defineProps(['editing', 'app']);
 const emit = defineEmits(['update', 'close']);
@@ -114,7 +115,7 @@ function save() {
 	}
 
 	store.saveApp(app.value);
-	props.editing && emit('update', app.value);
+	emit('update', app.value);
 	emit('close');
 }
 

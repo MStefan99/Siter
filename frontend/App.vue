@@ -2,19 +2,19 @@
 #apps
 	h1 Dashboard
 	h2 Status
-	div.alert.mx-3(:class="getServerClass()") {{getServerStatus()}}
+	.alert.mx-3(:class="getServerClass()") {{getServerStatus()}}
 	h2 Apps
 	div#app-container.row(@dragover.prevent @drop.prevent="appDrop($event)")
-		div.app.mx-3
+		.card.app.mx-3
 			h3 Siter app
-			div.app-mask.border-bottom
+			.app-mask.border-bottom
 				h4 URL mask
-				a.app-link(href="#")
+				.app-link
 					b.domain siter
 					span.text-muted .your-domain.tld:
 					b.port 80
 					span.text-muted /
-			div.app-security.border-bottom
+			.app-security.border-bottom
 				h4 Security
 				div(v-if="secure")
 					p Secure:
@@ -27,16 +27,16 @@
 						|
 						b.text-danger No
 					div Please enable HTTPS redirect in settings
-			div.app-target.border-bottom
+			.app-target.border-bottom
 				h4 Target
 				p
 					b Siter web interface
 		TransitionGroup(name="list")
-			App(v-for="app in store.apps" :key="app.id" :app="app" @edit="editing = true; openApp = app"
+			AppCard(v-for="app in store.apps" :key="app.id" :app="app" @edit="editing = true; openApp = app"
 				draggable="true" @dragstart="appDrag($event, app)")
 		Transition(name="popup")
-			AppEditor(v-if="openApp" :app="openApp" :editing="editing" @update="r => app = r" @close="openApp = null")
-	button.btn-primary.ml-3(type="button" @click="editing = false; openApp = app") Add app
+			AppEditor(v-if="openApp" :app="openApp" :editing="editing" @close="openApp = null")
+	button.btn-primary.ml-3(type="button" @click="editing = false; openApp = defaultApp()") Add app
 </template>
 
 
@@ -46,9 +46,9 @@
 import notify from './public/js/notifications';
 
 import store from './store.js';
-import App from './components/App.vue';
+import AppCard from './components/AppCard.vue';
 import AppEditor from './components/AppEditor.vue';
-import app from './app';
+import {defaultApp} from './defaults';
 import {onMounted, ref} from "vue";
 
 const serverStatus = ref('pending');

@@ -272,7 +272,7 @@ function handleRequest(request, response) {
 						res.pipe(response);
 						request.socket.pipe(socket);
 						res.socket.pipe(response.socket);
-						// TODO: fix connection closing
+						// TODO: fix connection closing and wss
 					});
 
 					req.on('response', res => {
