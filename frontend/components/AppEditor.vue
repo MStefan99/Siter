@@ -33,14 +33,14 @@
 					label(for="source-secure-check") Enable HTTPS
 				div(v-if="app.hosting.source.secure")
 					.form-group
-						label(for="cert-input") Certificate file location
-						input#cert-input(type="text" placeholder="/var/cert/certificate.crt" v-model="app.hosting.source.cert"
-							:class="validation.certFileValid? 'is-valid' : 'is-invalid'")
+						label(for="cert-input") Certificate file
+						FilePicker#cert-input(v-model="app.hosting.source.cert" placeholder="No file selected"
+							prompt="Choose certificate file" :class="validation.certFileValid? 'is-valid' : 'is-invalid'")
 						span.invalid-feedback No certificate file
 					.form-group
-						label(for="key-input") Key file location
-						input#key-input(type="text" placeholder="/var/cert/key.pem" v-model="app.hosting.source.key"
-							:class="validation.keyFileValid? 'is-valid' : 'is-invalid'")
+						label(for="key-input") Key file
+						FilePicker#key-input(v-model="app.hosting.source.key" placeholder="No file selected"
+							prompt="Choose key file" :class="validation.keyFileValid? 'is-valid' : 'is-invalid'")
 						span.invalid-feedback No key file
 
 				h3 Target
@@ -54,7 +54,7 @@
 						span.invalid-feedback Please select the target type
 				.form-group(v-if="directory")
 					label Directory location
-					FilePicker(v-model="app.hosting.target.directory"
+					FilePicker(v-model="app.hosting.target.directory" placeholder="No directory selected"
 						:class="validation.targetDirValid? 'is-valid' : 'is-invalid'")
 					span.invalid-feedback No location provided
 				.form-group(v-else)

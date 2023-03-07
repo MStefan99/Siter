@@ -24,7 +24,7 @@ const httpServer = http.createServer(handleRequest);
 const httpsServer = https.createServer({
 	SNICallback: (servername, cb) => {
 		const app = findAppByDomain(servername);
-		if (app.secure) {
+		if (app.hosting.source.secure) {
 			cb(null, getSecureContext(app));
 		} else {
 			cb(new Error('Secure request to a non-secure app could not be handled'), null);
@@ -42,7 +42,7 @@ function isAValidPort(port) {
 function start(defaultHandler) {
 	if (siter) {  // Siter already started, restarting
 		for (const port of servers.keys()) {
-			removeServer({port}, true);
+			removeServer(null, true, port);
 		}
 	}
 	if (!defaultHandler) {
@@ -73,9 +73,13 @@ function stop() {
 function findAppByDomain(domain) {
 	if (domain.match(/^siter\./)) {
 		return {
-			secure: config.net.httpsEnabled,
-			certFile: config.net.certFile,
-			keyFile: config.net.keyFile
+			hosting: {
+				source: {
+					secure: config.net.httpsEnabled,
+					cert: config.net.certFile,
+					key: config.net.keyFile
+				}
+			}
 		};
 	} else {
 		return config.apps.find(app =>
@@ -99,7 +103,8 @@ function getSecureContext(app) {
 			key: fs.readFileSync(app.hosting.source.key),
 			cert: fs.readFileSync(app.hosting.source.cert)
 		});
-	} catch {
+	} catch (err) {
+		console.error('Failed to create secure context: ', err);
 		return {}
 	}
 }
@@ -133,7 +138,7 @@ function addServer(app) {
 }
 
 
-function removeServer(app, force = false) {
+function removeServer(app, force = false, port = null) {
 	if (!force) {
 		if (app.hosting.source.port === (config.net.httpPort || 80) ||
 			(config.net.httpsEnabled && app.hosting.source.port === (config.net.httpsPort || 443))) {
@@ -145,13 +150,17 @@ function removeServer(app, force = false) {
 		}
 	}
 
-	const server = servers.get(+app.hosting.source.port);
+	if (app) {
+		port = +app.hosting.source.port;
+	}
+
+	const server = servers.get(port);
 	if (!server) {
 		return;
 	}
 
 	server.close();
-	servers.delete(+app.hosting.source.port);
+	servers.delete(port);
 }
 
 
@@ -278,7 +287,7 @@ function handleRequest(request, response) {
 			}
 		}
 	} catch (err) {
-		console.error(err);
+		console.error('Failed to handle request:', err);
 		sendFile(response, path.join(standaloneViews, 'internal.html'), 500);
 	}
 }

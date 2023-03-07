@@ -7,6 +7,7 @@
 	.popup-backdrop(v-if="open" @click.self="open = false")
 		.popup.shadow-sm
 			h2.my-2 Choose file
+			p(v-if="prompt") {{prompt}}
 			.files
 				.file.up.clickable(v-if="path.length" @click="goUp()") ..
 				.file.clickable(v-for="file in files" :key="file" @click="goDown(file)") {{file}}
@@ -17,7 +18,7 @@
 <script setup>
 import {ref, watch} from "vue";
 
-const props = defineProps(['modelValue']);
+const props = defineProps(['modelValue', 'prompt']);
 const emit = defineEmits(['update:modelValue']);
 
 const open = ref(false);
@@ -40,11 +41,6 @@ async function loadFiles() {
 
 	if (res.ok) {
 		files.value = await res.json();
-	} else {
-		const err = await res.text();
-		if (err === 'ENOTDIR') {
-			open.value = false;
-		}
 	}
 }
 </script>
