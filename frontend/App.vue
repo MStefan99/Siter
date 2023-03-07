@@ -3,7 +3,7 @@
 	h1 Dashboard
 	h2 Status
 	div.alert.mx-3(:class="getServerClass()") {{getServerStatus()}}
-	h2 apps
+	h2 Apps
 	div#app-container.row(@dragover.prevent @drop.prevent="appDrop($event)")
 		div.app.mx-3
 			h3 Siter app
@@ -32,11 +32,11 @@
 				p
 					b Siter web interface
 		TransitionGroup(name="list")
-			App(v-for="app in store.apps" :key="app.id" :appData="app" @edit="openApp = app"
+			App(v-for="app in store.apps" :key="app.id" :app="app" @edit="editing = true; openApp = app"
 				draggable="true" @dragstart="appDrag($event, app)")
 		Transition(name="popup")
-			AppEditor(v-if="openApp" :app="openApp" @update="r => app = r" @close="openApp = null")
-	button.btn-primary.ml-3(type="button" @click="openApp = app") Add app
+			AppEditor(v-if="openApp" :app="openApp" :editing="editing" @update="r => app = r" @close="openApp = null")
+	button.btn-primary.ml-3(type="button" @click="editing = false; openApp = app") Add app
 </template>
 
 
@@ -54,6 +54,7 @@ import {onMounted, ref} from "vue";
 const serverStatus = ref('pending');
 const secure = ref(null);
 const openApp = ref(null);
+const editing = ref(false);
 
 function getServerStatus() {
 	switch (serverStatus.value) {

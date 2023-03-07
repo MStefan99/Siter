@@ -1,25 +1,25 @@
 <template lang="pug">
 div.app.mx-3
-	h3 app
+	h3 {{app.name}}
 	div.app-icon-container.float-right
 		img.icon.edit-icon.clickable.mr-2(src="/img/pencil.svg" alt="Settings icon"
-			@click="$emit('edit', appData.id)")
+			@click="$emit('edit', app.id)")
 		img.icon.edit-icon.clickable(src="/img/trash_can.svg" alt="Remove icon"
-			@click="deleteApp(appData)")
+			@click="deleteApp(app)")
 	div.app-mask.border-bottom
 		h4 URL mask
 		a.app-link(target="_blank"
-			:href="(appData.hosting.source.secure? 'https://' : 'http://') + \
-			appData.hosting.source.hostname + ':' + appData.hosting.source.port + '/' + \
-			(appData.hosting.source.pathname || '')")
-			b.domain {{appData.hosting.source.hostname}}
+			:href="(app.hosting.source.secure? 'https://' : 'http://') + \
+			app.hosting.source.hostname + ':' + app.hosting.source.port + '/' + \
+			(app.hosting.source.pathname || '')")
+			b.domain {{app.hosting.source.hostname}}
 			span.text-muted :
-			b.port {{appData.hosting.source.port}}
+			b.port {{app.hosting.source.port}}
 			span.text-muted /
-			b.prefix {{appData.hosting.source.pathname}}
+			b.prefix {{app.hosting.source.pathname}}
 	div.app-security.border-bottom
 		h4 Security
-		div(v-if="appData.hosting.source.secure")
+		div(v-if="app.hosting.source.secure")
 			p Secure:
 				|
 				|
@@ -29,20 +29,20 @@ div.app.mx-3
 				|
 				|
 				b.text-danger No
-		div(v-if="appData.hosting.source.secure")
+		div(v-if="app.hosting.source.secure")
 			p Certificate file location:
-			b.cert-file {{appData.hosting.source.cert}}
+			b.cert-file {{app.hosting.source.cert}}
 			p Key file location:
-			b.key-file {{appData.hosting.source.key}}
+			b.key-file {{app.hosting.source.key}}
 	div.app-target.border-bottom
 		h4 Hosting
-		div(v-if="appData.hosting.target.directory?.length")
+		div(v-if="app.hosting.target.directory?.length")
 			p.directory Directory
-			b {{appData.hosting.target.directory}}
+			b {{app.hosting.target.directory}}
 		div(v-else)
 			p.server Server
-			a(:href="(appData.hosting.target.secure? 'https://': 'http://') + appData.hosting.target.hostname + ':' + appData.hosting.target.port + '/'")
-				b.target-addr {{appData.hosting.target.hostname}}:{{appData.hosting.target.port}}
+			a(:href="(app.hosting.target.secure? 'https://': 'http://') + app.hosting.target.hostname + ':' + app.hosting.target.port + '/'")
+				b.target-addr {{app.hosting.target.hostname}}:{{app.hosting.target.port}}
 </template>
 
 
@@ -52,7 +52,7 @@ div.app.mx-3
 import notify from '../public/js/notifications.js';
 import store from '../store.js';
 
-defineProps(['appData']);
+defineProps(['app']);
 defineEmits(['edit']);
 
 function deleteApp(app) {
