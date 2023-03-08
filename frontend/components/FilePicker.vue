@@ -4,15 +4,16 @@
 		input.col(type="text" placeholder="No file selected" :value="path" readonly)
 		span.mx-1.text-muted.col-form-label
 		button.btn.btn-success(type="button" @click="open = true; loadFiles()") Pick a file
-	.popup-backdrop(v-if="open" @click.self="open = false")
-		.popup.shadow-sm
-			h2.my-2 Choose file
-			p(v-if="prompt") {{prompt}}
-			.files
-				.file.up.clickable(v-if="path.length" @click="goUp()") ..
-				.file.clickable(v-for="file in files" :key="file" @click="goDown(file)") {{file}}
-			.col.file-path {{path}}
-			button.col.btn.btn-success(@click="open = false") Choose
+	Transition(name="popup")
+		.popup-backdrop(v-if="open" @click.self="open = false")
+			.popup.shadow-sm
+				h2.my-2 Choose file
+				p(v-if="prompt") {{prompt}}
+				.files
+					.file.up.clickable(v-if="path.length" @click="goUp()") ..
+					.file.clickable(v-for="file in files" :key="file" @click="goDown(file)") {{file}}
+				.col.file-path {{path}}
+				button.col.btn.btn-success(@click="open = false") Choose
 </template>
 
 <script setup>

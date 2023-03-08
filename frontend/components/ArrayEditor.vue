@@ -4,18 +4,19 @@
 		p.col Entries: {{modelValue.length}}
 		span.mx-1.text-muted.col-form-label
 		button.col.btn.btn-success(type="button" @click="open = true") Edit
-	.popup-backdrop(v-if="open" @click.self="open = false")
-		.popup.shadow-sm
-			h2.my-2 {{title ?? 'Entries'}}
-			.entries
-				.entry.card.p-2(v-for="(entry, i) in entries" :key="i")
-					.float-right
-						img.icon.edit-icon.clickable(src="/img/trash_can.svg" alt="Remove icon" @click="entries.splice(i, 1)")
-					.form-group
-						label Value
-						input.col(type="text" v-model="entries[i]")
-			button.col.btn.btn-outline-success(type="button" @click="entries.push('')") Add entry
-			button.col.btn.btn-success(type="button" @click="save()") Save
+	Transition(name="popup")
+		.popup-backdrop(v-if="open" @click.self="open = false")
+			.popup.shadow-sm
+				h2.my-2 {{title ?? 'Entries'}}
+				.entries
+					.entry.card.p-2(v-for="(entry, i) in entries" :key="i")
+						.float-right
+							img.icon.edit-icon.clickable(src="/img/trash_can.svg" alt="Remove icon" @click="entries.splice(i, 1)")
+						.form-group
+							label Value
+							input.col(type="text" v-model="entries[i]")
+				button.col.btn.btn-outline-success(type="button" @click="entries.push('')") Add entry
+				button.col.btn.btn-success(type="button" @click="save()") Save
 </template>
 
 <script setup>
