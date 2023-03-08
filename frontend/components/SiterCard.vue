@@ -6,7 +6,7 @@
 		.app-link
 			b.domain siter
 			span.text-muted .your-domain.tld:
-			b.port 80
+			b.port {{secure? 443 : 80}}
 			span.text-muted /
 	.app-security.border-bottom
 		h4 Security
