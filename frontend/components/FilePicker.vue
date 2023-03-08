@@ -16,13 +16,13 @@
 </template>
 
 <script setup>
-import {ref, watch} from "vue";
+import {ref, toRaw, watch} from "vue";
 
 const props = defineProps(['modelValue', 'prompt']);
 const emit = defineEmits(['update:modelValue']);
 
 const open = ref(false);
-const path = ref(props.modelValue);
+const path = ref(structuredClone(toRaw(props.modelValue)));
 const files = ref([]);
 watch(path, loadFiles);
 

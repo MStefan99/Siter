@@ -18,7 +18,8 @@ router.get('/files', async (req, res) => {
 	const dirname = req.query.path?.length? req.query.path.toString() : '/';
 
 	try {
-		res.send((await fs.readdir(dirname)).map(f => path.sep + f));
+		const files = await fs.readdir(dirname, {withFileTypes: true});
+		res.json(files.map(f => {return {name: path.sep + f.name, dir: f.isDirectory()}}));
 	} catch (err) {
 		res.status(422).send(err.code);
 	}

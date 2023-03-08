@@ -183,8 +183,8 @@ function startProcess(cmd, cwd, env) {
 function stopProcess(cmd) {
 	const {process, restart} = processes.get(cmd);
 	process.off('exit', restart);
-
 	process.kill('SIGKILL');
+	processes.delete(cmd);
 }
 
 function addProcesses(app) {

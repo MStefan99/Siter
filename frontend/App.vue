@@ -32,11 +32,11 @@
 				p
 					b Siter web interface
 		TransitionGroup(name="list")
-			AppCard(v-for="app in store.apps" :key="app.id" :app="app" @edit="editing = true; openApp = app"
+			AppCard(v-for="app in store.apps" :key="app.id" :app="app" @edit="openApp = app"
 				draggable="true" @dragstart="appDrag($event, app)")
 		Transition(name="popup")
-			AppEditor(v-if="openApp" :app="openApp" :editing="editing" @close="openApp = null")
-	button.btn-primary.ml-3(type="button" @click="editing = false; openApp = defaultApp()") Add app
+			AppEditor(v-if="openApp" v-model="openApp" @close="openApp = null")
+	button.btn-primary.ml-3(type="button" @click="openApp = defaultApp()") Add app
 </template>
 
 
@@ -54,7 +54,6 @@ import {onMounted, ref} from "vue";
 const serverStatus = ref('pending');
 const secure = ref(null);
 const openApp = ref(null);
-const editing = ref(false);
 
 function getServerStatus() {
 	switch (serverStatus.value) {

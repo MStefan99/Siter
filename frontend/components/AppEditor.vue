@@ -2,7 +2,7 @@
 .popup-backdrop(v-if="app" @click.self="$emit('close')")
 	.popup.shadow-sm
 		form(@submit.prevent="save()")
-			h2 {{getTitle()}}
+			h2 App settings
 
 			h3 Name
 			.form-group
@@ -88,24 +88,16 @@
 'use strict';
 
 import store from '../store.js';
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, toRaw} from "vue";
 import {validate} from "../../common/validate";
 import FilePicker from "./FilePicker.vue";
 import ProcessEditor from "./ProcessEditor.vue";
 
-const props = defineProps(['editing', 'app']);
-const emit = defineEmits(['update', 'close']);
-const app = ref(props.app);
-const directory = ref(!!props.app.hosting.target.directory.length);
+const props = defineProps(['modelValue']);
+const emit = defineEmits(['update:modelValue', 'close']);
+const app = ref(structuredClone(toRaw(props.modelValue)));
+const directory = ref(!!props.modelValue.hosting.target.directory.length);
 const validation = computed(() => validate(app.value));
-
-function getTitle() {
-	if (props.editing) {
-		return 'Edit app';
-	} else {
-		return 'Add app';
-	}
-}
 
 function save() {
 	!directory.value && (app.value.hosting.target.directory = '');
@@ -115,7 +107,7 @@ function save() {
 	}
 
 	store.saveApp(app.value);
-	emit('update', app.value);
+	emit('update:modelValue', app.value);
 	emit('close');
 }
 
