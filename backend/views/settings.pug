@@ -15,7 +15,7 @@ block main
 		div#settings.mx-lg-5.mb-5.mb-lg-0.flex-grow-1
 			h1#title Settings
 			h2 Password
-			form#password-form.mx-3(action='/password/' method='post')
+			form#password-form.mx-3(action='/settings/password/' method='post')
 				input#username(type='text' autocomplete='username' value='admin' hidden)
 				div.form-group
 					label(for='old-pwd') Old password
@@ -32,7 +32,7 @@ block main
 				input.btn.btn-primary(type='submit' value='Update')
 
 			h2 Security
-			form#security-form.mx-3(action='/security/' method='post')
+			form#security-form.mx-3(action='/settings/security/' method='post')
 				div.form-check
 					input#https-checkbox(type='checkbox' name='httpsEnabled')
 					label(for='https-checkbox') Enable HTTPS for Siter

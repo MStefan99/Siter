@@ -14,7 +14,7 @@ router.use(middleware.getSession());
 router.use(middleware.redirectIfNotAuthorized());
 
 
-router.get('/files', async (req, res) => {
+router.get('/', async (req, res) => {
 	const pathname = req.query.path?.length ? req.query.path.toString() : '/';
 
 	const data = {};

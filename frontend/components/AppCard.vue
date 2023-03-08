@@ -7,7 +7,7 @@
 		img.icon.edit-icon.clickable(src="/img/trash_can.svg" alt="Remove icon"
 			@click="$emit('delete', app)")
 	.app-mask.border-bottom
-		h4 URL mask
+		h4 Source
 		a.app-link(target="_blank"
 			:href="(app.hosting.source.secure? 'https://' : 'http://') + \
 			app.hosting.source.hostname + ':' + app.hosting.source.port + '/' + \
@@ -35,7 +35,7 @@
 			p Key file location:
 			b.key-file {{app.hosting.source.key}}
 	.app-target.border-bottom
-		h4 Hosting
+		h4 Target
 		div(v-if="app.hosting.target.directory?.length")
 			p.directory Directory
 			b {{app.hosting.target.directory}}
@@ -43,6 +43,12 @@
 			p.server Server
 			a(:href="(app.hosting.target.secure? 'https://': 'http://') + app.hosting.target.hostname + ':' + app.hosting.target.port + '/'")
 				b.target-addr {{app.hosting.target.hostname}}:{{app.hosting.target.port}}
+	.app-pm.border-bottom
+		h4 Process manager
+		p Processes: {{app.pm.processes.length}}
+	.app-analytics.border-bottom
+		h4 Analytics
+		p Analytics {{app.analytics.active ? 'enabled' : 'disabled'}}
 </template>
 
 

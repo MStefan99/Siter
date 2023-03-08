@@ -42,11 +42,11 @@ app.use('/', express.static(path.join(__dirname, '..', 'frontend', 'public'), {
 	}
 }));
 
-app.use(viewsRouter);
-app.use(authRouter);
-app.use(settingsRouter);
+app.use('/auth', authRouter);
+app.use('/settings', settingsRouter);
 app.use('/apps', appRouter);
-app.use(fileRouter);
+app.use('/files', fileRouter);
+app.use(viewsRouter);
 
 
 app.use((err, req, res, next) => {

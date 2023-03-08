@@ -99,7 +99,8 @@ router.post('/security', async (req, res) => {
 		title: 'Success!',
 		info: 'Your security options have now been saved.',
 		type: 'success'
-	});
+	})
+		.redirect(303, '/settings');
 });
 
 

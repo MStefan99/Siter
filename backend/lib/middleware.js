@@ -6,10 +6,10 @@ async function getSession(req, res, next) {
 	if (!req.cookies) {
 		throw new Error('This middleware requires cookie-parser');
 	}
-	if (!req.cookies.siterSESSION) {
+	if (!req.cookies['siter-session']) {
 		req.session = null;
 	} else {
-		req.session = await libSession.getSessionByID(req.cookies.siterSESSION);
+		req.session = await libSession.getSessionByID(req.cookies['siter-session']);
 	}
 	res.locals.session = req.session;
 

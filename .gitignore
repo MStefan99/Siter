@@ -209,4 +209,5 @@ log/
 # Custom rules
 config*.json
 frontend/public/dist
+backend/views/standalone/*.html
 package-lock.json

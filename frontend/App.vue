@@ -5,32 +5,7 @@
 	.alert.mx-3(:class="getServerClass()") {{getServerStatus()}}
 	h2 Apps
 	div#app-container.row(@dragover.prevent @drop.prevent="appDrop($event)")
-		.card.app.mx-3
-			h3 Siter app
-			.app-mask.border-bottom
-				h4 URL mask
-				.app-link
-					b.domain siter
-					span.text-muted .your-domain.tld:
-					b.port 80
-					span.text-muted /
-			.app-security.border-bottom
-				h4 Security
-				div(v-if="secure")
-					p Secure:
-						|
-						|
-						b Yes
-				div(v-else)
-					p Secure:
-						|
-						|
-						b.text-danger No
-					div Please enable HTTPS redirect in settings
-			.app-target.border-bottom
-				h4 Target
-				p
-					b Siter web interface
+		SiterCard
 		TransitionGroup(name="list")
 			AppCard(v-for="app in apps" :key="app.id" :app="app" @edit="openApp = app" @delete="deleteApp(app)"
 				draggable="true" @dragstart="appDrag($event, app)")
@@ -49,9 +24,9 @@ import AppCard from './components/AppCard.vue';
 import AppEditor from './components/AppEditor.vue';
 import {defaultApp} from './defaults';
 import {onMounted, ref} from "vue";
+import SiterCard from "./components/SiterCard.vue";
 
 const serverStatus = ref('pending');
-const secure = ref(null);
 const apps = ref([]);
 const openApp = ref(null);
 
@@ -196,13 +171,6 @@ onMounted(() => {
 			return res.json();
 		}
 	}).then(a => apps.value = a);
-
-	fetch('/security')
-		.then(res => {
-			if (res.ok) {
-				return res.json();
-			}
-		}).then(settings => secure.value = settings.httpsRedirect);
 });
 </script>
 

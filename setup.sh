@@ -10,15 +10,14 @@ if [[ ${NODE_VERSION:1:2} -lt 12 ]]; then
 fi
 echo "Node.js installed!"
 
-echo "Installing Stylus..."
-sudo npm i -g stylus
-echo "Compiling styles..."
-npx stylus ./public/style
-echo "Styles compiled!"
-
 echo "Installing dependencies..."
 npm i
 echo "Dependencies installed!"
+
+echo "Converting sources..."
+npx stylus -c ./frontend/public/style
+npx pug-cli ./backend/views/standalone
+echo "Sources converted!"
 
 echo "Building..."
 npm run build
