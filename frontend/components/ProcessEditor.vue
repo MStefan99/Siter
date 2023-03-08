@@ -1,9 +1,9 @@
 <template lang="pug">
 .process-editor
 	.row.form-group
-		p {{modelValue.length}} processes added.
+		p.col Processes: {{modelValue.length}}
 		span.mx-1.text-muted.col-form-label
-		button.btn.btn-success(type="button" @click="open = true") Edit
+		button.col.btn.btn-success(type="button" @click="open = true") Edit
 	.popup-backdrop(v-if="open" @click.self="open = false")
 		.popup.shadow-sm
 			h2.my-2 Processes
@@ -40,7 +40,7 @@ const emit = defineEmits(['update:modelValue']);
 const open = ref(false);
 const processes = ref({});
 
-watch(open, open && assignProcesses());
+watch(open, () => open && assignProcesses());
 
 function assignProcesses() {
 	processes.value = structuredClone(toRaw(props.modelValue));

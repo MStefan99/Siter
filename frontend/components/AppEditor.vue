@@ -66,6 +66,11 @@
 						input.col(type="number" min="1" max="65535" placeholder="80" v-model="app.hosting.target.port"
 							:class="validation.targetPortValid? 'is-valid' : 'is-invalid'")
 
+				h3 CORS
+				.form-group
+					label CORS allowed origins
+					ArrayEditor(v-model="app.hosting.cors.origins" title="Origins")
+
 			h3 Process manager
 			.form-check
 				input#pm-check(type="checkbox" v-model="app.pm.active" :true-value="true" :false-value="false")
@@ -79,6 +84,12 @@
 				label(for="analytics-check") Enable analytics
 			.pm(v-if="app.analytics?.active")
 				p Analytics
+				.form-group
+					label(for="analytics-url-input") Crash Course address
+					input#analytics-url-input(type="text" v-model="app.analytics.url")
+				.form-group
+					label(for="analytics-url-key") Crash Course telemetry key
+					input#analytics-url-input(type="text" v-model="app.analytics.key")
 
 			input.btn.btn-success(type="submit" value="Save app" :disabled="!validation.valid")
 </template>
@@ -92,6 +103,7 @@ import {computed, onMounted, ref, toRaw} from "vue";
 import {validate} from "../../common/validate";
 import FilePicker from "./FilePicker.vue";
 import ProcessEditor from "./ProcessEditor.vue";
+import ArrayEditor from "./ArrayEditor.vue";
 
 const props = defineProps(['modelValue']);
 const emit = defineEmits(['update:modelValue', 'close']);

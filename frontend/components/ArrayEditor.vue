@@ -1,7 +1,7 @@
 <template lang="pug">
-.kv-editor
+.array-editor
 	.row.form-group
-		p.col Entries: {{Object.keys(modelValue).length}}
+		p.col Entries: {{modelValue.length}}
 		span.mx-1.text-muted.col-form-label
 		button.col.btn.btn-success(type="button" @click="open = true") Edit
 	.popup-backdrop(v-if="open" @click.self="open = false")
@@ -12,17 +12,14 @@
 					.float-right
 						img.icon.edit-icon.clickable(src="/img/trash_can.svg" alt="Remove icon" @click="entries.splice(i, 1)")
 					.form-group
-						label Key
-						input.col(type="text" v-model="entry.key")
-					.form-group
 						label Value
-						input.col(type="text" v-model="entry.value")
-			button.col.btn.btn-outline-success(type="button" @click="entries.push({key: '', value:''})") Add entry
+						input.col(type="text" v-model="entries[i]")
+			button.col.btn.btn-outline-success(type="button" @click="entries.push('')") Add entry
 			button.col.btn.btn-success(type="button" @click="save()") Save
 </template>
 
 <script setup>
-import {ref, watch} from "vue";
+import {ref, toRaw, watch} from "vue";
 
 const props = defineProps(['modelValue', 'title']);
 const emit = defineEmits(['update:modelValue']);
@@ -34,14 +31,12 @@ assignEntries();
 watch(open, () => open && assignEntries());
 
 function assignEntries() {
-	entries.value = Object.keys(props.modelValue).map(k => {
-		return {key: k, value: props.modelValue[k]}
-	})
+	entries.value = structuredClone(toRaw(props.modelValue));
 }
 
 function save() {
 	open.value = false;
-	emit('update:modelValue', entries.value.reduce((obj, el) => {obj[el.key] = el.value; return obj}, {}));
+	emit('update:modelValue', entries.value);
 }
 </script>
 

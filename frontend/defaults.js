@@ -20,6 +20,9 @@ export function defaultApp() {
 				port: 80,
 				secure: false,
 				directory: ''
+			},
+			cors: {
+				origins: []
 			}
 		},
 		pm: {
@@ -39,7 +42,6 @@ export function defaultProcess() {
 		cmd: '',
 		path: '',
 		flags: '',
-		env: {
-		}
+		env: {}
 	}
 }
