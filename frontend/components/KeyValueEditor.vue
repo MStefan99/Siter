@@ -8,7 +8,7 @@
 		.popup-backdrop(v-if="open" @click.self="open = false")
 			.popup.shadow-sm
 				h2.my-2 {{title ?? 'Entries'}}
-				.entries
+				.entries.row.justify-content-center
 					.entry.card.p-2(v-for="(entry, i) in entries" :key="i")
 						.float-right
 							img.icon.edit-icon.clickable(src="/img/trash_can.svg" alt="Remove icon" @click="entries.splice(i, 1)")

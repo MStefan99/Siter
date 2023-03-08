@@ -54,7 +54,7 @@
 						span.invalid-feedback Please select the target type
 				.form-group(v-if="directory")
 					label Directory location
-					FilePicker(v-model="app.hosting.target.directory" placeholder="No directory selected"
+					FilePicker(v-model="app.hosting.target.directory" :dir-mode="true" placeholder="No directory selected"
 						:class="validation.targetDirValid? 'is-valid' : 'is-invalid'")
 					span.invalid-feedback No location provided
 				.form-group(v-else)

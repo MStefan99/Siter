@@ -1,5 +1,5 @@
 <template lang="pug">
-.app.card.mx-3
+.app.card
 	h3 {{app.name}}
 	.card-icon-container.float-right
 		img.icon.edit-icon.clickable.mr-2(src="/img/pencil.svg" alt="Settings icon"
