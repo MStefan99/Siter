@@ -32,10 +32,10 @@
 				p
 					b Siter web interface
 		TransitionGroup(name="list")
-			AppCard(v-for="app in store.apps" :key="app.id" :app="app" @edit="openApp = app"
+			AppCard(v-for="app in apps" :key="app.id" :app="app" @edit="openApp = app" @delete="deleteApp(app)"
 				draggable="true" @dragstart="appDrag($event, app)")
 		Transition(name="popup")
-			AppEditor(v-if="openApp" v-model="openApp" @close="openApp = null")
+			AppEditor(v-if="openApp" v-model="openApp" @update:modelValue="app => saveApp(app)" @close="openApp = null")
 	button.btn-primary.ml-3(type="button" @click="openApp = defaultApp()") Add app
 </template>
 
@@ -45,7 +45,6 @@
 
 import notify from './public/js/notifications';
 
-import store from './store.js';
 import AppCard from './components/AppCard.vue';
 import AppEditor from './components/AppEditor.vue';
 import {defaultApp} from './defaults';
@@ -53,6 +52,7 @@ import {onMounted, ref} from "vue";
 
 const serverStatus = ref('pending');
 const secure = ref(null);
+const apps = ref([]);
 const openApp = ref(null);
 
 function getServerStatus() {
@@ -102,12 +102,12 @@ function appDrop(e) {
 	}
 
 	if (sourceID) {
-		const sourceIndex = store.apps.findIndex(r => r.id === sourceID);
-		const sourceApp = store.apps[sourceIndex];
-		store.apps.splice(sourceIndex, 1);
+		const sourceIndex = apps.value.findIndex(r => r.id === sourceID);
+		const sourceApp = apps.value[sourceIndex];
+		apps.value.splice(sourceIndex, 1);
 
-		const targetIndex = store.apps.findIndex(r => r.id === targetID);
-		store.apps.splice(targetIndex, 0, sourceApp);
+		const targetIndex = apps.value.findIndex(r => r.id === targetID);
+		apps.value.splice(targetIndex, 0, sourceApp);
 	}
 
 	fetch('/apps/reorder', {
@@ -115,8 +115,65 @@ function appDrop(e) {
 		headers: {
 			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify(store.apps.map(r => r.id))
+		body: JSON.stringify(apps.value.map(r => r.id))
 	});
+}
+
+
+	function getApp(id) {
+	return apps.value.find(r => r.id === id);
+}
+
+function saveApp(app) {
+	const idx = apps.value.findIndex(r => r.id === app.id);
+
+	// TODO: add error handling
+	if (idx >= 0) {  // app already exists, editing
+		fetch('/apps/' + app.id + '/', {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(app)
+		})
+			.then(res => res.json())
+			.then(app => apps.value[idx] = app);
+	} else {  // New app, adding
+		fetch('/apps/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(app)
+		})
+			.then(res => res.json())
+			.then(app => apps.value.push(app));
+	}
+}
+
+function deleteApp(app) {
+	notify.ask('Are you sure to delete this app?',
+		'Are you sure you want to delete the app ' +
+		app.name + '? This action cannot be undone.',
+		'warning'
+	)
+		.then(result => {
+			if (result) {
+	const idx = apps.value.findIndex(r => r.id === app.id);
+
+	// TODO: add error handling
+	if (idx >= 0) {
+		fetch('/apps/' + app.id + '/', {
+			method: 'DELETE'
+		})
+			.then(res => {
+				if (res.ok) {
+					apps.value.splice(idx, 1);
+				}
+			});
+	}
+			}
+		});
 }
 
 onMounted(() => {
@@ -138,7 +195,7 @@ onMounted(() => {
 			serverStatus.value = 'ok';
 			return res.json();
 		}
-	}).then(apps => store.apps = apps);
+	}).then(a => apps.value = a);
 
 	fetch('/security')
 		.then(res => {

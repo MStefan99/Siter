@@ -16,6 +16,8 @@
 </template>
 
 <script setup>
+'use strict';
+
 import {ref, toRaw, watch} from "vue";
 
 const props = defineProps(['modelValue', 'prompt']);

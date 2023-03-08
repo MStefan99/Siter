@@ -3,9 +3,9 @@
 	h3 {{app.name}}
 	.card-icon-container.float-right
 		img.icon.edit-icon.clickable.mr-2(src="/img/pencil.svg" alt="Settings icon"
-			@click="$emit('edit', app.id)")
+			@click="$emit('edit', app)")
 		img.icon.edit-icon.clickable(src="/img/trash_can.svg" alt="Remove icon"
-			@click="deleteApp(app)")
+			@click="$emit('delete', app)")
 	.app-mask.border-bottom
 		h4 URL mask
 		a.app-link(target="_blank"
@@ -49,22 +49,6 @@
 <script setup>
 'use strict';
 
-import notify from '../public/js/notifications.js';
-import store from '../store.js';
-
 defineProps(['app']);
-defineEmits(['edit']);
-
-function deleteApp(app) {
-	notify.ask('Are you sure to delete this app?',
-		'Are you sure you want to delete the app ' +
-		app.name + '? This action cannot be undone.',
-		'warning'
-	)
-		.then(result => {
-			if (result) {
-				store.deleteApp(app);
-			}
-		});
-}
+defineEmits(['edit', 'delete']);
 </script>

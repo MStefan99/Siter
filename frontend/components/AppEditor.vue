@@ -98,7 +98,6 @@
 <script setup>
 'use strict';
 
-import store from '../store.js';
 import {computed, onMounted, ref, toRaw} from "vue";
 import {validate} from "../../common/validate";
 import FilePicker from "./FilePicker.vue";
@@ -118,7 +117,6 @@ function save() {
 		return;
 	}
 
-	store.saveApp(app.value);
 	emit('update:modelValue', app.value);
 	emit('close');
 }

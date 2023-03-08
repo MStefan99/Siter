@@ -22,6 +22,8 @@
 </template>
 
 <script setup>
+'use strict';
+
 import {ref, watch} from "vue";
 
 const props = defineProps(['modelValue', 'title']);
