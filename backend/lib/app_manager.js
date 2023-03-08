@@ -241,11 +241,16 @@ function handleRequest(request, response) {
 			if (!app) {
 				sendFile(response, path.join(standaloneViews, 'no_app.html'), 404);
 			} else {
+				if (app.hosting.cors.origins.some(origin => request.headers.origin?.includes(origin))) {
+					response.setHeader('Access-Control-Allow-Origin', request.headers.origin);
+				}
+
 				if (app.hosting.target.directory?.length) {  // Serving static files
-					const postfix = url.replace(new RegExp(`^${app.hosting.source.pathname}|\\?.*$`, 'ig'), '');
+					const postfix = (app.hosting.target.routing || url.match(/\.\w+$/)) ?
+						url.replace(new RegExp(`^${app.hosting.source.pathname}|\\?.*$`, 'ig'), '') : '';
 					const filePath = path.join(app.hosting.target.directory, ...postfix.split('/'));
 
-					// trying requested file
+					// Trying requested file
 					sendFile(response, filePath, 200)
 						// trying requested file with .html extension
 						.catch(() => sendFile(response, filePath + '.html', 200))
@@ -264,7 +269,6 @@ function handleRequest(request, response) {
 						headers: request.headers
 					};
 					options.headers['x-forwarded-for'] = request.connection.remoteAddress;
-
 					const req = app.hosting.target.secure ? https.request(options) : http.request(options);
 
 					req.on('upgrade', (res, socket, head) => {

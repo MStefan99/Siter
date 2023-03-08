@@ -57,6 +57,9 @@
 					FilePicker(v-model="app.hosting.target.directory" :dir-mode="true" placeholder="No directory selected"
 						:class="validation.targetDirValid? 'is-valid' : 'is-invalid'")
 					span.invalid-feedback No location provided
+					.form-check
+						input#route-spa(type="checkbox" v-model="app.hosting.target.routing" :true-value="false" :false-value="true")
+						label(for="route-spa") Disable routing (SPA mode)
 				.form-group(v-else)
 					label Server address
 					.row

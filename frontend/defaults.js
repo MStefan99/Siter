@@ -5,8 +5,8 @@ export function defaultApp() {
 		id: null,
 		name: '',
 		hosting: {
-			active: false,
 			order: 0,
+			active: false,
 			source: {
 				hostname: '',
 				port: 80,
@@ -19,6 +19,7 @@ export function defaultApp() {
 				hostname: '',
 				port: 80,
 				secure: false,
+				routing: true,
 				directory: ''
 			},
 			cors: {
