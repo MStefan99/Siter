@@ -36,5 +36,16 @@ module.exports = {
 			__VUE_PROD_DEVTOOLS__: true
 		}),
 	],
+	devServer: {
+		static: {
+			directory: path.join(__dirname, 'frontend', 'public')
+		},
+		headers: {
+			"Access-Control-Allow-Origin": "*",
+			"Access-Control-Allow-Methods": "*",
+			"Access-Control-Allow-Headers": "*"
+		},
+		port: 9000
+	},
 	stats: 'minimal'
 };

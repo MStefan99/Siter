@@ -33,7 +33,7 @@ router.get('/', (req, res) => {
 
 
 router.get('/dashboard', (req, res) => {
-	res.render('dashboard');
+	res.render('dashboard', {dev: process.env.NODE_ENV === 'dev'});
 });
 
 

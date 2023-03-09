@@ -4,8 +4,8 @@
 	"description": "",
 	"main": "backend/app.js",
 	"scripts": {
-		"backend": "nodemon backend/app.js",
-		"frontend": "webpack --watch --config webpack.dev.js",
+		"backend": "NODE_ENV=dev nodemon backend/app.js",
+		"frontend": "webpack serve --config webpack.dev.js",
 		"build": "webpack --config webpack.prod.js",
 		"dev": "run-p backend frontend"
 	},

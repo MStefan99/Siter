@@ -24,4 +24,7 @@ block main
 			+helpSection('Target', '/html/help/routes/target.html')
 			+helpSection('Example setup', '/html/help/routes/examples.html')
 
-	script(async type="module" src="/dist/app.js")
+	if dev
+		script(async type="module" src="//localhost:9000/app.js")
+	else
+		script(async type="module" src="/dist/app.js")
