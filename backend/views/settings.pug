@@ -11,21 +11,21 @@ block header
 
 
 block main
-	div#main-container.d-block.d-lg-flex
-		div#settings.mx-lg-5.mb-5.mb-lg-0.flex-grow-1
+	#main-container.d-block.d-lg-flex
+		#settings.mx-lg-5.mb-5.mb-lg-0.flex-grow-1
 			h1#title Settings
 			h2 Password
 			form#password-form.mx-3(action='/settings/password/' method='post')
 				input#username(type='text' autocomplete='username' value='admin' hidden)
-				div.form-group
+				.form-group
 					label(for='old-pwd') Old password
 					input#old-pwd(type='password' placeholder='password'
 						name='oldPassword' autocomplete='current-password' required)
-				div.form-group
+				.form-group
 					label(for='new-pwd') New password
 					input#new-pwd(type='password' placeholder='new-password'
 						name='newPassword' autocomplete='new-password' required)
-				div.form-group
+				.form-group
 					label(for='new-pwd-repeat') Repeat new password
 					input#new-pwd-repeat(type='password' placeholder='new-password'
 						name='newPasswordRepeat' autocomplete='new-password' required)
@@ -33,18 +33,18 @@ block main
 
 			h2 Security
 			form#security-form.mx-3(action='/settings/security/' method='post')
-				div.form-check
+				.form-check
 					input#https-checkbox(type='checkbox' name='httpsEnabled')
 					label(for='https-checkbox') Enable HTTPS for Siter
-				div.form-group
+				.form-group
 					label(for='cert-file-input') Certificate file
 					input#cert-file-input(type='text' name='certFile'
 						placeholder='Path to certificate file')
-				div.form-group
+				.form-group
 					label(for='key-file-input') Key file
 					input#key-file-input(type='text' name='keyFile'
 						placeholder='Path to key file')
-				div.form-check
+				.form-check
 					input#redirect-checkbox(type='checkbox' name='httpsRedirect')
 					label#redirect-label(for='redirect-checkbox') Enable HTTPS redirect
 				input.btn.btn-primary(type='submit' value='Update')

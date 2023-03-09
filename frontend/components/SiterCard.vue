@@ -20,7 +20,7 @@
 				|
 				|
 				b.text-danger No
-			div Please enable HTTPS redirect in settings
+			p Please enable HTTPS redirect in settings
 	.app-target.border-bottom
 		h4 Target
 		p

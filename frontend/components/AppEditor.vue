@@ -10,9 +10,10 @@
 				input#name-input(type="text" v-model="app.name" placeholder="Name")
 
 			h3 Hosting
-			.form-check
-				input#route-check(type="checkbox" v-model="app.hosting.active" :true-value="true" :false-value="false")
-				label(for="route-check") Enable hosting
+			.form-group
+				.form-check
+					input#route-check(type="checkbox" v-model="app.hosting.active" :true-value="true" :false-value="false")
+					label(for="route-check") Enable hosting
 
 			.hosting(v-if="app.hosting?.active")
 				h3 URL mask
@@ -28,9 +29,10 @@
 						:class="validation.prefixValid? 'is-valid' : 'is-invalid'")
 
 				h3 Security
-				.form-check
-					input#source-secure-check(type="checkbox" v-model="app.hosting.source.secure")
-					label(for="source-secure-check") Enable HTTPS
+				.form-group
+					.form-check
+						input#source-secure-check(type="checkbox" v-model="app.hosting.source.secure")
+						label(for="source-secure-check") Enable HTTPS
 				div(v-if="app.hosting.source.secure")
 					.form-group
 						label(for="cert-input") Certificate file
@@ -57,9 +59,10 @@
 					FilePicker(v-model="app.hosting.target.directory" :dir-mode="true" placeholder="No directory selected"
 						:class="validation.targetDirValid? 'is-valid' : 'is-invalid'")
 					span.invalid-feedback No location provided
-					.form-check
-						input#route-spa(type="checkbox" v-model="app.hosting.target.routing" :true-value="false" :false-value="true")
-						label(for="route-spa") Disable routing (SPA mode)
+					.form-group
+						.form-check
+							input#route-spa(type="checkbox" v-model="app.hosting.target.routing" :true-value="false" :false-value="true")
+							label(for="route-spa") Disable routing (SPA mode)
 				.form-group(v-else)
 					label Server address
 					.row
@@ -75,17 +78,19 @@
 					ArrayEditor(v-model="app.hosting.cors.origins" title="Origins")
 
 			h3 Process manager
-			.form-check
-				input#pm-check(type="checkbox" v-model="app.pm.active" :true-value="true" :false-value="false")
-				label(for="pm-check") Enable process manager
+			.form-group
+				.form-check
+					input#pm-check(type="checkbox" v-model="app.pm.active" :true-value="true" :false-value="false")
+					label(for="pm-check") Enable process manager
 			.pm(v-if="app.pm?.active")
 				ProcessEditor(v-model="app.pm.processes")
 
 			h3 Analytics
-			.form-check
-				input#analytics-check(type="checkbox" v-model="app.analytics.active" :true-value="true" :false-value="false")
-				label(for="analytics-check") Enable analytics
-			.pm(v-if="app.analytics?.active")
+			.form-group
+				.form-check
+					input#analytics-check(type="checkbox" v-model="app.analytics.active" :true-value="true" :false-value="false")
+					label(for="analytics-check") Enable analytics
+			.analytics(v-if="app.analytics?.active")
 				p Analytics
 				.form-group
 					label(for="analytics-url-input") Crash Course address

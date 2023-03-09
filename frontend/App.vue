@@ -4,7 +4,7 @@
 	h2 Status
 	.alert.mx-3(:class="getServerClass()") {{getServerStatus()}}
 	h2 Apps
-	div#app-container.row(@dragover.prevent @drop.prevent="appDrop($event)")
+	#app-container.row(@dragover.prevent @drop.prevent="appDrop($event)")
 		SiterCard
 		TransitionGroup(name="list")
 			AppCard(v-for="app in apps" :key="app.id" :app="app" @edit="openApp = app" @delete="deleteApp(app)"
