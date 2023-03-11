@@ -1,5 +1,5 @@
 <template lang="pug">
-.app.card
+.app.card(:data-app-id="app.id")
 	h3 {{app.name}}
 	.card-icon-container.float-right
 		img.icon.edit-icon.clickable.mr-2(src="/img/pencil.svg" alt="Settings icon"
@@ -49,7 +49,7 @@
 		p Processes: {{app.pm.processes.length}}
 	.app-analytics.border-bottom
 		h4 Analytics
-		p Analytics {{app.analytics.active ? 'enabled' : 'disabled'}}
+		p Analytics {{app.analytics.enabled ? 'enabled' : 'disabled'}}
 </template>
 
 

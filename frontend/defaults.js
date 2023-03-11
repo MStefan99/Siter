@@ -6,7 +6,7 @@ export function defaultApp() {
 		name: '',
 		hosting: {
 			order: 0,
-			active: false,
+			enabled: false,
 			source: {
 				hostname: '',
 				port: 80,
@@ -27,11 +27,11 @@ export function defaultApp() {
 			}
 		},
 		pm: {
-			active: false,
+			enabled: false,
 			processes: []
 		},
 		analytics: {
-			active: false,
+			enabled: false,
 			url: '',
 			key: ''
 		}

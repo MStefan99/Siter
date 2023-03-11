@@ -12,10 +12,10 @@
 			h3 Hosting
 			.form-group
 				.form-check
-					input#route-check(type="checkbox" v-model="app.hosting.active" :true-value="true" :false-value="false")
+					input#route-check(type="checkbox" v-model="app.hosting.enabled" :true-value="true" :false-value="false")
 					label(for="route-check") Enable hosting
 
-			.hosting(v-if="app.hosting?.active")
+			.hosting(v-if="app.hosting?.enabled")
 				h3 URL mask
 				.row.form-group
 					input.col(type="text" placeholder="example.com" v-model="app.hosting.source.hostname"
@@ -54,11 +54,12 @@
 						input#target-server-radio(type="radio" name="target" :value="false" v-model="directory")
 						label(for="target-server-radio") Web server
 						span.invalid-feedback Please select the target type
-				.form-group(v-if="directory")
-					label Directory location
-					FilePicker(v-model="app.hosting.target.directory" :dir-mode="true" placeholder="No directory selected"
-						:class="validation.targetDirValid? 'is-valid' : 'is-invalid'")
-					span.invalid-feedback No location provided
+				div(v-if="directory")
+					.form-group
+						label Directory location
+						FilePicker(v-model="app.hosting.target.directory" :dir-mode="true" placeholder="No directory selected"
+							:class="validation.targetDirValid? 'is-valid' : 'is-invalid'")
+						span.invalid-feedback No location provided
 					.form-group
 						.form-check
 							input#route-spa(type="checkbox" v-model="app.hosting.target.routing" :true-value="false" :false-value="true")
@@ -80,17 +81,17 @@
 			h3 Process manager
 			.form-group
 				.form-check
-					input#pm-check(type="checkbox" v-model="app.pm.active" :true-value="true" :false-value="false")
+					input#pm-check(type="checkbox" v-model="app.pm.enabled" :true-value="true" :false-value="false")
 					label(for="pm-check") Enable process manager
-			.pm(v-if="app.pm?.active")
+			.pm(v-if="app.pm?.enabled")
 				ProcessEditor(v-model="app.pm.processes")
 
 			h3 Analytics
 			.form-group
 				.form-check
-					input#analytics-check(type="checkbox" v-model="app.analytics.active" :true-value="true" :false-value="false")
+					input#analytics-check(type="checkbox" v-model="app.analytics.enabled" :true-value="true" :false-value="false")
 					label(for="analytics-check") Enable analytics
-			.analytics(v-if="app.analytics?.active")
+			.analytics(v-if="app.analytics?.enabled")
 				p Analytics
 				.form-group
 					label(for="analytics-url-input") Crash Course address

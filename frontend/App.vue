@@ -95,10 +95,6 @@ function appDrop(e) {
 }
 
 
-	function getApp(id) {
-	return apps.value.find(r => r.id === id);
-}
-
 function saveApp(app) {
 	const idx = apps.value.findIndex(r => r.id === app.id);
 
@@ -134,19 +130,19 @@ function deleteApp(app) {
 	)
 		.then(result => {
 			if (result) {
-	const idx = apps.value.findIndex(r => r.id === app.id);
+				const idx = apps.value.findIndex(r => r.id === app.id);
 
-	// TODO: add error handling
-	if (idx >= 0) {
-		fetch('/apps/' + app.id + '/', {
-			method: 'DELETE'
-		})
-			.then(res => {
-				if (res.ok) {
-					apps.value.splice(idx, 1);
+				// TODO: add error handling
+				if (idx >= 0) {
+					fetch('/apps/' + app.id + '/', {
+						method: 'DELETE'
+					})
+						.then(res => {
+							if (res.ok) {
+								apps.value.splice(idx, 1);
+							}
+						});
 				}
-			});
-	}
 			}
 		});
 }

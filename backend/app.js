@@ -57,7 +57,7 @@ app.use((err, req, res, next) => {
 });
 
 
-require('./lib/init').init().then(() => {
-	appManager.start(app);
-	console.log('Siter is now running! Open http://siter.localhost/ to get started.');
-});
+require('./lib/init')
+	.init()
+	.then(() => appManager.start(app))
+	.then(() => console.log('Siter is now running! Open http://siter.localhost/ to get started.'));

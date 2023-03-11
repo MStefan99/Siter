@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 
 const middleware = require('../lib/middleware');
 const flash = require('@mstefan99/express-flash');
+const appManager = require('../lib/app_manager');
 
 
 router.use(cookieParser());
@@ -38,7 +39,7 @@ router.get('/dashboard', (req, res) => {
 
 
 router.get('/settings', (req, res) => {
-	res.render('settings');
+	res.render('settings', {net: appManager.getNetOptions(), analytics: appManager.getAnalyticsOptions()});
 });
 
 

@@ -35,39 +35,37 @@ block main
 			form#network-form.mx-3(action='/settings/network', method='post')
 				.form-group
 					label(for='http-port-input') HTTP Port
-					input#http-port-input(type='number' name='httpPort' placeholder='80')
+					input#http-port-input(type='number' name='httpPort' placeholder='80' value=net.httpPort)
 				.form-group
 					label(for='https-port-input') HTTPS Port
-					input#https-port-input(type='number' name='httpsPort' placeholder='Path to key file')
+					input#https-port-input(type='number' name='httpsPort' placeholder='443' value=net.httpsPort)
 				.form-check
-					input#secure-checkbox(type='checkbox' name='httpsEnabled')
+					input#secure-checkbox(type='checkbox' name='httpsEnabled' checked=net.httpsEnabled)
 					label(for='secure-checkbox') Enable HTTPS for Siter
 				.form-group
 					label(for='security-cert-input') Certificate file
-					input#security-cert-input(type='text' name='cert'
-						placeholder='Path to certificate file')
+					input#security-cert-input(type='text' name='cert' placeholder='Path to certificate file'
+						value=net.cert)
 				.form-group
 					label(for='security-key-input') Key file
-					input#security-key-input(type='text' name='key'
-						placeholder='Path to key file')
+					input#security-key-input(type='text' name='key' placeholder='Path to key file'
+						value=net.key)
 				.form-check
-					input#redirect-checkbox(type='checkbox' name='httpsRedirect')
+					input#redirect-checkbox(type='checkbox' name='httpsRedirect' checked=net.httpsRedirect)
 					label#redirect-label(for='redirect-checkbox') Enable HTTPS redirect
 				input.btn.btn-primary(type='submit' value='Update')
 
 			h2 Analytics
 			form#analytics-form.mx-3(action='/settings/analytics' method='post')
 				.form-check
-					input#analytics-checkbox(type='checkbox' name='enabled')
+					input#analytics-checkbox(type='checkbox' name='enabled' checked=analytics.enabled)
 					label(for='analytics-checkbox') Enable analytics
 				.form-group
 					label(for='analytics-url-input') Crash Course URL
-					input#analytics-url-input(type='text' name='url'
-						placeholder='Crash Course URL')
+					input#analytics-url-input(type='text' name='url' placeholder='Crash Course URL' value=analytics.url)
 				.form-group
 					label(for='analytics-key-input') Crash Course key
-					input#analytics-key-input(type='text' name='key'
-						placeholder='Crash Course key')
+					input#analytics-key-input(type='text' name='key' placeholder='Crash Course key' value=analytics.key)
 				input.btn.btn-primary(type='submit' value='Update')
 
 			script(async type='module' src='/js/settings.js')

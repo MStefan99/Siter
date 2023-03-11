@@ -60,7 +60,7 @@ async function start(defaultHandler) {
 	analyticsOptions.forEach(o => analytics[o.key] = o.value);
 
 	const appCollection = await db('apps');
-	apps = await appCollection.find().sort({order: 1}).toArray();
+	apps = await appCollection.find().sort({'hosting.order': 1}).toArray();
 
 	httpServer.listen(net.httpPort || 80);
 	servers.set(net.httpPort || 80, httpServer);
@@ -123,7 +123,7 @@ function getSecureContext(app) {
 
 
 function addServer(app) {
-	if (!app.hosting.active) {
+	if (!app.hosting.enabled) {
 		return; // Hosting disabled
 	}
 
@@ -193,14 +193,15 @@ function startProcess(cmd, cwd, env) {
 }
 
 function stopProcess(cmd) {
-	const {process, restart} = processes.get(cmd);
-	process.off('exit', restart);
-	process.kill('SIGKILL');
+	const {process = null, restart = null} = processes.get(cmd) || {};
+
+	process?.off('exit', restart);
+	process?.kill('SIGKILL');
 	processes.delete(cmd);
 }
 
 function addProcesses(app) {
-	if (!app.pm.active) {
+	if (!app.pm.enabled) {
 		return; // Process manager disabled
 	}
 
@@ -229,12 +230,12 @@ function updateProcesses(oldApp, newApp) {
 
 
 function handleRequest(request, response) {
-	const server = this;
-	const host = request.headers.host.replace(/:.*/, '');
-	const port = server.address().port;
-	const url = request.url;
-
 	try {
+		const server = this;
+		const host = request.headers.host.replace(/:.*/, '');
+		const port = server.address()?.port;
+		const url = request.url;
+
 		if (url.match(/\?.*force-siter=true/)) {
 			siter(request, response);
 		} else if (host.match(/^siter\./)) {
@@ -374,6 +375,10 @@ async function addApp(app) {
 	addServer(app);
 	addProcesses(app);
 
+	if (app.order) {
+		app.order = apps.length;
+	}
+
 	const appCollection = await db('apps');
 	appCollection.insertOne(app);
 
@@ -405,7 +410,7 @@ async function updateApp(appID, newApp) {
 
 
 async function removeApp(appID) {
-	const app = apps.splice(apps.findIndex(r => r.id === appID), 1)[0];
+	const app = apps.splice(apps.findIndex(a => a.id === appID), 1)[0];
 
 	if (app) {
 		removeServer(app);
@@ -418,26 +423,29 @@ async function removeApp(appID) {
 
 async function reorder(newOrder) {
 	for (let i = 0; i < newOrder.length; ++i) {
-		const id = newOrder.shift();
-		const idx = apps.findIndex(r => r.id === id);
+		const idx = apps.findIndex(a => a.id === newOrder[i]);
 
-		apps[idx].order = i;
+		apps[idx].hosting.order = i;
 	}
 
+	apps.sort((a1, a2) => a1.hosting.order - a2.hosting.order);
+
 	const appCollection = await db('apps');
-	apps.forEach(a => appCollection.updateOne({id: a.id}, {$set: {order: a.order}}));
+	apps.forEach(async a => await appCollection.updateOne({id: a.id}, {$set: {'hosting.order': a.hosting.order}}));
 }
 
 
 async function setNetOptions(options = {}) {
 	const sanitized = {};
-	sanitized.httpPort = +options.httpPort;
-	sanitized.httpsPort = +options.httpsPort;
+
+	isAValidPort(options.httpPort) && (sanitized.httpPort = +options.httpPort);
+	isAValidPort(options.httpsPort) && (sanitized.httpsPort = +options.httpsPort);
 	sanitized.httpsEnabled = !!options.httpsEnabled;
 	sanitized.httpsRedirect = !!options.httpsRedirect;
 	sanitized.cert = options.cert.toString();
 	sanitized.key = options.key.toString();
 
+	Object.assign(net, sanitized);
 	const netCollection = await db('net');
 	Object.keys(sanitized).forEach(k => netCollection.updateOne({key: k}, {$set: {value: sanitized[k]}}, {upsert: true}));
 
@@ -457,6 +465,7 @@ async function setAnalyticsOptions(options = {}) {
 	sanitized.url = options.url.toString();
 	sanitized.key = options.key.toString();
 
+	Object.assign(analytics, sanitized);
 	const analyticsCollection = await db('analytics');
 	Object.keys(sanitized).forEach(k => analyticsCollection.updateOne({key: k}, {$set: {value: sanitized[k]}}, {upsert: true}));
 }

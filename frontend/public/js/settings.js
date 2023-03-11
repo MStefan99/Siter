@@ -4,13 +4,9 @@ import notify from '/js/notifications.js';
 
 
 const passwordForm = document.getElementById('password-form');
-const httpPortInput = document.getElementById('http-port-input');
-const httpsPortInput = document.getElementById('https-port-input');
 const secureCheckbox = document.getElementById('secure-checkbox');
 const redirectCheckbox = document.getElementById('redirect-checkbox');
 const redirectLabel = document.getElementById('redirect-label');
-const certFileInput = document.getElementById('security-cert-input');
-const keyFileInput = document.getElementById('security-key-input');
 
 
 passwordForm.addEventListener('submit', e => {
@@ -19,6 +15,7 @@ passwordForm.addEventListener('submit', e => {
 		e.preventDefault();
 	}
 });
+
 
 secureCheckbox.addEventListener('click', e => {
 	if (!secureCheckbox.checked) {
@@ -51,16 +48,3 @@ redirectCheckbox.addEventListener('click', async e => {
 				});
 	}
 });
-
-
-fetch('/settings/network/').then(async res => {
-	const options = await res.json();
-
-	httpPortInput.value = options.httpPort || 80;
-	httpsPortInput.value = options.httpsPort || 443;
-	secureCheckbox.checked = options.httpsEnabled;
-	redirectCheckbox.checked = options.httpsRedirect;
-	certFileInput.value = options.cert || '';
-	keyFileInput.value = options.key || '';
-});
-
