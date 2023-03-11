@@ -19,32 +19,20 @@ router.use(middleware.getSession());
 router.use(middleware.redirectIfNotAuthorized());
 
 
-router.get('/security', (req, res) => {
+router.get('/network', (req, res) => {
 	res.json(appManager.getNetOptions());
+});
+
+router.get('/analytics', (req, res) => {
+	res.json(appManager.getAnalyticsOptions());
 });
 
 
 router.post('/password', async (req, res) => {
-	if (!req.body.oldPassword) {
-		res.flash({
-			title: 'Empty old password',
-			info: 'Please enter your current password to continue',
-			type: 'warning'
-		}).redirect(303, '/settings/');
-		return;
-	}
 	if (!req.body.newPassword || !req.body.newPasswordRepeat) {
 		res.flash({
-			title: 'Empty new password',
+			title: 'Empty password',
 			info: 'Please enter your new password to continue',
-			type: 'warning'
-		}).redirect(303, '/settings/');
-		return;
-	}
-	if (req.body.newPassword !== req.body.newPasswordRepeat) {
-		res.flash({
-			title: 'Passwords do not match',
-			info: 'Please be careful when typing passwords and try again',
 			type: 'warning'
 		}).redirect(303, '/settings/');
 		return;
@@ -70,9 +58,9 @@ router.post('/password', async (req, res) => {
 });
 
 
-router.post('/security', async (req, res) => {
-	if (req.body.httpsEnabled &&
-		(!req.body.certFile || !req.body.keyFile)) {
+router.post('/network', async (req, res) => {
+	if (req.body.enabled &&
+		(!req.body.cert || !req.body.key)) {
 		res.flash({
 			title: 'Could not enable HTTPS',
 			info: 'Please provide certificate and key file',
@@ -80,7 +68,7 @@ router.post('/security', async (req, res) => {
 		}).redirect(303, '/settings/');
 		return;
 	}
-	if (req.body.httpsRedirect && !req.body.httpsEnabled) {
+	if (req.body.redirect && !req.body.enabled) {
 		res.flash({
 			title: 'Could not enable redirect',
 			info: 'To enable redirect, please enable HTTPS support first',
@@ -90,14 +78,39 @@ router.post('/security', async (req, res) => {
 	}
 
 	await appManager.setNetOptions({
-		httpsEnabled: req.body.httpsEnabled,
-		httpsRedirect: req.body.httpsRedirect,
-		certFile: req.body.certFile,
-		keyFile: req.body.keyFile
+		httpPort: +req.body.httpPort,
+		httpsPort: +req.body.httpsPort,
+		httpsEnabled: !!req.body.httpsEnabled,
+		httpsRedirect: !!req.body.httpsRedirect,
+		cert: req.body.cert,
+		key: req.body.key
 	});
 	res.flash({
 		title: 'Success!',
-		info: 'Your security options have now been saved.',
+		info: 'Your security options have been saved.',
+		type: 'success'
+	})
+		.redirect(303, '/settings');
+});
+
+router.post('/analytics', async (req, res) => {
+	if (req.body.enabled && (!req.body.url || !req.body.key)) {
+		res.flash({
+			title: 'Could not enable analytics',
+			info: 'Please provide both url and key',
+			type: 'danger'
+		}).redirect(303, '/settings/');
+		return;
+	}
+
+	await appManager.setAnalyticsOptions({
+		enabled: req.body.enabled,
+		url: req.body.url,
+		key: req.body.key
+	});
+	res.flash({
+		title: 'Success!',
+		info: 'Your analytics options have been saved.',
 		type: 'success'
 	})
 		.redirect(303, '/settings');

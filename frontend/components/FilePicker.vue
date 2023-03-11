@@ -3,7 +3,7 @@
 	.row.form-group
 		input.col(type="text" placeholder="No file selected" :value="path" readonly)
 		span.mx-1.text-muted.col-form-label
-		button.btn.btn-success(type="button" @click="open = true; loadFiles()") Pick a file
+		button.btn.btn-success(type="button" @click="open = true") Pick a file
 	Transition(name="popup")
 		.popup-backdrop(v-if="open" @click.self="open = false")
 			.popup.shadow-sm
@@ -13,7 +13,7 @@
 					.file.up.clickable(v-if="path.length" @click="goUp()") ..
 					.file.clickable(v-for="file in files" :key="file" @click="goDown(file)") {{file.name}}
 				.col.file-path {{path}}
-				button.col.btn.btn-success(@click="open = false") Choose
+				button.col.btn.btn-success(type="button" @click="save()") Choose
 </template>
 
 <script setup>
@@ -29,7 +29,14 @@ const open = ref(false);
 const path = ref(structuredClone(toRaw(props.modelValue)));
 const isDir = ref(true);
 const files = ref([]);
+
 watch(path, loadFiles);
+watch(open, () => {
+	if (open) {
+		path.value = structuredClone(toRaw(props.modelValue));
+		loadFiles();
+	}
+});
 
 function dirname(path) {
 	return path.replace(/[\/\\]([^\/\\]+)?$/, '');
@@ -44,6 +51,11 @@ function goDown(file) {
 	if (isDir.value && !(props.dirMode && !file.dir)) {
 		path.value += file.name;
 	}
+	emit('update:modelValue', path.value);
+}
+
+function save() {
+	open.value = false;
 	emit('update:modelValue', path.value);
 }
 

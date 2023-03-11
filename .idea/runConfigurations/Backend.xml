@@ -1,8 +1,5 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Backend" type="NodeJSConfigurationType" path-to-js-file="backend/app.js" working-dir="$PROJECT_DIR$">
-    <envs>
-      <env name="DEBUG" value="express:*" />
-    </envs>
     <method v="2" />
   </configuration>
 </component>

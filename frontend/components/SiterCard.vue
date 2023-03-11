@@ -35,7 +35,7 @@ import {ref} from "vue";
 
 const secure = ref(null);
 
-fetch('/settings/security')
+fetch('/settings/network')
 	.then(res => {
 		if (res.ok) {
 			return res.json();

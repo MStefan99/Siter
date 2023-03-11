@@ -76,8 +76,8 @@ function findAppByDomain(domain) {
 			hosting: {
 				source: {
 					secure: config.net.httpsEnabled,
-					cert: config.net.certFile,
-					key: config.net.keyFile
+					cert: config.net.cert,
+					key: config.net.key
 				}
 			}
 		};
@@ -410,15 +410,29 @@ function reorder(newOrder) {
 
 
 function setNetOptions(options = {}) {
-	Object.assign(config.net, options);
+	config.net.httpPort = +options.httpPort;
+	config.net.httpsPort = +options.httpsPort;
 	config.net.httpsEnabled = !!options.httpsEnabled;
 	config.net.httpsRedirect = !!options.httpsRedirect;
+	config.net.cert = options.cert.toString();
+	config.net.key = options.key.toString();
 	start(siter);
 }
 
-
 function getNetOptions() {
 	return config.net;
+}
+
+
+function setAnalyticsOptions(options = {}) {
+	config.analytics.enabled = !!options.enabled;
+	config.analytics.url = options.url.toString();
+	config.analytics.key = options.key.toString();
+}
+
+
+function getAnalyticsOptions() {
+	return config.analytics;
 }
 
 
@@ -433,5 +447,8 @@ module.exports = {
 	reorder,
 
 	setNetOptions,
-	getNetOptions
+	getNetOptions,
+
+	setAnalyticsOptions,
+	getAnalyticsOptions
 };

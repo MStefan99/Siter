@@ -41,7 +41,8 @@
 			b {{app.hosting.target.directory}}
 		div(v-else)
 			p.server Server
-			a(:href="(app.hosting.target.secure? 'https://': 'http://') + app.hosting.target.hostname + ':' + app.hosting.target.port + '/'")
+			a(:href="(app.hosting.target.secure? 'https://': 'http://') + app.hosting.target.hostname + ':' + app.hosting.target.port + '/'"
+				target="_blank")
 				b.target-addr {{app.hosting.target.hostname}}:{{app.hosting.target.port}}
 	.app-pm.border-bottom
 		h4 Process manager

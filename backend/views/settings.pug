@@ -15,39 +15,61 @@ block main
 		#settings.mx-lg-5.mb-5.mb-lg-0.flex-grow-1
 			h1#title Settings
 			h2 Password
-			form#password-form.mx-3(action='/settings/password/' method='post')
+			form#password-form.mx-3(action='/settings/password' method='post')
 				input#username(type='text' autocomplete='username' value='admin' hidden)
 				.form-group
-					label(for='old-pwd') Old password
-					input#old-pwd(type='password' placeholder='password'
-						name='oldPassword' autocomplete='current-password' required)
+					label(for='old-password-input') Old password
+					input#old-password-input(type='password' placeholder='password'
+						name='password' autocomplete='current-password' required)
 				.form-group
-					label(for='new-pwd') New password
-					input#new-pwd(type='password' placeholder='new-password'
+					label(for='new-password-input') New password
+					input#new-password-input(type='password' placeholder='new-password'
 						name='newPassword' autocomplete='new-password' required)
 				.form-group
-					label(for='new-pwd-repeat') Repeat new password
-					input#new-pwd-repeat(type='password' placeholder='new-password'
-						name='newPasswordRepeat' autocomplete='new-password' required)
+					label(for='new-password-repeat-input') Repeat new password
+					input#new-password-repeat-input(type='password' placeholder='new-password'
+						name="newPasswordRepeat" autocomplete='new-password' required)
 				input.btn.btn-primary(type='submit' value='Update')
 
-			h2 Security
-			form#security-form.mx-3(action='/settings/security/' method='post')
-				.form-check
-					input#https-checkbox(type='checkbox' name='httpsEnabled')
-					label(for='https-checkbox') Enable HTTPS for Siter
+			h2 Network
+			form#network-form.mx-3(action='/settings/network', method='post')
 				.form-group
-					label(for='cert-file-input') Certificate file
-					input#cert-file-input(type='text' name='certFile'
+					label(for='http-port-input') HTTP Port
+					input#http-port-input(type='number' name='httpPort' placeholder='80')
+				.form-group
+					label(for='https-port-input') HTTPS Port
+					input#https-port-input(type='number' name='httpsPort' placeholder='Path to key file')
+				.form-check
+					input#secure-checkbox(type='checkbox' name='httpsEnabled')
+					label(for='secure-checkbox') Enable HTTPS for Siter
+				.form-group
+					label(for='security-cert-input') Certificate file
+					input#security-cert-input(type='text' name='cert'
 						placeholder='Path to certificate file')
 				.form-group
-					label(for='key-file-input') Key file
-					input#key-file-input(type='text' name='keyFile'
+					label(for='security-key-input') Key file
+					input#security-key-input(type='text' name='key'
 						placeholder='Path to key file')
 				.form-check
 					input#redirect-checkbox(type='checkbox' name='httpsRedirect')
 					label#redirect-label(for='redirect-checkbox') Enable HTTPS redirect
 				input.btn.btn-primary(type='submit' value='Update')
+
+			h2 Analytics
+			form#analytics-form.mx-3(action='/settings/analytics' method='post')
+				.form-check
+					input#analytics-checkbox(type='checkbox' name='enabled')
+					label(for='analytics-checkbox') Enable analytics
+				.form-group
+					label(for='analytics-url-input') Crash Course URL
+					input#analytics-url-input(type='text' name='url'
+						placeholder='Crash Course URL')
+				.form-group
+					label(for='analytics-key-input') Crash Course key
+					input#analytics-key-input(type='text' name='key'
+						placeholder='Crash Course key')
+				input.btn.btn-primary(type='submit' value='Update')
+
 			script(async type='module' src='/js/settings.js')
 
 		+help

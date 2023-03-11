@@ -9,8 +9,8 @@ function init() {
 		smartConfig.then(config => {
 			auth.init();
 
-			if (!config.net) {
-				config.net = {};
+			if (!config.security) {
+				config.security = {};
 			}
 
 			if (!config.sessions) {
@@ -19,6 +19,10 @@ function init() {
 
 			if (!config.apps) {
 				config.apps = [];
+			}
+
+			if (!config.analytics) {
+				config.analytics = {};
 			}
 
 			if (config.analytics.active) {

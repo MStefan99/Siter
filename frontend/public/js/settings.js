@@ -3,15 +3,25 @@
 import notify from '/js/notifications.js';
 
 
-const httpsCheckbox = document.querySelector('#https-checkbox');
-const redirectCheckbox = document.querySelector('#redirect-checkbox');
-const redirectLabel = document.querySelector('#redirect-label');
-const certFileInput = document.querySelector('#cert-file-input');
-const keyFileInput = document.querySelector('#key-file-input');
+const passwordForm = document.getElementById('password-form');
+const httpPortInput = document.getElementById('http-port-input');
+const httpsPortInput = document.getElementById('https-port-input');
+const secureCheckbox = document.getElementById('secure-checkbox');
+const redirectCheckbox = document.getElementById('redirect-checkbox');
+const redirectLabel = document.getElementById('redirect-label');
+const certFileInput = document.getElementById('security-cert-input');
+const keyFileInput = document.getElementById('security-key-input');
 
 
-httpsCheckbox.addEventListener('click', e => {
-	if (!httpsCheckbox.checked) {
+passwordForm.addEventListener('submit', e => {
+	if (passwordForm.newPassword.value !== passwordForm.newPasswordRepeat.value) {
+		notify.tell('Passwords do not match', 'Please check your passwords and try again');
+		e.preventDefault();
+	}
+});
+
+secureCheckbox.addEventListener('click', e => {
+	if (!secureCheckbox.checked) {
 		redirectCheckbox.checked = false;
 	}
 });
@@ -43,12 +53,14 @@ redirectCheckbox.addEventListener('click', async e => {
 });
 
 
-fetch('/settings/security/').then(async res => {
+fetch('/settings/network/').then(async res => {
 	const options = await res.json();
 
-	httpsCheckbox.checked = options.httpsEnabled;
+	httpPortInput.value = options.httpPort || 80;
+	httpsPortInput.value = options.httpsPort || 443;
+	secureCheckbox.checked = options.httpsEnabled;
 	redirectCheckbox.checked = options.httpsRedirect;
-	certFileInput.value = options.certFile || '';
-	keyFileInput.value = options.keyFile || '';
+	certFileInput.value = options.cert || '';
+	keyFileInput.value = options.key || '';
 });
 
