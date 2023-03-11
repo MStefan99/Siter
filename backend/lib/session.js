@@ -2,7 +2,7 @@
 
 const uuid = require('uuid');
 
-const smartConfig = require('./config');
+const db = require('./db');
 
 
 class Session {
@@ -20,8 +20,8 @@ class Session {
 		session.ua = ua;
 		session.time = Date.now();
 
-		const config = await smartConfig;
-		config.sessions.push(session);
+		const collection = await db('sessions');
+		await collection.insertOne(session);
 
 		return session;
 	}
@@ -30,8 +30,8 @@ class Session {
 	static async getSessions() {
 		const sessions = [];
 
-		const config = await smartConfig;
-		const sessionDataArray = config.sessions;
+		const collection = await db('sessions');
+		const sessionDataArray = collection.find();
 
 		for (const sessionData of sessionDataArray) {
 			const session = new Session();
@@ -44,8 +44,8 @@ class Session {
 
 
 	static async getSessionByID(sessionID) {
-		const config = await smartConfig;
-		const sessionData = config.sessions.find(s => s.id = sessionID);
+		const collection = await db('sessions');
+		const sessionData = await collection.findOne({id: sessionID});
 
 		if (!sessionData) {
 			return null;
@@ -59,16 +59,13 @@ class Session {
 
 
 	static async deleteAllSessions() {
-		const config = await smartConfig;
-		config.sessions = [];
-		return 'OK';
+		const collection = await db('sessions');
+		await collection.delete();
 	}
 
 
 	async delete() {
-		const config = await smartConfig;
-		config.sessions.splice(config.sessions.findIndex(s => s.id === this.id), 1);
-		return 'OK';
+		(await db).collection('sessions').deleteOne({id: this.id});
 	}
 }
 

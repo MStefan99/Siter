@@ -18,10 +18,10 @@ html(lang='en')
 				img(src='/img/logo.svg' alt='Siter logo')
 			block header
 			nav
-				a.btn.btn-outline-secondary(href='/about/') About
+				a.btn.btn-outline-secondary(href='/about') About
 				if (session)
-					a.btn.btn-outline-secondary(href='/settings/') Settings
-					a.btn.btn-outline-primary(href='/logout/') Sign out
+					a.btn.btn-outline-secondary(href='/settings') Settings
+					a.btn.btn-outline-primary(href='/auth/logout') Sign out
 					span#menu-toggle.btn.btn-outline-secondary.d-inline.d-md-none Menu
 
 		#notification-container
@@ -31,10 +31,10 @@ html(lang='en')
 			+menu
 				a.btn.btn-outline-secondary(href='#') Top
 				a.btn.btn-outline-secondary(href='/') Home
-				a.btn.btn-outline-secondary(href='/about/') About
+				a.btn.btn-outline-secondary(href='/about') About
 				if (session)
-					a.btn.btn-outline-secondary(href='/settings/') Settings
-					a.btn.btn-outline-primary(href='/auth/logout/') Sign out
+					a.btn.btn-outline-secondary(href='/settings') Settings
+					a.btn.btn-outline-primary(href='/auth/logout') Sign out
 			block main
 
 		footer.bg-light.d-flex.justify-content-between.px-5

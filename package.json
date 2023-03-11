@@ -19,6 +19,7 @@
 		"express": "^4.17.1",
 		"mime-db": "^1.47.0",
 		"mime-types": "^2.1.30",
+		"mongodb": "^5.1.0",
 		"pug": "^3.0.2",
 		"systeminformation": "^5.17.12",
 		"uuid": "^8.3.2"
