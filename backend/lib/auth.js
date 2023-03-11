@@ -5,52 +5,40 @@ const util = require('util');
 
 const pbkdf2 = util.promisify(crypto.pbkdf2);
 
-const smartConfig = require('./config');
+const db = require('./db');
 const PBKDF2ITERATIONS = 100000;
 
 
 module.exports = {
-	init: function () {
-		return new Promise(resolve => {
-			smartConfig.then(config => {
-				if (!config.auth) {
-					config.auth = {};
-				}
+	init: async function () {
+		const auth = await db('auth');
 
-				if (!config.auth.salt) {
-					const salt = crypto.randomBytes(32);
-					config.auth.salt = salt.toString('base64');
+		if (!await auth.findOne({key: 'salt'})) {
+			const salt = crypto.randomBytes(32);
+			await auth.insertOne({key: 'salt', value: salt.toString('hex')});
 
-					pbkdf2('admin', salt, PBKDF2ITERATIONS, 32, 'sha3-256').then(key => {
-						config.auth.key = key.toString('base64');
-						resolve();
-					});
-				}
-			});
-		});
+			const key = await pbkdf2('admin', salt, PBKDF2ITERATIONS, 32, 'sha3-256');
+			await auth.insertOne({key: 'key', value: key.toString('hex')});
+		}
 	},
 
-	verifyPassword: function (password) {
-		return new Promise(resolve => {
-			smartConfig.then(config => {
-				const salt = Buffer.from(config.auth.salt, 'base64');
-				pbkdf2(password, salt, PBKDF2ITERATIONS, 32, 'sha3-256').then(key =>
-						resolve(key.equals(Buffer.from(config.auth.key, 'base64'))));
-			});
-		});
+	verifyPassword: async function (password) {
+		const auth = await db('auth');
+		const {value: encodedSalt} = await auth.findOne({key: 'salt'});
+		const {value: encodedKey} = await auth.findOne({key: 'key'});
+
+		const salt = Buffer.from(encodedSalt, 'hex');
+		const key = await pbkdf2(password, salt, PBKDF2ITERATIONS, 32, 'sha3-256');
+		return key.equals(Buffer.from(encodedKey, 'hex'));
 	},
 
-	setPassword: function (newPassword) {
-		return new Promise(resolve => {
-			smartConfig.then(config => {
-				const salt = crypto.randomBytes(32);
-				config.auth.salt = salt.toString('base64');
+	setPassword: async function (newPassword) {
+		const auth = await db('auth');
 
-				pbkdf2(newPassword, salt, PBKDF2ITERATIONS, 32, 'sha3-256').then(key => {
-					config.auth.key = key.toString('base64');
-					resolve();
-				});
-			});
-		});
+		const salt = crypto.randomBytes(32);
+		await auth.updateOne({key: 'salt'}, {$set: {value: salt.toString('hex')}});
+
+		const key = await pbkdf2(newPassword, salt, PBKDF2ITERATIONS, 32, 'sha3-256');
+		await auth.updateOne({key: 'key'}, {$set: {value: key.toString('hex')}});
 	}
 };
