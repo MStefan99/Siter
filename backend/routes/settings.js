@@ -37,7 +37,7 @@ router.post('/password', async (req, res) => {
 		}).redirect(303, '/settings/');
 		return;
 	}
-	if (!await libAuth.verifyPassword(req.body.oldPassword)) {
+	if (!await libAuth.verifyPassword(req.body.password)) {
 		res.flash({
 			title: 'Wrong password',
 			info: 'You have entered the wrong password, please try again',

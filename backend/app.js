@@ -13,12 +13,14 @@ const appManager = require('./lib/app_manager');
 
 process.on('unhandledRejection', (reason, promise) => {
 	console.error('Unhandled Rejection: ', reason);
+	appManager.stop();
 	process.exit(~0x1);
 });
 
 
 process.on('uncaughtException', (err, origin) => {
 	console.error('Uncaught exception: ', err);
+	appManager.stop();
 	process.exit(~0x0);
 });
 

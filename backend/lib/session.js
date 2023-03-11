@@ -52,7 +52,7 @@ class Session {
 
 	static async deleteAllSessions() {
 		const collection = await db('sessions');
-		await collection.delete();
+		await collection.deleteMany();
 	}
 
 

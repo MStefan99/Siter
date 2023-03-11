@@ -1,39 +1,21 @@
 'use strict';
 
-const smartConfig = require('./config');
+const db = require('./db');
 const auth = require('./auth');
 const metrics = require('./metrics');
 
-function init() {
-	return new Promise(resolve => {
-		smartConfig.then(config => {
-			auth.init();
 
-			if (!config.security) {
-				config.security = {};
-			}
+async function init() {
+	auth.init();
 
-			if (!config.sessions) {
-				config.sessions = [];
-			}
+	const analytics = await db('analytics');
+	const {value: active} = await analytics.findOne({key: 'active'}) || {active: false};
 
-			if (!config.apps) {
-				config.apps = [];
-			}
-
-			if (!config.analytics) {
-				config.analytics = {};
-			}
-
-			if (config.analytics.active) {
-				setInterval(async () => {
-					metrics.submit(await metrics.collect(), config.analytics.url, config.analytics.key);
-				}, 1000 * 30);
-			}
-
-			resolve();
-		});
-	});
+	if (active) {
+		setInterval(async () => {
+			metrics.submit(await metrics.collect(), analytics.analytics.url, analytics.analytics.key);
+		}, 1000 * 30);
+	}
 }
 
 module.exports = {init};
