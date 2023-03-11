@@ -1,6 +1,6 @@
 'use strict';
 
-const uuid = require('uuid');
+const crypto = require('crypto');
 
 const db = require('./db');
 
@@ -15,7 +15,7 @@ class Session {
 	static async createSession(ip, ua) {
 		const session = new Session();
 
-		session.id = uuid.v4();
+		session.id = crypto.randomUUID();
 		session.ip = ip;
 		session.ua = ua;
 		session.time = Date.now();

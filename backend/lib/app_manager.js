@@ -9,15 +9,16 @@ const process = require('process');
 const childProcess = require('child_process');
 const crypto = require('crypto');
 
-const smartConfig = require('./config');
+const db = require('./db');
 const mime = require('mime-types');
 const standaloneViews = path.join(__dirname, '..', 'views', 'standalone');
 
 const servers = new Map();
 const processes = new Map();
-let siter;
-let config;
-smartConfig.then(c => config = c);
+let siter = null;
+let apps = [];
+const net = {};
+const analytics = {};
 
 
 const httpServer = http.createServer(handleRequest);
@@ -39,7 +40,7 @@ function isAValidPort(port) {
 }
 
 
-function start(defaultHandler) {
+async function start(defaultHandler) {
 	if (siter) {  // Siter already started, restarting
 		for (const port of servers.keys()) {
 			removeServer(null, true, port);
@@ -50,22 +51,33 @@ function start(defaultHandler) {
 	}
 	siter = defaultHandler;
 
-	httpServer.listen(config.net.httpPort || 80);
-	servers.set(config.net.httpPort || 80, httpServer);
+	const netCollection = await db('net');
+	const netOptions = await netCollection.find().toArray();
+	netOptions.forEach(o => net[o.key] = o.value);
 
-	if (config.net.httpsEnabled) {
-		httpsServer.listen(config.net.httpsPort || 443);
-		servers.set(config.net.httpsPort || 443, httpsServer);
+	const analyticsCollection = await db('analytics');
+	const analyticsOptions = await analyticsCollection.find().toArray();
+	analyticsOptions.forEach(o => analytics[o.key] = o.value);
+
+	const appCollection = await db('apps');
+	apps = await appCollection.find().sort({order: 1}).toArray();
+
+	httpServer.listen(net.httpPort || 80);
+	servers.set(net.httpPort || 80, httpServer);
+
+	if (net.httpsEnabled) {
+		httpsServer.listen(net.httpsPort || 443);
+		servers.set(net.httpsPort || 443, httpsServer);
 	}
 
-	for (const app of config.apps) {
+	for (const app of apps) {
 		addServer(app);
 		addProcesses(app);
 	}
 }
 
 function stop() {
-	for (const app of config.apps) {
+	for (const app of apps) {
 		removeProcesses(app);
 	}
 }
@@ -75,21 +87,21 @@ function findAppByDomain(domain) {
 		return {
 			hosting: {
 				source: {
-					secure: config.net.httpsEnabled,
-					cert: config.net.cert,
-					key: config.net.key
+					secure: net.httpsEnabled,
+					cert: net.cert,
+					key: net.key
 				}
 			}
 		};
 	} else {
-		return config.apps.find(app =>
+		return apps.find(app =>
 			app.hosting.source.hostname ? domain.match(app.hosting.source.hostname) : true);
 	}
 }
 
 
 function findApp(host, port, url) {
-	return config.apps.find(app =>
+	return apps.find(app =>
 		(app.hosting.source.hostname ? host === app.hosting.source.hostname : true) &&
 		(app.hosting.source.port === port) &&
 		(app.hosting.source.pathname ? url.match(app.hosting.source.pathname) : true));
@@ -140,12 +152,12 @@ function addServer(app) {
 
 function removeServer(app, force = false, port = null) {
 	if (!force) {
-		if (app.hosting.source.port === (config.net.httpPort || 80) ||
-			(config.net.httpsEnabled && app.hosting.source.port === (config.net.httpsPort || 443))) {
+		if (app.hosting.source.port === (net.httpPort || 80) ||
+			(net.httpsEnabled && app.hosting.source.port === (net.httpsPort || 443))) {
 			return;  // Not removing Siter server
 		}
 
-		if (!config.apps.some(a => a.hosting.source.port === app.hosting.source.port)) {
+		if (!apps.some(a => a.hosting.source.port === app.hosting.source.port)) {
 			return;  // Some apps are still using the server, thus not removing
 		}
 	}
@@ -227,8 +239,8 @@ function handleRequest(request, response) {
 			siter(request, response);
 		} else if (host.match(/^siter\./)) {
 			if (!request.connection.encrypted &&
-				config.net.httpsEnabled &&
-				config.net.httpsRedirect) {
+				net.httpsEnabled &&
+				net.httpsRedirect) {
 				response.writeHead(303, {
 					Location: 'https://' + host + url
 				}).end();
@@ -326,13 +338,13 @@ function sendFile(response, filePath, statusCode) {
 
 
 function getApps() {
-	return config.apps ?? [];
+	return apps;
 }
 
 
 function sanitizeApp(app) {
 	app.hosting.order = +app.hosting.order > 0 ? +app.hosting.order : 1;
-	app.hosting.source.port = isAValidPort(+app.hosting.source.port) ? +app.hosting.source.port : (config.net.httpPort || 80);
+	app.hosting.source.port = isAValidPort(+app.hosting.source.port) ? +app.hosting.source.port : (net.httpPort || 80);
 	app.hosting.source.secure = !!app.hosting.source.secure;
 	app.hosting.target.port = +app.hosting.target.port;
 
@@ -354,85 +366,104 @@ function sanitizeApp(app) {
 }
 
 
-function addApp(app) {
+async function addApp(app) {
 	app = sanitizeApp(app);
 
 	app.id = crypto.randomUUID();
-	config.apps.push(app);
+	apps.push(app);
 	addServer(app);
 	addProcesses(app);
+
+	const appCollection = await db('apps');
+	appCollection.insertOne(app);
 
 	return app;
 }
 
 
-function updateApp(appID, newApp) {
+async function updateApp(appID, newApp) {
 	if (!appID) {
 		return addApp(newApp);
 	}
 	newApp = sanitizeApp(newApp);
 	newApp.id = appID;
 
-	const oldApp = config.apps.splice(config.apps.findIndex(r => r.id === appID),
+	const oldApp = apps.splice(apps.findIndex(r => r.id === appID),
 		1, newApp)[0];
 
 	if (oldApp) {
 		updateServer(oldApp, newApp);
 		updateProcesses(oldApp, newApp);
 	}
+
+	delete (newApp._id);
+	const appCollection = await db('apps');
+	appCollection.replaceOne({id: appID}, newApp);
+
 	return newApp;
 }
 
 
-function removeApp(appID) {
-	const app = config.apps.splice(config.apps.findIndex(r => r.id === appID), 1)[0];
+async function removeApp(appID) {
+	const app = apps.splice(apps.findIndex(r => r.id === appID), 1)[0];
 
 	if (app) {
 		removeServer(app);
 		removeProcesses(app);
 	}
+
+	const appCollection = await db('apps');
+	appCollection.deleteOne({id: appID});
 }
 
-function reorder(newOrder) {
-	const apps = [];
-
-	while (newOrder.length) {
+async function reorder(newOrder) {
+	for (let i = 0; i < newOrder.length; ++i) {
 		const id = newOrder.shift();
-		const idx = config.apps.findIndex(r => r.id === id);
+		const idx = apps.findIndex(r => r.id === id);
 
-		apps.push(config.apps[idx]);
-		config.apps.splice(idx, 1);
+		apps[idx].order = i;
 	}
 
-	apps.concat(config.apps);
-	config.apps = apps;
+	const appCollection = await db('apps');
+	apps.forEach(a => appCollection.updateOne({id: a.id}, {$set: {order: a.order}}));
 }
 
 
-function setNetOptions(options = {}) {
-	config.net.httpPort = +options.httpPort;
-	config.net.httpsPort = +options.httpsPort;
-	config.net.httpsEnabled = !!options.httpsEnabled;
-	config.net.httpsRedirect = !!options.httpsRedirect;
-	config.net.cert = options.cert.toString();
-	config.net.key = options.key.toString();
+async function setNetOptions(options = {}) {
+	const sanitized = {};
+	sanitized.httpPort = +options.httpPort;
+	sanitized.httpsPort = +options.httpsPort;
+	sanitized.httpsEnabled = !!options.httpsEnabled;
+	sanitized.httpsRedirect = !!options.httpsRedirect;
+	sanitized.cert = options.cert.toString();
+	sanitized.key = options.key.toString();
+
+	const netCollection = await db('net');
+	Object.keys(sanitized).forEach(k => netCollection.updateOne({key: k}, {$set: {value: sanitized[k]}}, {upsert: true}));
+
 	start(siter);
 }
 
+
 function getNetOptions() {
-	return config.net;
+	return net;
 }
 
 
-function setAnalyticsOptions(options = {}) {
-	config.analytics.enabled = !!options.enabled;
-	config.analytics.url = options.url.toString();
-	config.analytics.key = options.key.toString();
+async function setAnalyticsOptions(options = {}) {
+	const sanitized = {};
+
+	sanitized.enabled = !!options.enabled;
+	sanitized.url = options.url.toString();
+	sanitized.key = options.key.toString();
+
+	const analyticsCollection = await db('analytics');
+	Object.keys(sanitized).forEach(k => analyticsCollection.updateOne({key: k}, {$set: {value: sanitized[k]}}, {upsert: true}));
 }
 
 
 function getAnalyticsOptions() {
-	return config.analytics;
+	return analytics;
 }
 
 

@@ -20,18 +20,18 @@ router.get('/', (req, res) => {
 });
 
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
 	if (!req.body) {
 		res.status(400).send('No route provided');
 		return;
 	}
 
-	const route = appManager.addApp(req.body);
+	const route = await appManager.addApp(req.body);
 	res.status(201).json(route);
 });
 
 
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
 	if (!req.params.id) {
 		res.status(400).send('No ID provided');
 		return;
@@ -41,31 +41,31 @@ router.put('/:id', (req, res) => {
 		return;
 	}
 
-	const newRoute = appManager.updateApp(
+	const newRoute = await appManager.updateApp(
 		req.params.id,
 		req.body);
 	res.json(newRoute);
 });
 
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
 	if (!req.params.id) {
 		res.status(400).send('No ID provided');
 		return;
 	}
 
-	appManager.removeApp(req.params.id);
+	await appManager.removeApp(req.params.id);
 	res.sendStatus(200);
 });
 
 
-router.post('/reorder', (req, res) => {
+router.post('/reorder', async (req, res) => {
 	if (!req.body) {
 		res.status(400).send('Invalid order');
 		return;
 	}
 
-	appManager.reorder(req.body);
+	await appManager.reorder(req.body);
 	res.sendStatus(200);
 });
 
