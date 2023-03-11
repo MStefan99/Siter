@@ -11,7 +11,16 @@ async function init() {
 
 	setInterval(async () => {
 		const analytics = appManager.getAnalyticsOptions();
-		analytics.enabled && metrics.submit(await metrics.collect(), analytics.url, analytics.key);
+		const apps = appManager.getApps().filter(a => a.analytics.enabled);
+
+		if (analytics.enabled || apps.length) {
+			const collectedMetrics = await metrics.collect();
+			analytics.enabled && await metrics.submit(collectedMetrics, analytics.url, analytics.key);
+
+			for (const app of apps) {
+				await metrics.submit(collectedMetrics, app.analytics.url, app.analytics.key);
+			}
+		}
 	}, 1000 * 10);
 }
 

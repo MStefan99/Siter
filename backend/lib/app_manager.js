@@ -10,6 +10,7 @@ const childProcess = require('child_process');
 const crypto = require('crypto');
 
 const db = require('./db');
+const {sendLog} = require('./log');
 const mime = require('mime-types');
 const standaloneViews = path.join(__dirname, '..', 'views', 'standalone');
 
@@ -190,6 +191,8 @@ function startProcess(cmd, cwd, env) {
 	child.stderr.pipe(process.stderr);
 	processes.set(cmd, {process: child, restart});
 	child.on('exit', restart);
+
+	return child;
 }
 
 function stopProcess(cmd) {
@@ -208,10 +211,16 @@ function addProcesses(app) {
 	for (const pr of app.pm.processes) {
 		const cmd = `${pr.cmd} ${pr.flags} ${pr.path}`;
 		if (processes.has(cmd)) {
-			return; // Process already launched
+			continue; // Process already launched
 		}
 
-		startProcess(cmd, path.dirname(pr.path), pr.env);
+		const child = startProcess(cmd, path.dirname(pr.path), pr.env);
+		if (app.analytics.enabled) {
+			child.stdout.on('data', data => sendLog(app.analytics.url, app.analytics.key, data, 1));
+			child.stderr.on('data', data => sendLog(app.analytics.url, app.analytics.key, data, 3));
+			child.on('close', code => sendLog(app.analytics.url, app.analytics.key,
+				'Siter: Process ended with exit code ' + code, 4));
+		}
 	}
 }
 
@@ -231,6 +240,7 @@ function updateProcesses(oldApp, newApp) {
 
 function handleRequest(request, response) {
 	try {
+		const start = process.hrtime.bigint();
 		const server = this;
 		const host = request.headers.host.replace(/:.*/, '');
 		const port = server.address()?.port;
@@ -247,6 +257,9 @@ function handleRequest(request, response) {
 				}).end();
 			} else {
 				siter(request, response);
+				// TODO: an example, add logs in other places and make them more useful
+				const time = Number(process.hrtime.bigint() - start) / 1000;
+				analytics.enabled && sendLog(analytics.url, analytics.key, `Siter route matched in ${time} ns, ${url}`, 0);
 			}
 		} else {
 			const app = findApp(host, port, url);
