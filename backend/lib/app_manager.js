@@ -182,15 +182,16 @@ function updateServer(oldApp, newApp) {
 	addServer(newApp);
 }
 
-function startProcess(cmd, cwd, env) {
+function startProcess(cmd, cwd, env, onstart) {
 	env.PATH = process.env.PATH;
 
 	const child = childProcess.exec(cmd, {cwd, env});
-	const restart = () => setTimeout(() => startProcess(cmd, cwd, env), 5000);
+	const restart = () => setTimeout(() => startProcess(cmd, cwd, env, onstart), 5000);
 
 	child.stderr.pipe(process.stderr);
 	processes.set(cmd, {process: child, restart});
 	child.on('exit', restart);
+	onstart && onstart(child);
 
 	return child;
 }
@@ -214,13 +215,15 @@ function addProcesses(app) {
 			continue; // Process already launched
 		}
 
-		const child = startProcess(cmd, path.dirname(pr.path), pr.env);
-		if (app.analytics.enabled) {
-			child.stdout.on('data', data => sendLog(app.analytics.url, app.analytics.key, data, 1));
-			child.stderr.on('data', data => sendLog(app.analytics.url, app.analytics.key, data, 3));
-			child.on('close', code => sendLog(app.analytics.url, app.analytics.key,
-				'Siter: Process ended with exit code ' + code, 4));
-		}
+		startProcess(cmd, path.dirname(pr.path), pr.env, child => {
+			if (app.analytics.enabled) {
+				child.stdout.on('data', data => sendLog(app.analytics.url, app.analytics.key, data, 1));
+				child.stderr.on('data', data => sendLog(app.analytics.url, app.analytics.key, data, 3));
+				child.on('close', code => child.listenerCount('exit') &&
+					sendLog(app.analytics.url, app.analytics.key,
+						`Siter: ${cmd} ended with exit code ` + code, 4));
+			}
+		});
 	}
 }
 
@@ -259,7 +262,7 @@ function handleRequest(request, response) {
 				siter(request, response);
 				// TODO: an example, add logs in other places and make them more useful
 				const time = Number(process.hrtime.bigint() - start) / 1000;
-				analytics.enabled && sendLog(analytics.url, analytics.key, `Siter route matched in ${time} ns, ${url}`, 0);
+				analytics.enabled && sendLog(analytics.url, analytics.key, `Siter route matched in ${time} µs, ${host}${url}`, 0);
 			}
 		} else {
 			const app = findApp(host, port, url);
@@ -276,6 +279,8 @@ function handleRequest(request, response) {
 						url.replace(new RegExp(`^${app.hosting.source.pathname}|\\?.*$`, 'ig'), '') : '';
 					const filePath = path.join(app.hosting.target.directory, ...postfix.split('/'));
 
+					const time = Number(process.hrtime.bigint() - start) / 1000;
+					analytics.enabled && sendLog(analytics.url, analytics.key, `Directory route matched in ${time} µs, ${host}${url}`, 0);
 					// Trying requested file
 					sendFile(response, filePath, 200)
 						// trying requested file with .html extension
@@ -296,6 +301,9 @@ function handleRequest(request, response) {
 					};
 					options.headers['x-forwarded-for'] = request.connection.remoteAddress;
 					const req = app.hosting.target.secure ? https.request(options) : http.request(options);
+
+					const time = Number(process.hrtime.bigint() - start) / 1000;
+					analytics.enabled && sendLog(analytics.url, analytics.key, `Proxy route matched in ${time} µs, ${host}${url}`, 0);
 
 					req.on('upgrade', (res, socket, head) => {
 						response.writeHead(res.statusCode, res.statusMessage, res.headers);
