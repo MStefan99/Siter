@@ -9,6 +9,10 @@ html(lang='en')
 		link(rel='stylesheet' type='text/css' href='/style/style.css')
 		link(rel='icon' type='image/svg+xml' href='/img/icon.svg')
 		meta(name='viewport' content='width=device-width, initial-scale=1.0')
+		if analytics.enabled
+			script(type="module").
+				import {sendHit} from 'http://cc-b.localhost/cc?k=3c31425c3902e9cb';
+				sendHit();
 		block head
 			title Siter
 
