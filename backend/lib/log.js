@@ -19,7 +19,7 @@ function cacheAndSubmit(url, key, message, level) {
 		const log = logCache.shift();
 
 		timeout = true;
-		submitLog(log.url, log.key, log.message, log.level).then(() => {
+		await submitLog(log.url, log.key, log.message, log.level).then(() => {
 			if (logCache.length) {
 				timeout = setTimeout(submit, 16);
 			} else {
@@ -28,12 +28,12 @@ function cacheAndSubmit(url, key, message, level) {
 		});
 	};
 
-	timeout || submit();
+	return timeout ? Promise.resolve() : submit();
 }
 
 async function sendLog(url, key, message, level) {
 	if (level === 0) {
-		cacheAndSubmit(url, key, message, level);
+		return cacheAndSubmit(url, key, message, level);
 	} else {
 		return submitLog(url, key, message, level);
 	}
