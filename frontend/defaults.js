@@ -31,7 +31,8 @@ export function defaultApp() {
 			processes: []
 		},
 		analytics: {
-			enabled: false,
+			loggingEnabled: false,
+			metricsEnabled: false,
 			url: '',
 			key: ''
 		}

@@ -2,9 +2,9 @@
 	"name": "siter",
 	"version": "1.0.0",
 	"description": "",
-	"main": "backend/app.js",
+	"main": "backend/index.js",
 	"scripts": {
-		"backend": "NODE_ENV=dev nodemon backend/app.js",
+		"backend": "NODE_ENV=dev nodemon backend/index.js",
 		"frontend": "webpack serve --config webpack.dev.js",
 		"build": "webpack --config webpack.prod.js",
 		"dev": "run-p backend frontend"

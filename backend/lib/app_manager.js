@@ -14,6 +14,12 @@ const {sendLog} = require('./log');
 const mime = require('mime-types');
 const standaloneViews = path.join(__dirname, '..', 'views', 'standalone');
 
+const clampMax = (val, max) => val > max ? max : val;
+
+const crashThreshold = 1000 * 60 * 10;
+const initialDelay = 1000 * 10;
+const maxDelay = 1000 * 60 * 5;
+
 const servers = new Map();
 const processes = new Map();
 let siter = null;
@@ -182,11 +188,24 @@ function updateServer(oldApp, newApp) {
 	addServer(newApp);
 }
 
-function startProcess(cmd, cwd, env, onstart) {
+function startProcess(cmd, cwd, env, onstart, restartDelay = 0, restartCount = 0, lastRestart = Date.now()) {
 	env.PATH = process.env.PATH;
 
 	const child = childProcess.exec(cmd, {cwd, env});
-	const restart = () => setTimeout(() => startProcess(cmd, cwd, env, onstart), 5000);
+	const restart = () => setTimeout(() => {
+		const now = Date.now();
+
+		if (now - lastRestart < crashThreshold && restartCount > 5) {
+			restartDelay = restartDelay ? clampMax(restartDelay * 2, maxDelay) : initialDelay;
+		} else if (now - lastRestart > crashThreshold) {
+			restartDelay = restartCount = 0;
+		}
+
+		++restartCount;
+		lastRestart = now;
+
+		startProcess(cmd, cwd, env, onstart, restartDelay, restartCount, lastRestart);
+	}, restartDelay);
 
 	child.stderr.pipe(process.stderr);
 	processes.set(cmd, {process: child, restart});
@@ -216,7 +235,7 @@ function addProcesses(app) {
 		}
 
 		startProcess(cmd, path.dirname(pr.path), pr.env, child => {
-			if (app.analytics.enabled) {
+			if (app.analytics.loggingEnabled) {
 				child.stdout.on('data', data => sendLog(app.analytics.url, app.analytics.key, data, 1));
 				child.stderr.on('data', data => sendLog(app.analytics.url, app.analytics.key, data, 3));
 				child.on('close', code => child.listenerCount('exit') &&

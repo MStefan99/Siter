@@ -18,7 +18,7 @@ async function init() {
 			analytics.enabled && await metrics.submit(collectedMetrics, analytics.url, analytics.key);
 
 			for (const app of apps) {
-				await metrics.submit(collectedMetrics, app.analytics.url, app.analytics.key);
+				app.analytics.metricsEnabled && await metrics.submit(collectedMetrics, app.analytics.url, app.analytics.key);
 			}
 		}
 	}, 1000 * 10);

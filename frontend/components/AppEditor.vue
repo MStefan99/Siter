@@ -89,9 +89,13 @@
 			h3 Analytics
 			.form-group
 				.form-check
-					input#analytics-check(type="checkbox" v-model="app.analytics.enabled" :true-value="true" :false-value="false")
-					label(for="analytics-check") Enable analytics
-			.analytics(v-if="app.analytics?.enabled")
+					input#analytics-log-check(type="checkbox" v-model="app.analytics.loggingEnabled" :true-value="true" :false-value="false")
+					label(for="analytics-log-check") Enable logging
+			.form-group
+				.form-check
+					input#analytics-metrics-check(type="checkbox" v-model="app.analytics.metricsEnabled" :true-value="true" :false-value="false")
+					label(for="analytics-metrics-check") Enable performance monitoring
+			.analytics(v-if="app.analytics?.loggingEnabled || app.analytics?.metricsEnabled")
 				p Analytics
 				.form-group
 					label(for="analytics-url-input") Crash Course address
