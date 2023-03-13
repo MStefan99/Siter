@@ -34,7 +34,7 @@ router.post('/password', async (req, res) => {
 			title: 'Empty password',
 			info: 'Please enter your new password to continue',
 			type: 'warning'
-		}).redirect(303, '/settings/');
+		}).redirect(303, '/settings');
 		return;
 	}
 	if (!await libAuth.verifyPassword(req.body.password)) {
@@ -42,7 +42,7 @@ router.post('/password', async (req, res) => {
 			title: 'Wrong password',
 			info: 'You have entered the wrong password, please try again',
 			type: 'danger'
-		}).redirect(303, '/settings/');
+		}).redirect(303, '/settings');
 		return;
 	}
 
@@ -54,7 +54,7 @@ router.post('/password', async (req, res) => {
 		info: 'You can now log in with a new password. ' +
 			'You have been logged out on all devices.',
 		type: 'success'
-	}).redirect(303, '/login/');
+	}).redirect(303, '/login');
 });
 
 
@@ -65,7 +65,7 @@ router.post('/network', async (req, res) => {
 			title: 'Could not enable HTTPS',
 			info: 'Please provide certificate and key file',
 			type: 'danger'
-		}).redirect(303, '/settings/');
+		}).redirect(303, '/settings');
 		return;
 	}
 	if (req.body.redirect && !req.body.enabled) {
@@ -73,7 +73,7 @@ router.post('/network', async (req, res) => {
 			title: 'Could not enable redirect',
 			info: 'To enable redirect, please enable HTTPS support first',
 			type: 'danger'
-		}).redirect(303, '/settings/');
+		}).redirect(303, '/settings');
 		return;
 	}
 
@@ -99,7 +99,7 @@ router.post('/analytics', async (req, res) => {
 			title: 'Could not enable analytics',
 			info: 'Please provide both url and key',
 			type: 'danger'
-		}).redirect(303, '/settings/');
+		}).redirect(303, '/settings');
 		return;
 	}
 

@@ -14,6 +14,12 @@ router.use(cookieParser());
 router.use(flash());
 router.use(middleware.getSession());
 
+router.use((req, res, next) => {
+	res.locals.net = appManager.getNetOptions();
+	res.locals.analytics = appManager.getAnalyticsOptions();
+	next();
+});
+
 router.get('/about', (req, res) => {
 	res.render('about');
 });
@@ -26,12 +32,6 @@ router.use(middleware.redirectIfNotAuthorized());
 
 router.get('/', (req, res) => {
 	res.redirect(303, '/dashboard');
-});
-
-router.use((req, res, next) => {
-	res.locals.net = appManager.getNetOptions();
-	res.locals.analytics = appManager.getAnalyticsOptions();
-	next();
 });
 
 router.get('/dashboard', (req, res) => {

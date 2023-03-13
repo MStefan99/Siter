@@ -21,7 +21,7 @@ function redirectIfNotAuthorized(req, res, next) {
 		throw new Error('Please call getSession middleware first');
 	}
 	if (!req.session) {
-		res.redirect(303, '/login/');
+		res.redirect(303, '/login');
 	} else {
 		next();
 	}
