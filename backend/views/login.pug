@@ -1,5 +1,11 @@
 extends layout
 
+block head
+	title Sign in | Siter
+
+block header
+	b.mx-3 Sign in
+
 block main
 	form#login-form(action="/auth/login" method="post")
 		h4 Sign in to Siter!

@@ -240,6 +240,9 @@ html
 			display flex
 			flex-wrap wrap
 
+			input
+				align-self center
+
 			.col
 				flex 1 0 0
 
@@ -346,7 +349,7 @@ html
 
 		// Controls
 
-		button, .btn
+		button, input[type='button'], input[type='submit'], .btn
 			display inline-block
 			background-color transparent
 			margin .6em
@@ -466,7 +469,6 @@ html
 
 				&[type=button], &[type=reset], &[type=submit]
 					width max-content
-					font-weight normal
 					margin-left 0
 
 				&[type=email], &[type=password], &[type=number]

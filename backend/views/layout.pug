@@ -1,6 +1,5 @@
 include menu
 
-
 doctype html
 html(lang='en')
 	head
@@ -26,19 +25,20 @@ html(lang='en')
 				if (session)
 					a.btn.btn-outline-secondary(href='/settings') Settings
 					a.btn.btn-outline-primary(href='/auth/logout') Sign out
-					span#menu-toggle.btn.btn-outline-secondary.d-inline.d-md-none Menu
+				span#menu-toggle.btn.btn-outline-secondary.d-inline.d-md-none Menu
 
 		#notification-container
 
 		main
 			include flash
 			+menu
-				a.btn.btn-outline-secondary(href='#') Top
-				a.btn.btn-outline-secondary(href='/') Home
 				a.btn.btn-outline-secondary(href='/about') About
 				if (session)
+					a.btn.btn-outline-secondary(href='/') Apps
 					a.btn.btn-outline-secondary(href='/settings') Settings
 					a.btn.btn-outline-primary(href='/auth/logout') Sign out
+				else
+					a.btn.btn-outline-secondary(href='/login') Sign in
 			block main
 
 		footer.bg-light.d-flex.justify-content-between.px-5
