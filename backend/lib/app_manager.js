@@ -317,10 +317,14 @@ function handleRequest(request, response) {
 						port: app.hosting.target.port,
 						path: postfix,
 						method: request.method,
-						headers: request.headers
+						headers: Object.assign(request.headers, {
+							'Host': app.hosting.target.hostname
+						})
 					};
 					options.headers['x-forwarded-for'] = request.connection.remoteAddress;
-					const req = app.hosting.target.secure ? https.request(options) : http.request(options);
+					console.log(options);
+					const req = (app.hosting.target.secure || app.hosting.target.port === 443) ?
+						https.request(options) : http.request(options);
 
 					const time = Number(process.hrtime.bigint() - start) / 1000;
 					analytics.enabled && sendLog(analytics.url, analytics.key, `Proxy route matched in ${time} µs, ${host}${url}`, 0);
@@ -338,7 +342,7 @@ function handleRequest(request, response) {
 						res.pipe(response);
 					});
 
-					request.pipe(req).on('error', err => {
+					request.pipe(req).on('error', () => {
 						sendFile(response, path.join(standaloneViews, 'unavailable.html'), 503);
 					});
 				}
