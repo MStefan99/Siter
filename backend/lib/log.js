@@ -9,7 +9,7 @@ function submitLog(url, key, message, level) {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json', 'Telemetry-Key': key},
 		body: JSON.stringify({level, message: message.replace(/\033.*?m/g, '')})
-	});
+	}).catch(err => console.warn('Failed to send log:', err));
 }
 
 function cacheAndSubmit(url, key, message, level) {

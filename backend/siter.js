@@ -14,8 +14,12 @@ const appManager = require('./lib/app_manager');
 
 process.on('unhandledRejection', async (reason) => {
 	console.error('Unhandled Rejection: ', reason);
-	const analytics = appManager.getAnalyticsOptions();
-	analytics.enabled && await sendLog(analytics.url, analytics.key, 'Unhandled rejection: ', reason.stack, 4);
+	try {
+		const analytics = appManager.getAnalyticsOptions();
+		analytics.enabled && await sendLog(analytics.url, analytics.key, 'Unhandled rejection: ', reason.stack, 4);
+	} catch (e) {
+		console.error('Unhandled rejection while exiting:', e);
+	}
 	appManager.stop();
 	process.exit(~0x1);
 });
@@ -23,8 +27,12 @@ process.on('unhandledRejection', async (reason) => {
 
 process.on('uncaughtException', async (err) => {
 	console.error('Uncaught exception: ', err);
-	const analytics = appManager.getAnalyticsOptions();
-	analytics.enabled && await sendLog(analytics.url, analytics.key, 'Uncaught exception: ', err.stack, 4);
+	try {
+		const analytics = appManager.getAnalyticsOptions();
+		analytics.enabled && await sendLog(analytics.url, analytics.key, 'Uncaught exception: ', err.stack, 4);
+	} catch (e) {
+		console.error('Uncaught exception while exiting:', e);
+	}
 	appManager.stop();
 	process.exit(~0x0);
 });
