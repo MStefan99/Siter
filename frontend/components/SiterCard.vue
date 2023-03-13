@@ -23,24 +23,35 @@
 			p Please enable HTTPS redirect in settings
 	.app-target.border-bottom
 		h4 Target
-		p
-			b Siter web interface
-	//.app-analytics.border-bottom
+		p Siter web interface
+	.app-analytics.border-bottom
 		h4 Analytics
-		p Analytics
+		p Analytics {{analytics?.enabled ? 'enabled' : 'disabled'}}
+		p(v-if="analytics?.enabled") Crash Course URL:
+			|
+			|
+			b {{analytics?.url}}
 </template>
 
 <script setup>
 import {ref} from "vue";
 
 const secure = ref(null);
+const analytics = ref(null);
 
 fetch('/settings/network')
 	.then(res => {
 		if (res.ok) {
 			return res.json();
 		}
-	}).then(settings => secure.value = settings.httpsRedirect);
+	}).then(s => secure.value = s.httpsRedirect);
+
+fetch('/settings/analytics')
+.then(res => {
+	if (res.ok) {
+		return res.json()
+	}
+}).then(a => analytics.value = a)
 </script>
 
 <style scoped>

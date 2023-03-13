@@ -49,7 +49,12 @@
 		p Processes: {{app.pm.processes.length}}
 	.app-analytics.border-bottom
 		h4 Analytics
-		p Analytics {{app.analytics.enabled ? 'enabled' : 'disabled'}}
+		p Performance monitoring: {{app.analytics.metricsEnabled ? 'enabled' : 'disabled'}}
+		p Logging: {{app.analytics.loggingEnabled ? 'enabled' : 'disabled'}}
+		p(v-if="app.analytics.metricsEnabled || app.analytics.loggingEnabled") Crash Course URL:
+			|
+			|
+			b {{app.analytics.url}}
 </template>
 
 
