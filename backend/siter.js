@@ -8,23 +8,23 @@ const authRouter = require('./routes/auth');
 const settingsRouter = require('./routes/settings');
 const appRouter = require('./routes/apps');
 const fileRouter = require('./routes/files');
-const {sendLog} = require ('./lib/log');
+const {sendLog} = require('./lib/log');
 
 const appManager = require('./lib/app_manager');
 
-process.on('unhandledRejection', async (reason, promise) => {
+process.on('unhandledRejection', async (reason) => {
 	console.error('Unhandled Rejection: ', reason);
 	const analytics = appManager.getAnalyticsOptions();
-	analytics.enabled && await sendLog(analytics.url, analytics.key, reason, 4);
+	analytics.enabled && await sendLog(analytics.url, analytics.key, 'Unhandled rejection: ', reason.stack, 4);
 	appManager.stop();
 	process.exit(~0x1);
 });
 
 
-process.on('uncaughtException', async (err, origin) => {
+process.on('uncaughtException', async (err) => {
 	console.error('Uncaught exception: ', err);
 	const analytics = appManager.getAnalyticsOptions();
-	analytics.enabled && await sendLog(analytics.url, analytics.key, origin, 4);
+	analytics.enabled && await sendLog(analytics.url, analytics.key, 'Uncaught exception: ', err.stack, 4);
 	appManager.stop();
 	process.exit(~0x0);
 });

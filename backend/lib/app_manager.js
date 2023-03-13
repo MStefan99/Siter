@@ -189,8 +189,6 @@ function updateServer(oldApp, newApp) {
 }
 
 function startProcess(cmd, cwd, env, onstart, restartDelay = 0, restartCount = 0, lastRestart = Date.now()) {
-	env.PATH = process.env.PATH;
-
 	const child = childProcess.exec(cmd, {cwd, env});
 	const restart = () => setTimeout(() => {
 		const now = Date.now();
@@ -234,13 +232,16 @@ function addProcesses(app) {
 			continue; // Process already launched
 		}
 
+		pr.env.PATH = process.env.PATH;
+		app.hosting.enabled && (pr.env.PORT = app.hosting.target.port);
+
 		startProcess(cmd, path.dirname(pr.path), pr.env, child => {
 			if (app.analytics.loggingEnabled) {
 				child.stdout.on('data', data => sendLog(app.analytics.url, app.analytics.key, data, 1));
 				child.stderr.on('data', data => sendLog(app.analytics.url, app.analytics.key, data, 3));
 				child.on('close', code => child.listenerCount('exit') &&
 					sendLog(app.analytics.url, app.analytics.key,
-						`Siter: ${cmd} ended with exit code ` + code, 4));
+						`Siter: ${cmd} exited with code ` + code, 4));
 			}
 		});
 	}
@@ -268,9 +269,9 @@ function handleRequest(request, response) {
 		const port = server.address()?.port;
 		const url = request.url;
 
-		if (url.match(/\?.*force-siter=true/)) {
+		if (url.match('force-siter=true')) {
 			siter(request, response);
-		} else if (host.match(/^siter\./)) {
+		} else if (host.startsWith('siter')) {
 			if (!request.connection.encrypted &&
 				net.httpsEnabled &&
 				net.httpsRedirect) {
@@ -345,6 +346,7 @@ function handleRequest(request, response) {
 		}
 	} catch (err) {
 		console.error('Failed to handle request:', err);
+		analytics.enabled && sendLog(analytics.url, analytics.key, err, 3);
 		sendFile(response, path.join(standaloneViews, 'internal.html'), 500);
 	}
 }
@@ -396,13 +398,6 @@ function sanitizeApp(app) {
 		}
 	}
 
-	if (!app.hosting.source.hostname || !isAValidPort(+app.hosting.source.port)) {
-		throw new Error('App domain or port is invalid');
-	} else if (app.hosting.source.secure && (!app.hosting.source.cert || !app.hosting.source.key)) {
-		throw new Error('Secure apps must have a certificate and a key file');
-	} else if (!app.hosting.target.directory && (!app.hosting.target.hostname || !isAValidPort(+app.hosting.target.port))) {
-		throw new Error('App target set to server but server address is invalid');
-	}
 	return app;
 }
 

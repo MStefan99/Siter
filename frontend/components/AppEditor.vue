@@ -19,14 +19,14 @@
 				h3 URL mask
 				.row.form-group
 					input.col(type="text" placeholder="example.com" v-model="app.hosting.source.hostname"
-						:class="validation.domainValid? 'is-valid' : 'is-invalid'")
+						:class="validation.hosting.source.hostname? 'is-valid' : 'is-invalid'")
 					span.mx-1.text-muted.col-form-label :
 					input.col(type="number" min="1" max="65535" placeholder="80"
 						v-model="app.hosting.source.port"
-						:class="validation.portValid? 'is-valid' : 'is-invalid'")
+						:class="validation.hosting.source.port? 'is-valid' : 'is-invalid'")
 					span.mx-1.text-muted.col-form-label /
 					input.col(type="text" placeholder="store" v-model="app.hosting.source.pathname"
-						:class="validation.prefixValid? 'is-valid' : 'is-invalid'")
+						:class="validation.hosting.source.pathname? 'is-valid' : 'is-invalid'")
 
 				h3 Security
 				.form-group
@@ -37,12 +37,12 @@
 					.form-group
 						label(for="cert-input") Certificate file
 						FilePicker#cert-input(v-model="app.hosting.source.cert" placeholder="No file selected"
-							prompt="Choose certificate file" :class="validation.certFileValid? 'is-valid' : 'is-invalid'")
+							prompt="Choose certificate file" :class="validation.hosting.source.cert? 'is-valid' : 'is-invalid'")
 						span.invalid-feedback No certificate file
 					.form-group
 						label(for="key-input") Key file
 						FilePicker#key-input(v-model="app.hosting.source.key" placeholder="No file selected"
-							prompt="Choose key file" :class="validation.keyFileValid? 'is-valid' : 'is-invalid'")
+							prompt="Choose key file" :class="validation.hosting.target.key? 'is-valid' : 'is-invalid'")
 						span.invalid-feedback No key file
 
 				h3 Target
@@ -58,7 +58,7 @@
 					.form-group
 						label Directory location
 						FilePicker(v-model="app.hosting.target.directory" :dir-mode="true" placeholder="No directory selected"
-							:class="validation.targetDirValid? 'is-valid' : 'is-invalid'")
+							:class="validation.hosting.target.directory? 'is-valid' : 'is-invalid'")
 						span.invalid-feedback No location provided
 					.form-group
 						.form-check
@@ -68,10 +68,10 @@
 					label Server address
 					.row
 						input.col(type="text" placeholder="localhost" v-model="app.hosting.target.hostname"
-							:class="validation.targetAddressValid? 'is-valid' : 'is-invalid'")
+							:class="validation.hosting.target.hostname? 'is-valid' : 'is-invalid'")
 						span.mx-1.text-muted.col-form-label :
 						input.col(type="number" min="1" max="65535" placeholder="80" v-model="app.hosting.target.port"
-							:class="validation.targetPortValid? 'is-valid' : 'is-invalid'")
+							:class="validation.hosting.target.port? 'is-valid' : 'is-invalid'")
 
 				h3 CORS
 				.form-group
@@ -99,10 +99,12 @@
 				p Analytics
 				.form-group
 					label(for="analytics-url-input") Crash Course address
-					input#analytics-url-input(type="text" v-model="app.analytics.url")
+					input#analytics-url-input(type="text" v-model="app.analytics.url"
+						:class="validation.analytics.url? 'is-valid' : 'is-invalid'")
 				.form-group
-					label(for="analytics-url-key") Crash Course telemetry key
-					input#analytics-url-input(type="text" v-model="app.analytics.key")
+					label(for="analytics-key-input") Crash Course telemetry key
+					input#analytics-key-input(type="text" v-model="app.analytics.key"
+						:class="validation.analytics.key? 'is-valid' : 'is-invalid'")
 
 			input.btn.btn-success(type="submit" value="Save app" :disabled="!validation.valid")
 </template>
@@ -111,7 +113,7 @@
 <script setup>
 'use strict';
 
-import {computed, onMounted, ref, toRaw} from "vue";
+import {computed, onMounted, ref, toRaw, watch} from "vue";
 import {validate} from "../../common/validate";
 import FilePicker from "./FilePicker.vue";
 import ProcessEditor from "./ProcessEditor.vue";
@@ -121,7 +123,7 @@ const props = defineProps(['modelValue']);
 const emit = defineEmits(['update:modelValue', 'close']);
 const app = ref(structuredClone(toRaw(props.modelValue)));
 const directory = ref(!!props.modelValue.hosting.target.directory.length);
-const validation = computed(() => validate(app.value));
+const validation = computed(() => validate(app.value, directory.value));
 
 function save() {
 	!directory.value && (app.value.hosting.target.directory = '');
@@ -133,7 +135,4 @@ function save() {
 	emit('update:modelValue', app.value);
 	emit('close');
 }
-
-
-onMounted(() => validate(app.value));
 </script>

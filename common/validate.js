@@ -1,29 +1,52 @@
 'use strict';
 
-export function validate(app) {
-	const result = {};
+function validate(app, directoryMode) {
+	if (directoryMode === undefined) {
+		directoryMode = !!app.hosting.target.directory;
+	}
 
-	result.domainValid = !!app.hosting.source.hostname?.match(/^[a-z0-9.\-]+$/);
-	result.portValid = +app.hosting.source.port > 0 && +app.hosting.source.port < 65536;
-	result.prefixValid = !!app.hosting.source.pathname?.match(/^[app-z0-9\/\-]*$/);
+	const validation = {
+		hosting: {
+			source: {
+				hostname: !!app.hosting.source.hostname?.match(/^[a-z0-9.\-]+$/),
+				port: +app.hosting.source.port > 0 && +app.hosting.source.port < 65536,
+				pathname: !!app.hosting.source.pathname?.match(/^[a-z0-9\/\-]*$/),
+				cert: !app.hosting.source.secure || app.hosting.source.cert?.length,
+				key: !app.hosting.source.secure || app.hosting.source.key?.length
+			},
+			target: {
+				directory: directoryMode,
+				hostname: directoryMode || !!app.hosting.target.hostname?.match(/^[a-z0-9.\-]+$/),
+				port: directoryMode || (+app.hosting.target.port > 0 && +app.hosting.target.port < 65536)
+			},
+		},
+		pm: app.pm.processes.map(process => {
+			return {
+				cmd: !!process.cmd.length,
+				path: !!process.path.length
+			}
+		}),
+		analytics: {
+			url: (!app.analytics.loggingEnabled && !app.analytics.metricsEnabled) || !!app.analytics.url.length,
+			key: (!app.analytics.loggingEnabled && !app.analytics.metricsEnabled) || !!app.analytics.key.length
+		}
+	};
 
-	result.certFileValid = !!app.hosting.source.cert?.length;
-	result.keyFileValid = !!app.hosting.source.key?.length;
+	validation.valid = (!app.hosting.enabled || (
+			validation.hosting.source.hostname &&
+			validation.hosting.source.port &&
+			validation.hosting.source.pathname &&
+			validation.hosting.source.cert &&
+			validation.hosting.source.key &&
+			(validation.hosting.target.directory || (
+				validation.hosting.target.hostname &&
+				validation.hosting.target.port)))) &&
+		(!app.pm.enabled || validation.pm.every(p => p.cmd && p.path)) &&
+		((!app.analytics.metricsEnabled && !app.analytics.loggingEnabled) || (
+			validation.analytics.url &&
+			validation.analytics.key));
 
-	result.targetDirValid = !!app.hosting.target.directory?.length;
-
-	result.targetAddressValid = !!app.hosting.target.hostname?.match(/^[a-z0-9.\-]+$/);
-	result.targetPortValid = +app.hosting.target.port > 0 && +app.hosting.target.port < 65536;
-
-	result.valid =
-		// Check URL mask
-		result.domainValid && result.portValid && result.prefixValid
-		// Check security if enabled
-		&& (app.hosting.source.secure ? result.certFileValid && result.keyFileValid : true)
-		// Check directory if enabled
-		&& (app.hosting.target.directory?.length && result.targetDirValid
-			// Check route if enabled
-			|| !app.hosting.target.directory?.length && result.targetAddressValid && result.targetPortValid);
-	
-	return result;
+	return validation;
 }
+
+module.exports = {validate};

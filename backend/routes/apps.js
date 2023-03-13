@@ -7,6 +7,7 @@ const appManager = require('../lib/app_manager');
 const middleware = require("../lib/middleware");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const {validate} = require("../../common/validate");
 
 
 router.use(bodyParser.json());
@@ -25,6 +26,10 @@ router.post('/', async (req, res) => {
 		res.status(400).send('No route provided');
 		return;
 	}
+	if (!validate(req.body).valid) {
+		res.status(400).send('Invalid app');
+		return;
+	}
 
 	const route = await appManager.addApp(req.body);
 	res.status(201).json(route);
@@ -38,6 +43,10 @@ router.put('/:id', async (req, res) => {
 	}
 	if (!req.body) {
 		res.status(400).send('No route provided');
+		return;
+	}
+	if (!validate(req.body).valid) {
+		res.status(400).send('Invalid app');
 		return;
 	}
 
