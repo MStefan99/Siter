@@ -64,8 +64,13 @@ block main
 					label(for='analytics-url-input') Crash Course URL
 					input#analytics-url-input(type='text' name='url' placeholder='Crash Course URL' value=analytics.url)
 				.form-group
-					label(for='analytics-key-input') Crash Course key
-					input#analytics-key-input(type='text' name='key' placeholder='Crash Course key' value=analytics.key)
+					label(for='analytics-audience-key-input') Crash Course audience key
+					input#analytics-audience-key-input(type='text' name='audienceKey'
+						placeholder='Crash Course key' value=analytics.audienceKey)
+				.form-group
+					label(for='analytics-telemetry-key-input') Crash Course telemetry key
+					input#analytics-telemetry-key-input(type='text' name='telemetryKey'
+						placeholder='Crash Course key' value=analytics.telemetryKey)
 				input.btn.btn-primary(type='submit' value='Update')
 
 			script(async type='module' src='/js/settings.js')

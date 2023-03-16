@@ -322,7 +322,6 @@ function handleRequest(request, response) {
 						})
 					};
 					options.headers['x-forwarded-for'] = request.connection.remoteAddress;
-					console.log(options);
 					const req = (app.hosting.target.secure || app.hosting.target.port === 443) ?
 						https.request(options) : http.request(options);
 
@@ -502,7 +501,8 @@ async function setAnalyticsOptions(options = {}) {
 
 	sanitized.enabled = !!options.enabled;
 	sanitized.url = options.url.toString();
-	sanitized.key = options.key.toString();
+	sanitized.audienceKey = options.audienceKey.toString();
+	sanitized.telemetryKey = options.telemetryKey.toString();
 
 	Object.assign(analytics, sanitized);
 	const analyticsCollection = await db('analytics');

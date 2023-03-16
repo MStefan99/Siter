@@ -94,10 +94,10 @@ router.post('/network', async (req, res) => {
 });
 
 router.post('/analytics', async (req, res) => {
-	if (req.body.enabled && (!req.body.url || !req.body.key)) {
+	if (req.body.enabled && (!req.body.url || !req.body.audienceKey || !req.body.telemetryKey)) {
 		res.flash({
 			title: 'Could not enable analytics',
-			info: 'Please provide both url and key',
+			info: 'Please provide url and both keys',
 			type: 'danger'
 		}).redirect(303, '/settings');
 		return;
@@ -106,7 +106,8 @@ router.post('/analytics', async (req, res) => {
 	await appManager.setAnalyticsOptions({
 		enabled: req.body.enabled,
 		url: req.body.url,
-		key: req.body.key
+		audienceKey: req.body.audienceKey,
+		telemetryKey: req.body.telemetryKey
 	});
 	res.flash({
 		title: 'Success!',

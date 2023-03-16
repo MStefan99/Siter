@@ -9,16 +9,16 @@ html(lang='en')
 		link(rel='icon' type='image/svg+xml' href='/img/icon.svg')
 		meta(name='viewport' content='width=device-width, initial-scale=1.0')
 		if (analytics && analytics.enabled)
-			script(type="module").
-				import {sendHit} from 'http://cc-b.localhost/cc?k=3c31425c3902e9cb';
-				sendHit();
+			script(type="module")
+				| import {sendHit} from 'http://cc-b.localhost/cc?k=#{analytics.audienceKey}';
+				| sendHit();
 		block head
 			title Siter
 
 	body
 		header.d-flex.border-bottom.justify-content-between.align-items-center.px-5
 			a(href='/#')
-				img(src='/img/logo.svg' alt='Siter logo')
+				img.logo(src='/img/logo.svg' alt='Siter logo')
 			block header
 			nav
 				a.btn.btn-outline-secondary(href='/about') About
@@ -42,5 +42,5 @@ html(lang='en')
 			block main
 
 		footer.bg-light.d-flex.justify-content-between.px-5
-			p Siter
+			img.logo.mx-auto(src="/img/logo.svg" alt="Siter logo")
 			block footer
