@@ -188,6 +188,24 @@ function updateServer(oldApp, newApp) {
 	addServer(newApp);
 }
 
+function setEnv(app, pr) {
+	pr.env.PATH = process.env.PATH;
+
+	if (app.hosting.enabled) {
+		pr.env.PORT = app.hosting.target.port;
+	} else {
+		delete(pr.env.PORT);
+	}
+
+	if (app.analytics.metricsEnabled || app.analytics.loggingEnabled) {
+		pr.env.CRASH_COURSE_URL = app.analytics.url;
+		pr.env.CRASH_COURSE_KEY = app.analytics.key;
+	} else {
+		delete(pr.env.CRASH_COURSE_URL);
+		delete(pr.env.CRASH_COURSE_KEY);
+	}
+}
+
 function startProcess(cmd, cwd, env, onstart, restartDelay = 0, restartCount = 0, lastRestart = Date.now()) {
 	const child = childProcess.exec(cmd, {cwd, env});
 	const restart = () => setTimeout(() => {
@@ -232,8 +250,7 @@ function addProcesses(app) {
 			continue; // Process already launched
 		}
 
-		pr.env.PATH = process.env.PATH;
-		app.hosting.enabled && (pr.env.PORT = app.hosting.target.port);
+		setEnv(app, pr);
 
 		startProcess(cmd, path.dirname(pr.path), pr.env, child => {
 			if (app.analytics.loggingEnabled) {
