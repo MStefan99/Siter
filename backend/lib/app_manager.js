@@ -20,6 +20,7 @@ const crashThreshold = 1000 * 60 * 10;
 const initialDelay = 1000 * 10;
 const maxDelay = 1000 * 60 * 5;
 
+const siterHostname = process.env.SITER_HOST || 'siter';
 const servers = new Map();
 const processes = new Map();
 let siter = null;
@@ -288,7 +289,7 @@ function handleRequest(request, response) {
 
 		if (url.match('force-siter=true')) {
 			siter(request, response);
-		} else if (host.startsWith('siter')) {
+		} else if (host.startsWith(siterHostname)) {
 			if (!request.connection.encrypted &&
 				net.httpsEnabled &&
 				net.httpsRedirect) {
@@ -312,9 +313,9 @@ function handleRequest(request, response) {
 				}
 
 				if (app.hosting.target.directory?.length) {  // Serving static files
-					const postfix = (app.hosting.target.routing || url.match(/\.\w+$/)) ?
-						url.replace(new RegExp(`^${app.hosting.source.pathname}|\\?.*$`, 'ig'), '') : '';
-					const filePath = path.join(app.hosting.target.directory, ...postfix.split('/'));
+					const pathname = (app.hosting.target.routing || url.match(/\.\w+$/)) ?
+						url.replace(new RegExp(`^/?${app.hosting.source.pathname}|\\?.*$`, 'ig'), '') : '';
+					const filePath = path.join(app.hosting.target.directory, ...pathname.split('/'));
 
 					const time = Number(process.hrtime.bigint() - start) / 1000;
 					analytics.enabled && sendLog(analytics.url, analytics.key, `Directory route matched in ${time} µs, ${host}${url}`, 0);
@@ -328,11 +329,11 @@ function handleRequest(request, response) {
 						.catch(() => sendFile(response, path.join(standaloneViews, 'no_file.html'), 404));
 
 				} else {  // Proxying requests to other servers
-					const postfix = url.replace(new RegExp(`^${app.hosting.source.pathname}`, 'ig'), '');
+					const pathname = url.replace(new RegExp(`^/?${app.hosting.source.pathname}/?`, 'ig'), '/');
 					const options = {
 						hostname: app.hosting.target.hostname,
 						port: app.hosting.target.port,
-						path: postfix,
+						path: pathname,
 						method: request.method,
 						headers: Object.assign(request.headers, {
 							'Host': app.hosting.target.hostname
@@ -366,7 +367,7 @@ function handleRequest(request, response) {
 		}
 	} catch (err) {
 		console.error('Failed to handle request:', err);
-		analytics.enabled && sendLog(analytics.url, analytics.key, err, 3);
+		analytics.enabled && sendLog(analytics.url, analytics.key, err.stack, 3);
 		sendFile(response, path.join(standaloneViews, 'internal.html'), 500);
 	}
 }
@@ -456,7 +457,7 @@ async function updateApp(appID, newApp) {
 		updateProcesses(oldApp, newApp);
 	}
 
-	delete (newApp._id);
+	delete(newApp._id);
 	const appCollection = await db('apps');
 	appCollection.replaceOne({id: appID}, newApp);
 

@@ -44,14 +44,12 @@ function dirname(path) {
 
 function goUp() {
 	path.value = dirname(path.value);
-	emit('update:modelValue', path.value);
 }
 
 function goDown(file) {
 	if (isDir.value && !(props.dirMode && !file.dir)) {
 		path.value += file.name;
 	}
-	emit('update:modelValue', path.value);
 }
 
 function save() {
