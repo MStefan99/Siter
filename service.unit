@@ -1,0 +1,12 @@
+[Unit]
+Description=Siter: Hosting, simplified.
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/node _path_
+Restart=on-failure
+TimeoutSec=30
+
+[Install]
+WantedBy=multi-user.target
