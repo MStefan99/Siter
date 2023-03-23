@@ -10,7 +10,7 @@ html(lang='en')
 		meta(name='viewport' content='width=device-width, initial-scale=1.0')
 		if (analytics && analytics.enabled)
 			script(type="module")
-				| import {sendHit} from 'http://cc-b.localhost/cc?k=#{analytics.audienceKey}';
+				| import {sendHit} from '#{analytics.url}/cc?k=#{analytics.audienceKey}';
 				| sendHit();
 		block head
 			title Siter
