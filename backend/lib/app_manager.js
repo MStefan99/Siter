@@ -25,21 +25,34 @@ const servers = new Map();
 const processes = new Map();
 let siter = null;
 let apps = [];
+const keys = {};
+const siterKeys = {};
 const net = {};
 const analytics = {};
 
-
-const httpServer = http.createServer(handleRequest);
-const httpsServer = https.createServer({
-	SNICallback: (servername, cb) => {
-		const app = findAppByDomain(servername);
-		if (app.hosting.source.secure) {
-			cb(null, getSecureContext(app));
-		} else {
+const SNICallback = (hostname, cb) => {
+	if (hostname.match(/^siter\./)) {
+		cb(null, tls.createSecureContext({
+			cert: siterKeys.cert,
+			key: siterKeys.key
+		}));
+	} else {
+		const app = apps.find(app => hostname.match(app.hosting.source.hostname) && app.hosting.source.secure);
+		if (!app) {
+			cb(new Error('Secure request to a non-existing app could not be handled'), null);
+		} else if (!app.hosting.source.secure) {
 			cb(new Error('Secure request to a non-secure app could not be handled'), null);
+		} else {
+			cb(null, tls.createSecureContext({
+				cert: keys[app.id].cert,
+				key: keys[app.id].key
+			}));
 		}
 	}
-}, handleRequest);
+};
+
+const httpServer = http.createServer(handleRequest);
+const httpsServer = https.createServer({SNICallback}, handleRequest);
 
 
 function isAValidPort(port) {
@@ -74,36 +87,22 @@ async function start(defaultHandler) {
 	servers.set(net.httpPort || 80, httpServer);
 
 	if (net.httpsEnabled) {
+		await setSiterKeys(net);
 		httpsServer.listen(net.httpsPort || 443);
 		servers.set(net.httpsPort || 443, httpsServer);
 	}
 
 	for (const app of apps) {
+		await setKeys(app);
 		addServer(app);
 		addProcesses(app);
 	}
 }
 
+
 function stop() {
 	for (const app of apps) {
 		removeProcesses(app);
-	}
-}
-
-function findAppByDomain(domain) {
-	if (domain.match(/^siter\./)) {
-		return {
-			hosting: {
-				source: {
-					secure: net.httpsEnabled,
-					cert: net.cert,
-					key: net.key
-				}
-			}
-		};
-	} else {
-		return apps.find(app =>
-			app.hosting.source.hostname ? domain.match(app.hosting.source.hostname) : true);
 	}
 }
 
@@ -116,16 +115,17 @@ function findApp(host, port, url) {
 }
 
 
-function getSecureContext(app) {
-	try {
-		return tls.createSecureContext({
-			// TODO: async
-			key: fs.readFileSync(app.hosting.source.key),
-			cert: fs.readFileSync(app.hosting.source.cert)
-		});
-	} catch (err) {
-		console.error('Failed to create secure context: ', err);
-		return {}
+async function setSiterKeys(net) {
+	siterKeys.cert = await fs.promises.readFile(net.cert, 'utf-8');
+	siterKeys.key = await fs.promises.readFile(net.key, 'utf-8');
+}
+
+async function setKeys(app) {
+	if (app.hosting.source.secure) {
+		keys[app.id] = {
+			cert: await fs.promises.readFile(app.hosting.source.cert, 'utf-8'),
+			key: await fs.promises.readFile(app.hosting.source.key, 'utf-8')
+		};
 	}
 }
 
@@ -141,14 +141,7 @@ function addServer(app) {
 
 	let server;
 	if (app.hosting.source.secure) {
-		server = https.createServer({
-			SNICallback: (servername, cb) => {
-				const app = findAppByDomain(servername) || {};
-				if (app.hosting.source.secure) {
-					cb(null, getSecureContext(app));
-				}
-			}
-		}, handleRequest);
+		server = https.createServer({SNICallback}, handleRequest);
 	} else {
 		server = http.createServer(handleRequest);
 	}
@@ -195,15 +188,15 @@ function setEnv(app, pr) {
 	if (app.hosting.enabled) {
 		pr.env.PORT = app.hosting.target.port;
 	} else {
-		delete(pr.env.PORT);
+		delete (pr.env.PORT);
 	}
 
 	if (app.analytics.metricsEnabled || app.analytics.loggingEnabled) {
 		pr.env.CRASH_COURSE_URL = app.analytics.url;
 		pr.env.CRASH_COURSE_KEY = app.analytics.key;
 	} else {
-		delete(pr.env.CRASH_COURSE_URL);
-		delete(pr.env.CRASH_COURSE_KEY);
+		delete (pr.env.CRASH_COURSE_URL);
+		delete (pr.env.CRASH_COURSE_KEY);
 	}
 }
 
@@ -435,6 +428,7 @@ async function addApp(app) {
 		app.order = apps.length;
 	}
 
+	setKeys(app);
 	const appCollection = await db('apps');
 	appCollection.insertOne(app);
 
@@ -452,12 +446,13 @@ async function updateApp(appID, newApp) {
 	const oldApp = apps.splice(apps.findIndex(r => r.id === appID),
 		1, newApp)[0];
 
+	setKeys(newApp);
 	if (oldApp) {
 		updateServer(oldApp, newApp);
 		updateProcesses(oldApp, newApp);
 	}
 
-	delete(newApp._id);
+	delete (newApp._id);
 	const appCollection = await db('apps');
 	appCollection.replaceOne({id: appID}, newApp);
 
@@ -473,6 +468,7 @@ async function removeApp(appID) {
 		removeProcesses(app);
 	}
 
+	delete (keys[app.id]);
 	const appCollection = await db('apps');
 	appCollection.deleteOne({id: appID});
 }
@@ -501,11 +497,12 @@ async function setNetOptions(options = {}) {
 	sanitized.cert = options.cert.toString();
 	sanitized.key = options.key.toString();
 
+	await setSiterKeys(sanitized);
 	Object.assign(net, sanitized);
 	const netCollection = await db('net');
 	Object.keys(sanitized).forEach(k => netCollection.updateOne({key: k}, {$set: {value: sanitized[k]}}, {upsert: true}));
 
-	start(siter);
+	await start(siter);
 }
 
 
