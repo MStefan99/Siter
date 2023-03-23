@@ -42,7 +42,7 @@
 					.form-group
 						label(for="key-input") Key file
 						FilePicker#key-input(v-model="app.hosting.source.key" placeholder="No file selected"
-							prompt="Choose key file" :class="validation.hosting.target.key? 'is-valid' : 'is-invalid'")
+							prompt="Choose key file" :class="validation.hosting.source.key? 'is-valid' : 'is-invalid'")
 						span.invalid-feedback No key file
 
 				h3 Target
