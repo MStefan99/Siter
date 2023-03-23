@@ -1,6 +1,6 @@
 <template lang="pug">
 .file-picker
-	.row.form-group
+	.row
 		input.col(type="text" placeholder="No file selected" :value="path" readonly)
 		span.mx-1.text-muted.col-form-label
 		button.btn.btn-success(type="button" @click="open = true") Pick a file

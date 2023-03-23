@@ -405,6 +405,12 @@ function sanitizeApp(app) {
 	app.hosting.source.secure = !!app.hosting.source.secure;
 	app.hosting.target.port = +app.hosting.target.port;
 
+	if (app.hosting.source.secure && app.hosting.source.port === 80) {
+		app.hosting.source.port = 443;
+	} else if (!app.hosting.source.secure && app.hosting.source.port === 443) {
+		app.hosting.source.port = 80;
+	}
+
 	for (const prop in app) {
 		if (app.hasOwnProperty(prop)
 			&& (app[prop] === null || app[prop] === undefined)) {
