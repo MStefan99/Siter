@@ -293,7 +293,7 @@ function handleRequest(request, response) {
 				siter(request, response);
 				// TODO: an example, add logs in other places and make them more useful
 				const time = Number(process.hrtime.bigint() - start) / 1000;
-				analytics.enabled && sendLog(analytics.url, analytics.key, `Siter route matched in ${time} µs, ${host}${url}`, 0);
+				analytics.enabled && sendLog(analytics.url, analytics.telemetryKey, `Siter route matched in ${time} µs, ${host}${url}`, 0);
 			}
 		} else {
 			const app = findApp(host, port, url);
@@ -311,7 +311,7 @@ function handleRequest(request, response) {
 					const filePath = path.join(app.hosting.target.directory, ...pathname.split('/'));
 
 					const time = Number(process.hrtime.bigint() - start) / 1000;
-					analytics.enabled && sendLog(analytics.url, analytics.key, `Directory route matched in ${time} µs, ${host}${url}`, 0);
+					analytics.enabled && sendLog(analytics.url, analytics.telemetryKey, `Directory route matched in ${time} µs, ${host}${url}`, 0);
 					// Trying requested file
 					sendFile(response, filePath, 200)
 						// trying requested file with .html extension
@@ -337,7 +337,7 @@ function handleRequest(request, response) {
 						https.request(options) : http.request(options);
 
 					const time = Number(process.hrtime.bigint() - start) / 1000;
-					analytics.enabled && sendLog(analytics.url, analytics.key, `Proxy route matched in ${time} µs, ${host}${url}`, 0);
+					analytics.enabled && sendLog(analytics.url, analytics.telemetryKey, `Proxy route matched in ${time} µs, ${host}${url}`, 0);
 
 					req.on('upgrade', (res, socket, head) => {
 						response.writeHead(res.statusCode, res.statusMessage, res.headers);
@@ -360,7 +360,7 @@ function handleRequest(request, response) {
 		}
 	} catch (err) {
 		console.error('Failed to handle request:', err);
-		analytics.enabled && sendLog(analytics.url, analytics.key, err.stack, 3);
+		analytics.enabled && sendLog(analytics.url, analytics.telemetryKey, err.stack, 3);
 		sendFile(response, path.join(standaloneViews, 'internal.html'), 500);
 	}
 }

@@ -21,7 +21,7 @@ async function init() {
 				app.analytics.metricsEnabled && await metrics.submit(collectedMetrics, app.analytics.url, app.analytics.key);
 			}
 		}
-	}, 1000 * 10);
+	}, 1000 * 30);
 }
 
 module.exports = {init};

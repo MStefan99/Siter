@@ -4,12 +4,21 @@ const logCache = [];
 let timeout = null;
 
 
-function submitLog(url, key, message, level) {
-	return fetch(url + '/telemetry/logs', {
-		method: 'POST',
-		headers: {'Content-Type': 'application/json', 'Telemetry-Key': key},
-		body: JSON.stringify({level, message: message.replace(/\033.*?m/g, '')})
-	}).catch(err => console.warn('Failed to send log:', err));
+async function submitLog(url, key, message, level) {
+	try {
+		const res = await fetch(url + '/telemetry/logs', {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json', 'Telemetry-Key': key},
+			body: JSON.stringify({level, message: message.replace(/\033.*?m/g, '')})
+		});
+
+		if (!res.ok) {
+			const err = await res.json();
+			console.warn('Failed to send log:', err.message);
+		}
+	} catch (err) {
+		console.warn('Failed to send log:', err);
+	}
 }
 
 function cacheAndSubmit(url, key, message, level) {
