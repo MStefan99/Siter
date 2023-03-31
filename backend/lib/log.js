@@ -14,10 +14,10 @@ async function submitLog(url, key, message, level) {
 
 		if (!res.ok) {
 			const err = await res.json();
-			console.warn('Failed to send log:', err.message);
+			console.warn('Failed to send log:', message, 'Reason:', err.message);
 		}
 	} catch (err) {
-		console.warn('Failed to send log:', err);
+		console.warn('Failed to send log:', err, 'Reason:', err.stack);
 	}
 }
 

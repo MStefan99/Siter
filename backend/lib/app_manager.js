@@ -245,7 +245,6 @@ function addProcesses(app) {
 		}
 
 		setEnv(app, pr);
-
 		startProcess(cmd, path.dirname(pr.path), pr.env, child => {
 			if (app.analytics.loggingEnabled) {
 				child.stdout.on('data', data => sendLog(app.analytics.url, app.analytics.key, data, 1));
@@ -253,6 +252,9 @@ function addProcesses(app) {
 				child.on('close', code => child.listenerCount('exit') &&
 					sendLog(app.analytics.url, app.analytics.key,
 						`Siter: ${cmd} exited with code ` + code, 4));
+			} else {
+				child.stdout.pipe(process.stdout);
+				child.stderr.pipe(process.stderr);
 			}
 		});
 	}
