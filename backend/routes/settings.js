@@ -28,8 +28,14 @@ router.get('/analytics', (req, res) => {
 });
 
 
+router.post('/restart', (req, res) => {
+	res.redirect(303, '/settings');
+	setTimeout(process.exit, 1000);
+});
+
+
 router.post('/password', async (req, res) => {
-	if (!req.body.newPassword || !req.body.newPasswordRepeat) {
+	if (!req.body.newPassword) {
 		res.flash({
 			title: 'Empty password',
 			info: 'Please enter your new password to continue',

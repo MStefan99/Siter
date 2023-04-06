@@ -23,7 +23,7 @@ router.get('/', (req, res) => {
 
 router.post('/', async (req, res) => {
 	if (!req.body) {
-		res.status(400).send('No route provided');
+		res.status(400).send('No app provided');
 		return;
 	}
 	if (!validate(req.body).valid) {
@@ -31,8 +31,30 @@ router.post('/', async (req, res) => {
 		return;
 	}
 
-	const route = await appManager.addApp(req.body);
-	res.status(201).json(route);
+	const app = await appManager.addApp(req.body);
+	res.status(201).json(app);
+});
+
+
+router.post('/reorder', async (req, res) => {
+	if (!req.body) {
+		res.status(400).send('Invalid order');
+		return;
+	}
+
+	await appManager.reorderApps(req.body);
+	res.sendStatus(200);
+});
+
+
+router.post('/:id/restart', async (req, res) => {
+	if (!req.params.id) {
+		res.status(400).send('No ID provided');
+		return;
+	}
+
+	await appManager.restartApp(req.params.id);
+	res.sendStatus(200);
 });
 
 
@@ -42,7 +64,7 @@ router.put('/:id', async (req, res) => {
 		return;
 	}
 	if (!req.body) {
-		res.status(400).send('No route provided');
+		res.status(400).send('No app provided');
 		return;
 	}
 	if (!validate(req.body).valid) {
@@ -50,10 +72,10 @@ router.put('/:id', async (req, res) => {
 		return;
 	}
 
-	const newRoute = await appManager.updateApp(
+	const newApp = await appManager.updateApp(
 		req.params.id,
 		req.body);
-	res.json(newRoute);
+	res.json(newApp);
 });
 
 
@@ -64,17 +86,6 @@ router.delete('/:id', async (req, res) => {
 	}
 
 	await appManager.removeApp(req.params.id);
-	res.sendStatus(200);
-});
-
-
-router.post('/reorder', async (req, res) => {
-	if (!req.body) {
-		res.status(400).send('Invalid order');
-		return;
-	}
-
-	await appManager.reorder(req.body);
 	res.sendStatus(200);
 });
 

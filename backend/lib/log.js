@@ -13,11 +13,14 @@ async function submitLog(url, key, message, level) {
 		});
 
 		if (!res.ok) {
-			const err = await res.json();
-			console.warn('Failed to send log:', message, 'Reason:', err.message);
+			console.warn('Failed to send log:', message, 'Status: ' + res.status);
+			if (res.headers.get('Content-Type') === 'application/json') {
+				const err = await res.json();
+				console.warn('Reason:', err.stack);
+			}
 		}
 	} catch (err) {
-		console.warn('Failed to send log:', err, 'Reason:', err.stack);
+		console.warn('Failed to send log:', message, 'Reason:', err.stack);
 	}
 }
 

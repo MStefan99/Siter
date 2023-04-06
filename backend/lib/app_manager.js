@@ -295,7 +295,7 @@ function handleRequest(request, response) {
 				siter(request, response);
 				// TODO: an example, add logs in other places and make them more useful
 				const time = Number(process.hrtime.bigint() - start) / 1000;
-				analytics.enabled && sendLog(analytics.url, analytics.telemetryKey, `Siter route matched in ${time} µs, ${host}${url}`, 0);
+				analytics.enabled && sendLog(analytics.url, analytics.telemetryKey, `Siter route matched in ${time} µs: ${host}${url}`, 0);
 			}
 		} else {
 			const app = findApp(host, port, url);
@@ -312,8 +312,6 @@ function handleRequest(request, response) {
 						url.replace(new RegExp(`^/?${app.hosting.source.pathname}|\\?.*$`, 'ig'), '') : '';
 					const filePath = path.join(app.hosting.target.directory, ...pathname.split('/'));
 
-					const time = Number(process.hrtime.bigint() - start) / 1000;
-					analytics.enabled && sendLog(analytics.url, analytics.telemetryKey, `Directory route matched in ${time} µs, ${host}${url}`, 0);
 					// Trying requested file
 					sendFile(response, filePath, 200)
 						// trying requested file with .html extension
@@ -323,6 +321,8 @@ function handleRequest(request, response) {
 						// none of the options worked, sending 404
 						.catch(() => sendFile(response, path.join(standaloneViews, 'no_file.html'), 404));
 
+					const time = Number(process.hrtime.bigint() - start) / 1000;
+					analytics.enabled && sendLog(analytics.url, analytics.telemetryKey, `Directory route matched in ${time} µs: ${host}${url}`, 0);
 				} else {  // Proxying requests to other servers
 					const pathname = url.replace(new RegExp(`^/?${app.hosting.source.pathname}/?`, 'ig'), '/');
 					const options = {
@@ -337,9 +337,6 @@ function handleRequest(request, response) {
 					options.headers['x-forwarded-for'] = request.connection.remoteAddress;
 					const req = (app.hosting.target.secure || app.hosting.target.port === 443) ?
 						https.request(options) : http.request(options);
-
-					const time = Number(process.hrtime.bigint() - start) / 1000;
-					analytics.enabled && sendLog(analytics.url, analytics.telemetryKey, `Proxy route matched in ${time} µs, ${host}${url}`, 0);
 
 					req.on('upgrade', (res, socket, head) => {
 						response.writeHead(res.statusCode, res.statusMessage, res.headers);
@@ -357,6 +354,11 @@ function handleRequest(request, response) {
 					request.pipe(req).on('error', () => {
 						sendFile(response, path.join(standaloneViews, 'unavailable.html'), 503);
 					});
+
+					const time = Number(process.hrtime.bigint() - start) / 1000;
+					if (analytics.enabled && !analytics.url.match(app.hosting.source.hostname)) {
+						sendLog(analytics.url, analytics.telemetryKey, `Proxy route  matched in ${time} µs: ${host}${url}`, 0);
+					}
 				}
 			}
 		}
@@ -444,6 +446,28 @@ async function addApp(app) {
 }
 
 
+async function reorderApps(newOrder) {
+	for (let i = 0; i < newOrder.length; ++i) {
+		const idx = apps.findIndex(a => a.id === newOrder[i]);
+
+		apps[idx].hosting.order = i;
+	}
+
+	apps.sort((a1, a2) => a1.hosting.order - a2.hosting.order);
+
+	const appCollection = await db('apps');
+	apps.forEach(async a => await appCollection.updateOne({id: a.id}, {$set: {'hosting.order': a.hosting.order}}));
+}
+
+
+async function restartApp(appID) {
+	const app = apps.find(a => appID === a.id);
+
+	removeProcesses(app);
+	addProcesses(app);
+}
+
+
 async function updateApp(appID, newApp) {
 	if (!appID) {
 		return addApp(newApp);
@@ -467,7 +491,6 @@ async function updateApp(appID, newApp) {
 	return newApp;
 }
 
-
 async function removeApp(appID) {
 	const app = apps.splice(apps.findIndex(a => a.id === appID), 1)[0];
 
@@ -479,19 +502,6 @@ async function removeApp(appID) {
 	delete (keys[app.id]);
 	const appCollection = await db('apps');
 	appCollection.deleteOne({id: appID});
-}
-
-async function reorder(newOrder) {
-	for (let i = 0; i < newOrder.length; ++i) {
-		const idx = apps.findIndex(a => a.id === newOrder[i]);
-
-		apps[idx].hosting.order = i;
-	}
-
-	apps.sort((a1, a2) => a1.hosting.order - a2.hosting.order);
-
-	const appCollection = await db('apps');
-	apps.forEach(async a => await appCollection.updateOne({id: a.id}, {$set: {'hosting.order': a.hosting.order}}));
 }
 
 
@@ -544,9 +554,10 @@ module.exports = {
 
 	getApps,
 	addApp,
+	reorderApps,
+	restartApp,
 	updateApp,
 	removeApp,
-	reorder,
 
 	setNetOptions,
 	getNetOptions,

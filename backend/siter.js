@@ -38,6 +38,11 @@ process.on('uncaughtException', async (err) => {
 });
 
 
+process.on('exit', () => {
+	appManager.stop();
+});
+
+
 const app = express();
 
 

@@ -2,10 +2,12 @@
 .app.card(:data-app-id="app.id")
 	h3 {{app.name}}
 	.card-icon-container.float-right
+		img.icon.edit-icon.clickable.mr-2(v-if="app.pm.enabled" src="/img/restart.svg" alt="Settings icon"
+			@click="$emit('restart')")
 		img.icon.edit-icon.clickable.mr-2(src="/img/pencil.svg" alt="Settings icon"
 			@click="$emit('edit', app)")
 		img.icon.edit-icon.clickable(src="/img/trash_can.svg" alt="Remove icon"
-			@click="$emit('delete', app)")
+			@click="$emit('delete')")
 	.app-mask.border-bottom
 		h4 Source
 		a.app-link(target="_blank"
@@ -62,5 +64,5 @@
 'use strict';
 
 defineProps(['app']);
-defineEmits(['edit', 'delete']);
+defineEmits(['restart', 'edit', 'delete']);
 </script>

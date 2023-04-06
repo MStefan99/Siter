@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "backend/index.js",
 	"scripts": {
-		"backend": "NODE_ENV=dev nodemon backend/index.js",
+		"backend": "nodemon backend/index.js",
 		"frontend": "webpack serve --config webpack.dev.js",
 		"build": "webpack --config webpack.prod.js",
 		"dev": "run-p backend frontend"

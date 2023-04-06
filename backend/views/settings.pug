@@ -73,6 +73,11 @@ block main
 						placeholder='Crash Course key' value=analytics.telemetryKey)
 				input.btn.btn-primary(type='submit' value='Update')
 
+			h2 Restart
+			form.mx-3(action='/settings/restart' method='post')
+				p Siter applies your changes automatically but if you want to force a full restart, you can use the button below.
+				input.btn.btn-primary(type='submit' value='Restart')
+
 			script(async type='module' src='/js/settings.js')
 
 		+help

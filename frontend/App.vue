@@ -7,10 +7,10 @@
 	#app-container.row(@dragover.prevent @drop.prevent="appDrop($event)")
 		SiterCard
 		TransitionGroup(name="list")
-			AppCard(v-for="app in apps" :key="app.id" :app="app" @edit="openApp = app" @delete="deleteApp(app)"
+			AppCard(v-for="app in apps" :key="app.id" :app="app" @restart="restartApp(app)" @edit="openApp = app" @delete="deleteApp(app)"
 				draggable="true" @dragstart="appDrag($event, app)")
 		Transition(name="popup")
-			AppEditor(v-if="openApp" v-model="openApp" @update:modelValue="app => saveApp(app)" @close="openApp = null")
+			AppEditor(v-if="openApp" v-model="openApp" @update:modelValue="newApp => saveApp(newApp)" @close="openApp = null")
 	button.btn-primary.ml-3(type="button" @click="openApp = defaultApp()") Add app
 </template>
 
@@ -94,6 +94,16 @@ function appDrop(e) {
 	});
 }
 
+function restartApp(app) {
+	fetch('/apps/' + app.id + '/restart', {
+		method: 'POST',
+	})
+		.then(res => {
+			if (res.ok) {
+				notify.tell('App restarted', app.name + ' was restarted', 'success')
+			}
+		})
+}
 
 function saveApp(app) {
 	const idx = apps.value.findIndex(r => r.id === app.id);

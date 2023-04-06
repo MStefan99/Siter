@@ -11,7 +11,7 @@ const redirectLabel = document.getElementById('redirect-label');
 
 passwordForm.addEventListener('submit', e => {
 	if (passwordForm.newPassword.value !== passwordForm.newPasswordRepeat.value) {
-		notify.tell('Passwords do not match', 'Please check your passwords and try again');
+		notify.tell('Passwords do not match', 'Please check your passwords and try again', 'warning');
 		e.preventDefault();
 	}
 });
