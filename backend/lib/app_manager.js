@@ -191,12 +191,13 @@ function setEnv(app, pr) {
 		delete (pr.env.PORT);
 	}
 
+	pr.env.CRASH_COURSE_AUDIENCE_KEY = app.analytics.audienceKey;
 	if (app.analytics.metricsEnabled || app.analytics.loggingEnabled) {
 		pr.env.CRASH_COURSE_URL = app.analytics.url;
-		pr.env.CRASH_COURSE_KEY = app.analytics.key;
+		pr.env.CRASH_COURSE_TELEMETRY_KEY = app.analytics.telemetryKey;
 	} else {
 		delete (pr.env.CRASH_COURSE_URL);
-		delete (pr.env.CRASH_COURSE_KEY);
+		delete (pr.env.CRASH_COURSE_TELEMETRY_KEY);
 	}
 }
 
@@ -247,10 +248,10 @@ function addProcesses(app) {
 		setEnv(app, pr);
 		startProcess(cmd, path.dirname(pr.path), pr.env, child => {
 			if (app.analytics.loggingEnabled) {
-				child.stdout.on('data', data => sendLog(app.analytics.url, app.analytics.key, data, 1));
-				child.stderr.on('data', data => sendLog(app.analytics.url, app.analytics.key, data, 3));
+				child.stdout.on('data', data => sendLog(app.analytics.url, app.analytics.telemetryKey, data, 1));
+				child.stderr.on('data', data => sendLog(app.analytics.url, app.analytics.telemetryKey, data, 3));
 				child.on('close', code => child.listenerCount('exit') &&
-					sendLog(app.analytics.url, app.analytics.key,
+					sendLog(app.analytics.url, app.analytics.telemetryKey,
 						`Siter: ${cmd} exited with code ` + code, 4));
 			} else {
 				child.stdout.pipe(process.stdout);

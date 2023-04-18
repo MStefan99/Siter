@@ -38,7 +38,7 @@ async function collect() {
 
 async function submit(metrics, url, key) {
 	try {
-		await fetch(url + '/telemetry/metrics', {
+		const res = await fetch(url + '/telemetry/metrics', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -46,8 +46,16 @@ async function submit(metrics, url, key) {
 			},
 			body: JSON.stringify(metrics)
 		});
-	} catch (e) {
-		console.error(e);
+		if (!res.ok) {
+			if (res.headers.get('Content-Type').match('application/json')) {
+				const err = await res.json();
+				console.warn('Failed to send metrics. Reason:', err.message);
+			} else {
+				console.warn('Failed to send metrics. Status: ', res.status);
+			}
+		}
+	} catch (err) {
+		console.warn('Failed to send metrics. Reason:', err.stack);
 	}
 }
 

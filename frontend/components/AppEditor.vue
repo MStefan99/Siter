@@ -88,6 +88,14 @@
 
 			h3 Analytics
 			.form-group
+				label(for="analytics-url-input") Crash Course address
+				input#analytics-url-input(type="text" v-model="app.analytics.url"
+					:class="validation.analytics.url? 'is-valid' : 'is-invalid'")
+			.form-group
+				label(for="analytics-audience-key-input") Crash Course audience key
+				input#analytics-key-input(type="text" v-model="app.analytics.audienceKey"
+					:class="validation.analytics.audienceKey? 'is-valid' : 'is-invalid'")
+			.form-group
 				.form-check
 					input#analytics-log-check(type="checkbox" v-model="app.analytics.loggingEnabled" :true-value="true" :false-value="false")
 					label(for="analytics-log-check") Enable logging
@@ -95,16 +103,11 @@
 				.form-check
 					input#analytics-metrics-check(type="checkbox" v-model="app.analytics.metricsEnabled" :true-value="true" :false-value="false")
 					label(for="analytics-metrics-check") Enable performance monitoring
-			.analytics(v-if="app.analytics?.loggingEnabled || app.analytics?.metricsEnabled")
-				p Analytics
+			.telemetry(v-if="app.analytics?.loggingEnabled || app.analytics?.metricsEnabled")
 				.form-group
-					label(for="analytics-url-input") Crash Course address
-					input#analytics-url-input(type="text" v-model="app.analytics.url"
-						:class="validation.analytics.url? 'is-valid' : 'is-invalid'")
-				.form-group
-					label(for="analytics-key-input") Crash Course telemetry key
-					input#analytics-key-input(type="text" v-model="app.analytics.key"
-						:class="validation.analytics.key? 'is-valid' : 'is-invalid'")
+					label(for="analytics-telemetry-key-input") Crash Course telemetry key
+					input#analytics-key-input(type="text" v-model="app.analytics.telemetryKey"
+						:class="validation.analytics.telemetryKey? 'is-valid' : 'is-invalid'")
 
 			input.btn.btn-success(type="submit" value="Save app" :disabled="!validation.valid")
 </template>

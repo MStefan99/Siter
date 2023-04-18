@@ -15,9 +15,9 @@ async function init() {
 
 		const apps = appManager.getApps().filter(a => a.analytics.enabled);
 		for (const app of apps) {
-			app.analytics.metricsEnabled && await metrics.submit(collectedMetrics, app.analytics.url, app.analytics.key);
+			app.analytics.metricsEnabled && await metrics.submit(collectedMetrics, app.analytics.url, app.analytics.telemetryKey);
 		}
-	}, 1000 * 10);
+	}, 1000 * 30);
 }
 
 module.exports = {init};

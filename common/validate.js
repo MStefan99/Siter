@@ -27,8 +27,9 @@ function validate(app, directoryMode) {
 			}
 		}),
 		analytics: {
-			url: (!app.analytics.loggingEnabled && !app.analytics.metricsEnabled) || !!app.analytics.url.length,
-			key: (!app.analytics.loggingEnabled && !app.analytics.metricsEnabled) || !!app.analytics.key.length
+			url: (!app.analytics.loggingEnabled && !app.analytics.metricsEnabled && !app.analytics.audienceKey.length) || !!app.analytics.url.length,
+			telemetryKey: (!app.analytics.loggingEnabled && !app.analytics.metricsEnabled) || !!app.analytics.telemetryKey.length,
+			audienceKey: !!app.analytics.audienceKey.length? !!app.analytics.url.length : true
 		}
 	};
 
@@ -42,9 +43,9 @@ function validate(app, directoryMode) {
 				validation.hosting.target.hostname &&
 				validation.hosting.target.port)))) &&
 		(!app.pm.enabled || validation.pm.every(p => p.cmd && p.path)) &&
-		((!app.analytics.metricsEnabled && !app.analytics.loggingEnabled) || (
 			validation.analytics.url &&
-			validation.analytics.key));
+			validation.analytics.telemetryKey &&
+			validation.analytics.audienceKey;
 
 	return validation;
 }

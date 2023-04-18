@@ -34,7 +34,8 @@ export function defaultApp() {
 			loggingEnabled: false,
 			metricsEnabled: false,
 			url: '',
-			key: ''
+			audienceKey: '',
+			telemetryKey: ''
 		}
 	}
 }
