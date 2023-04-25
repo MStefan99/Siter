@@ -20,6 +20,9 @@ const crashThreshold = 1000 * 60 * 10;
 const initialDelay = 1000 * 10;
 const maxDelay = 1000 * 60 * 5;
 
+const colors = ['\u001b[38;5;62m', '\u001b[38;5;29m', '\u001b[38;5;178m', '\u001b[38;5;166m', '\u001b[38;5;161m'];
+const resetConsole = '\u001b[0m';
+
 const siterHostname = process.env.SITER_HOST || 'siter';
 const servers = new Map();
 const processes = new Map();
@@ -252,10 +255,12 @@ function addProcesses(app) {
 				child.stderr.on('data', data => sendLog(app.analytics.url, app.analytics.telemetryKey, data, 3));
 				child.on('close', code => child.listenerCount('exit') &&
 					sendLog(app.analytics.url, app.analytics.telemetryKey,
-						`Siter: ${cmd} exited with code ` + code, 4));
+						`Siter: ${app.name}(${cmd}) exited with code ` + code, 4));
 			} else {
-				child.stdout.pipe(process.stdout);
-				child.stderr.pipe(process.stderr);
+				child.stdout.on('data', data => console.log(`${colors[1]}[${app.name}]${resetConsole} ${data.trim()}`));
+				child.stderr.on('data', data => console.log(`${colors[3]}[${app.name}]${resetConsole} ${data.trim()}`));
+				child.on('close', code => child.listenerCount('exit') &&
+					console.error(`${colors[4]}[${app.name}]${resetConsole} "${cmd}" exited with code`, code));
 			}
 		});
 	}
