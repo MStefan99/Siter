@@ -8,6 +8,7 @@ const cookieParser = require("cookie-parser");
 const middleware = require('../lib/middleware');
 const flash = require('@mstefan99/express-flash');
 const appManager = require('../lib/app_manager');
+const {getSession} = require("../lib/middleware");
 
 
 router.use(cookieParser());
@@ -25,7 +26,11 @@ router.get('/about', (req, res) => {
 });
 
 router.get('/login', (req, res) => {
-	res.render('login');
+	res.render('login', {secure: req.secure});
+});
+
+router.get('/challenge', getSession(), (req, res) => {
+	res.render('challenge', {question: req.session.challenge.question, secure: req.secure});
 });
 
 router.use(middleware.redirectIfNotAuthorized());

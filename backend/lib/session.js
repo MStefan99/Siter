@@ -10,15 +10,17 @@ class Session {
 	ip;
 	ua;
 	time;
+	challenge;
 
 
-	static async createSession(ip, ua) {
+	static async createSession(ip, ua, challenge) {
 		const session = new Session();
 
 		session.id = crypto.randomUUID();
 		session.ip = ip;
 		session.ua = ua;
 		session.time = Date.now();
+		session.challenge = challenge;
 
 		const sessions = await db('sessions');
 		await sessions.insertOne(session);
@@ -53,6 +55,12 @@ class Session {
 	static async deleteAllSessions() {
 		const collection = await db('sessions');
 		await collection.deleteMany();
+	}
+
+
+	async save() {
+		const sessions = await db('sessions');
+		await sessions.replaceOne({id: this.id}, this);
 	}
 
 

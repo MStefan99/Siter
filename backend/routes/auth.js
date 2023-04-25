@@ -9,6 +9,7 @@ const flash = require('@mstefan99/express-flash');
 const libAuth = require('../lib/auth');
 const libSession = require('../lib/session');
 const middleware = require('../lib/middleware');
+const {getRandomChallenge, verifyChallenge} = require("../lib/auth");
 
 
 const cookieOptions = {
@@ -43,12 +44,33 @@ router.post('/login', async (req, res) => {
 		return;
 	}
 
-	const session = await libSession.createSession(req.ip, req.headers['user-agent']);
+	const challenge = await getRandomChallenge();
+	const session = await libSession.createSession(req.ip, req.headers['user-agent'], challenge);
+	console.log(challenge);
 
 	const options = Object.assign({}, {secure: req.secure}, cookieOptions);
 	res.cookie('siter-session', session.id, options)
 		.redirect(303, '/');
-	libAuth.setPassword(req.body.password);
+});
+
+router.post('/challenge', async (req, res) => {
+	const session = req.session;
+
+	if (!verifyChallenge(session.challenge, req.body.answer)) {
+		res.flash({
+			title: 'Wrong answer',
+			info: 'You have entered the wrong verification answer',
+			type: 'danger'
+		})
+			.redirect(303, '/login');
+
+		await req.session.delete();
+		return;
+	}
+	delete (session.challenge);
+	session.save();
+
+	res.redirect(303, '/');
 });
 
 

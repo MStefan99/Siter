@@ -1,0 +1,20 @@
+extends layout
+
+block head
+	title Sign in | Siter
+
+block header
+	b.mx-3 Sign in
+
+block main
+	form#login-form(action="/auth/challenge" method="post")
+		h3 One last step...
+		p To protect your account, please answer this security question:
+		p
+			b= question
+		label(for="answer") Answer
+		input#answer(type="text" name="answer" autofocus placeholder="Answer")
+		if !secure
+			p.bold.text-danger Your connection is not secure!
+			p.bold.text-danger Do not submit your answer unless Siter is running locally.
+		input.btn.btn-success(type="submit")

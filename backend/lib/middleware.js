@@ -22,13 +22,15 @@ function redirectIfNotAuthorized(req, res, next) {
 	}
 	if (!req.session) {
 		res.redirect(303, '/login');
+	} else if (req.session.challenge) {
+		res.redirect(303, '/challenge');
 	} else {
 		next();
 	}
 }
 
 function rejectIfNotAuthorized(req, res, next) {
-	if (!req.session) {
+	if (!req.session || req.session.challenge) {
 		res.status(403).send('Not authorized');
 	} else {
 		next();
