@@ -93,7 +93,17 @@ module.exports = {
 			});
 		}
 
-		return challenges.length ? challenges[Math.floor(Math.random() * challenges.length)] : undefined;
+		if (!challenges.length) {
+			const code = crypto.randomBytes(4).toString('hex');
+			console.log('Your Siter login code:', code);
+
+			challenges.push({
+				question: `What is the one-time code displayed in the Siter console?`,
+				answer: code
+			});
+		}
+
+		return challenges[Math.floor(Math.random() * challenges.length)];
 	},
 
 	verifyChallenge(challenge, answer) {
