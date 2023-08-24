@@ -7,7 +7,7 @@ const {colors, resetConsole} = require("./log");
 
 async function collect() {
 	const metrics = {
-		device: 'Test device',
+		device: 'Siter',
 		cpu: null,
 		memUsed: null,
 		memTotal: null,
@@ -18,7 +18,7 @@ async function collect() {
 	};
 
 	try {
-		metrics.cpu = os.loadavg()[0];
+		metrics.cpu = (await si.currentLoad()).currentLoad;
 		const mem = await si.mem();
 		metrics.memUsed = mem.active;
 		metrics.memTotal = mem.total;

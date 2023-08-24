@@ -296,7 +296,6 @@ function handleRequest(request, response) {
 				}).end();
 			} else {
 				siter(request, response);
-				// TODO: an example, add logs in other places and make them more useful
 				const time = Number(process.hrtime.bigint() - start) / 1000;
 				analytics.enabled && sendLog(analytics.url, analytics.telemetryKey, `Siter route matched in ${time} µs: ${host}${url}`, 0);
 			}
@@ -311,7 +310,7 @@ function handleRequest(request, response) {
 				}
 
 				if (app.hosting.target.directory?.length) {  // Serving static files
-					const pathname = (app.hosting.target.routing || url.match(/\.\w+$/)) ?
+					const pathname = (app.hosting.target.routing || url.match(/^\/[^?#]+\./)) ?
 						url.replace(new RegExp(`^/?${app.hosting.source.pathname}|\\?.*$`, 'ig'), '') : '';
 					const filePath = path.join(app.hosting.target.directory, ...pathname.split('/'));
 
