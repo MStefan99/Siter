@@ -2,6 +2,7 @@
 
 const os = require('os');
 const si = require('systeminformation');
+const {colors, resetConsole} = require("./log");
 
 
 async function collect() {
@@ -16,21 +17,19 @@ async function collect() {
 		netDown: null
 	};
 
-	if (process.platform === 'darwin') {
-		try {
-			metrics.cpu = os.loadavg()[0];
-			const mem = await si.mem();
-			metrics.memUsed = mem.active;
-			metrics.memTotal = mem.total;
-			const disk = (await si.fsSize()).find(fs => fs.mount === '/System/Volumes/Data');
-			metrics.diskUsed = disk.used;
-			metrics.diskTotal = disk.size;
-			const net = (await si.networkStats())[0];
-			metrics.netUp = net.tx_sec;
-			metrics.netDown = net.rx_sec;
-		} catch (e) {
-			console.error(e);
-		}
+	try {
+		metrics.cpu = os.loadavg()[0];
+		const mem = await si.mem();
+		metrics.memUsed = mem.active;
+		metrics.memTotal = mem.total;
+		const disk = (await si.fsSize()).find(fs => fs.mount === '/System/Volumes/Data');
+		metrics.diskUsed = disk.used;
+		metrics.diskTotal = disk.size;
+		const net = (await si.networkStats())[0];
+		metrics.netUp = net.tx_sec;
+		metrics.netDown = net.rx_sec;
+	} catch (e) {
+		console.error(`${colors[3]}[Siter]${resetConsole}`, e);
 	}
 
 	return metrics;
@@ -49,13 +48,13 @@ async function submit(metrics, url, key) {
 		if (!res.ok) {
 			if (res.headers.get('Content-Type').match('application/json')) {
 				const err = await res.json();
-				console.warn('Failed to send metrics. Reason:', err.message);
+				console.warn(`${colors[3]}[Siter]${resetConsole}`, 'Failed to send metrics. Reason:', err.message);
 			} else {
-				console.warn('Failed to send metrics. Status: ', res.status);
+				console.warn(`${colors[3]}[Siter]${resetConsole}`, 'Failed to send metrics. Status: ', res.status);
 			}
 		}
 	} catch (err) {
-		console.warn('Failed to send metrics. Reason:', err.stack);
+		console.warn(`${colors[3]}[Siter]${resetConsole}`, 'Failed to send metrics. Reason:', err.stack);
 	}
 }
 

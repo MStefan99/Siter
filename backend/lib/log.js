@@ -3,6 +3,8 @@
 const logCache = [];
 let timeout = null;
 
+const colors = ['\u001b[38;5;62m', '\u001b[38;5;29m', '\u001b[38;5;178m', '\u001b[38;5;166m', '\u001b[38;5;161m'];
+const resetConsole = '\u001b[0m';
 
 async function submitLog(url, key, message, level) {
 	try {
@@ -15,13 +17,13 @@ async function submitLog(url, key, message, level) {
 		if (!res.ok) {
 			if (res.headers.get('Content-Type').match('application/json')) {
 				const err = await res.json();
-				console.warn('Failed to send log:', message, 'Reason:', err.message);
+				console.log(`${colors[3]}[Siter]${resetConsole}`, 'Failed to send log:', message, 'Reason:', err.message);
 			} else {
-				console.warn('Failed to send log:', message, 'Status: ', res.status);
+				console.log(`${colors[3]}[Siter]${resetConsole}`, 'Failed to send log:', message, 'Status: ', res.status);
 			}
 		}
 	} catch (err) {
-		console.warn('Failed to send log:', message, 'Reason:', err.stack);
+		console.log(`${colors[3]}[Siter]${resetConsole}`, 'Failed to send log:', message, 'Reason:', err.stack);
 	}
 }
 
@@ -53,4 +55,4 @@ async function sendLog(url, key, message, level) {
 }
 
 
-module.exports = {sendLog};
+module.exports = {sendLog, colors, resetConsole};

@@ -10,7 +10,7 @@ const childProcess = require('child_process');
 const crypto = require('crypto');
 
 const db = require('./db');
-const {sendLog} = require('./log');
+const {sendLog, colors, resetConsole} = require('./log');
 const mime = require('mime-types');
 const standaloneViews = path.join(__dirname, '..', 'views', 'standalone');
 
@@ -19,9 +19,6 @@ const clampMax = (val, max) => val > max ? max : val;
 const crashThreshold = 1000 * 60 * 10;
 const initialDelay = 1000 * 10;
 const maxDelay = 1000 * 60 * 5;
-
-const colors = ['\u001b[38;5;62m', '\u001b[38;5;29m', '\u001b[38;5;178m', '\u001b[38;5;166m', '\u001b[38;5;161m'];
-const resetConsole = '\u001b[0m';
 
 const siterHostname = process.env.SITER_HOST || 'siter';
 const servers = new Map();
@@ -369,8 +366,7 @@ function handleRequest(request, response) {
 			}
 		}
 	} catch (err) {
-		console.error('Failed to handle request:', err);
-		analytics.enabled && sendLog(analytics.url, analytics.telemetryKey, err.stack, 3);
+		analytics.enabled && sendLog(analytics.url, analytics.telemetryKey, `Failed to handle request: ${err.stack}`, 3);
 		sendFile(response, path.join(standaloneViews, 'internal.html'), 500);
 	}
 }

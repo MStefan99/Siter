@@ -8,17 +8,17 @@ const authRouter = require('./routes/auth');
 const settingsRouter = require('./routes/settings');
 const appRouter = require('./routes/apps');
 const fileRouter = require('./routes/files');
-const {sendLog} = require('./lib/log');
+const {sendLog, colors, resetConsole} = require('./lib/log');
 
 const appManager = require('./lib/app_manager');
 
 process.on('unhandledRejection', async (reason) => {
-	console.error('Unhandled Rejection: ', reason);
+	console.error(`${colors[4]}[Siter]${resetConsole}`, 'Unhandled Rejection: ', reason);
 	try {
 		const analytics = appManager.getAnalyticsOptions();
 		analytics.enabled && await sendLog(analytics.url, analytics.telemetryKey, 'Unhandled rejection: ', reason.stack, 4);
 	} catch (e) {
-		console.error('Unhandled rejection while exiting:', e);
+		console.error(`${colors[4]}[Siter]${resetConsole}`, 'Unhandled rejection while exiting:', e);
 	}
 	appManager.stop();
 	process.exit(~0x1);
@@ -26,12 +26,12 @@ process.on('unhandledRejection', async (reason) => {
 
 
 process.on('uncaughtException', async (err) => {
-	console.error('Uncaught exception: ', err);
+	console.error(`${colors[4]}[Siter]${resetConsole}`, 'Uncaught exception: ', err);
 	try {
 		const analytics = appManager.getAnalyticsOptions();
 		analytics.enabled && await sendLog(analytics.url, analytics.telemetryKey, 'Uncaught exception: ', err.stack, 4);
 	} catch (e) {
-		console.error('Uncaught exception while exiting:', e);
+		console.error(`${colors[4]}[Siter]${resetConsole}`, 'Uncaught exception while exiting:', e);
 	}
 	appManager.stop();
 	process.exit(~0x0);
@@ -70,7 +70,7 @@ app.use(viewsRouter);
 
 
 app.use((err, req, res, next) => {
-	console.error(err);
+	console.error(`${colors[3]}[Siter]${resetConsole}`, err);
 	res.status(500).sendFile(path.join(__dirname, 'views/standalone/internal.html'));
 });
 
@@ -78,4 +78,4 @@ app.use((err, req, res, next) => {
 require('./lib/init')
 	.init()
 	.then(() => appManager.start(app))
-	.then(() => console.log('Siter is now running! Open http://siter.localhost/ to get started.'));
+	.then(() => console.log(`${colors[1]}[Siter]${resetConsole}`, 'Siter is now running! Open http://siter.localhost/ to get started.'));

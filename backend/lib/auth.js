@@ -6,6 +6,7 @@ const util = require('util');
 const pbkdf2 = util.promisify(crypto.pbkdf2);
 
 const db = require('./db');
+const {colors, resetConsole} = require("./log");
 const PBKDF2ITERATIONS = 100000;
 
 
@@ -95,7 +96,7 @@ module.exports = {
 
 		if (!challenges.length) {
 			const code = crypto.randomBytes(4).toString('hex');
-			console.log('Your Siter login code:', code);
+			console.log(`${colors[3]}[Siter]${resetConsole}`, 'Your Siter login code:', code);
 
 			challenges.push({
 				question: `What is the one-time code displayed in the Siter console?`,

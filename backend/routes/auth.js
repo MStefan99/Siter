@@ -46,7 +46,6 @@ router.post('/login', async (req, res) => {
 
 	const challenge = await getRandomChallenge();
 	const session = await libSession.createSession(req.ip, req.headers['user-agent'], challenge);
-	console.log(challenge);
 
 	const options = Object.assign({}, {secure: req.secure}, cookieOptions);
 	res.cookie('siter-session', session.id, options)
