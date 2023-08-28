@@ -16,7 +16,7 @@
 					label(for="route-check") Enable hosting
 
 			.hosting(v-if="app.hosting?.enabled")
-				h3 URL mask
+				h3 Source
 				.row.form-group
 					input.col(type="text" placeholder="example.com" v-model="app.hosting.source.hostname"
 						:class="validation.hosting.source.hostname? 'is-valid' : 'is-invalid'")

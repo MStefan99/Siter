@@ -1,0 +1,32 @@
+<p>
+	Process manager allows you to skip the trouble of setting up an external process manager such as PM2 and forever
+	and start your website server (or any other executable file on your computer) without leaving Siter.
+</p>
+<p>
+	Adding a process is pretty self-explanatory: you need to specify an application to run (for example, <code>node</code>
+	or <code>python</code>, can also be empty), a file to use (like a location of your Node.js entry file or your
+	executable),
+	flags/CLI parameters and environment variables to use.
+</p>
+<p>
+	There are some environment variables that are sometimes added to every process and cannot be edited. These include:
+</p>
+<ul>
+	<li>PATH - Similar to PATH variable on your computer.</li>
+	<li>
+		PORT - specifies which port your server should use.
+		Port number is taken from the Target section when target is a web server. Needs server support.
+	</li>
+	<li>
+		CRASH_COURSE_URL - URL of a Crash Course instance for the server to use. The address is taken from analytics
+		section. Needs server support.
+	</li>
+	<li>
+		CRASH_COURSE_AUDIENCE_KEY - Audience key to be used with Crash Course instance. The key is taken from analytics
+		section. Needs server support.
+	</li>
+	<li>
+		CRASH_COURSE_TELEMETRY_KEY - Telemetry key to be used with Crash Course instance. The key is taken from analytics
+		section. Needs server support.
+	</li>
+</ul>

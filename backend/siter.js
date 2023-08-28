@@ -16,7 +16,7 @@ process.on('unhandledRejection', async (reason) => {
 	console.error(`${colors[4]}[Siter]${resetConsole}`, 'Unhandled Rejection: ', reason);
 	try {
 		const analytics = appManager.getAnalyticsOptions();
-		analytics.enabled && await sendLog(analytics.url, analytics.telemetryKey, 'Unhandled rejection: ', reason.stack, 4);
+		analytics.enabled && await sendLog(analytics.url, analytics.telemetryKey, 'Unhandled rejection: ' + reason.stack, 4);
 	} catch (e) {
 		console.error(`${colors[4]}[Siter]${resetConsole}`, 'Unhandled rejection while exiting:', e);
 	}
@@ -29,7 +29,7 @@ process.on('uncaughtException', async (err) => {
 	console.error(`${colors[4]}[Siter]${resetConsole}`, 'Uncaught exception: ', err);
 	try {
 		const analytics = appManager.getAnalyticsOptions();
-		analytics.enabled && await sendLog(analytics.url, analytics.telemetryKey, 'Uncaught exception: ', err.stack, 4);
+		analytics.enabled && await sendLog(analytics.url, analytics.telemetryKey, 'Uncaught exception: ' + err.stack, 4);
 	} catch (e) {
 		console.error(`${colors[4]}[Siter]${resetConsole}`, 'Uncaught exception while exiting:', e);
 	}

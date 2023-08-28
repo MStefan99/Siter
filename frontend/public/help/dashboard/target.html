@@ -1,0 +1,29 @@
+<p>
+	Hosting target determines what an app should serve when a request has been received.
+</p>
+<p>
+	Target can be one of two things:
+</p>
+<ul>
+	<li>Local directory</li>
+	<li>Web server (either local or remote)</li>
+</ul>
+<p>
+	To host static files from a given directory, just choose <b>directory</b> as the
+	target and pick a directory to be served.
+	If you are using an SPA (single-page application), you can enable the SPA mode.
+	This will adjust the routing to serve your application and avoid 404 errors.
+</p>
+<p>
+	If you have an existing web server that you want to use, choose
+	<b>web server</b>. In this case an app will act as a proxy, forwarding the
+	requests to the server and serving its responses back to the users.
+	The server can be remote or local but using an app as
+	<a href="https://en.wikipedia.org/wiki/Reverse_proxy">reverse proxy</a>
+	is generally recommended.
+</p>
+<p>
+	If your backend is available on a domain different from your frontend, you need to use a CORS section.
+	Here you will find a list of domains allowed to access your backend. If a request is coming from a matching
+	domain, an app will add a CORS header even if it isn't supported by the target server.
+</p>

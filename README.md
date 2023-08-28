@@ -33,5 +33,5 @@ You can also view help pages in HTML format [here][help].
 
 [logo]: frontend/public/img/logo_200x200px.png
 [dashboard]: http://siter.localhost
-[help]: frontend/public/html/help
+[help]: frontend/public/help
 

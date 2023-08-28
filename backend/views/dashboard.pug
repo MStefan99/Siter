@@ -12,14 +12,15 @@ block main
 		#dashboard.mx-lg-5.mb-5.mb-lg-0.flex-grow-1
 
 		+help
-			+helpSection('Server status', '/html/help/status.html')
-			+helpSection('What are routes', '/html/help/routes/about.html')
-			+helpSection('Managing routes', '/html/help/routes/manage.html')
-			+helpSection('Understanding route options', '/html/help/routes/options.html')
-			+helpSection('URL mask', '/html/help/routes/url_mask.html')
-			+helpSection('Security', '/html/help/routes/security.html')
-			+helpSection('Target', '/html/help/routes/target.html')
-			+helpSection('Example setup', '/html/help/routes/examples.html')
+			+helpSection('Status', '/help/dashboard/status.html')
+			+helpSection('Apps', '/help/dashboard/apps.html')
+			+helpSection('Managing apps', '/help/dashboard/manage.html')
+			+helpSection('App features', '/help/dashboard/features.html')
+			+helpSection('Source', '/help/dashboard/source.html')
+			+helpSection('Security', '/help/dashboard/security.html')
+			+helpSection('Target', '/help/dashboard/target.html')
+			+helpSection('Process manager', '/help/dashboard/process_manager.html')
+			+helpSection('Analytics', '/help/dashboard/analytics.html')
 
 	if dev
 		script(async type="module" src="http://localhost:9000/app.js")

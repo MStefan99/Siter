@@ -1,0 +1,16 @@
+<p>
+	Apps is where all the magic happens. An "application" here is a logical unit that serves content
+	for the incoming requests. An app can not only receive and serve client requests but also launch and monitor
+	the status of other processes on your device and forward the logs and performance data of your server
+	for further analysis. You can configure your app to use HTTPS to encrypt sensitive information
+	and allowed CORS origins for extra security.
+</p>
+<p>
+	Each app has a filter for incoming requests and will only serve a request if the request URL has matched
+	its own filter. If no app was able to process the incoming request, Siter will return a 404 error.
+</p>
+<p>
+	When Siter receives a request, it will check whether each of the apps app can handle the request,
+	starting from the first. When a first suitable app is found the content will be served according to the app's
+	settings.
+</p>

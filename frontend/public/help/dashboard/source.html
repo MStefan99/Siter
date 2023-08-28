@@ -1,11 +1,11 @@
 <p>
-	URL mask determines which route to choose for a request that Siter receives.
-	The mask itself consists of three parts:
+	Source (or filter) determines whether an app can be used to serve a particular request.
+	The filter consists of three parts:
 </p>
 <ul>
-	<li>A domain</li>
-	<li>A port</li>
-	<li>And a prefix</li>
+	<li>Domain</li>
+	<li>Port</li>
+	<li>Prefix</li>
 </ul>
 <p>
 	To understand what they are for, let's take this URL as an example:
@@ -31,7 +31,7 @@
 	on a server.
 </p>
 <p>
-	You can configure Siter to use a prefix for routing requests
+	You can configure an app to use a prefix for routing requests
 	to a different target. For example, a request to <b>website.com/shop/</b>
 	could be routed differently than a request to just <b>website.com</b>.
 </p>
@@ -40,14 +40,14 @@
 	<b>website.com/shop/product1.html</b> with <b>/shop/</b> prefix
 	will look for <b>/product1.html</b> on your server.
 </p>
-<b>Be extremely careful when using route prefixes!</b>
+<b>Be extremely careful when using prefixes!</b>
 <p>
-	While route prefixes are a convenient way to separate routes, using them
+	While prefixes are a convenient way to separate apps, using them
 	might have some unwanted consequences. Before adding a prefix
 	you have to make sure your top-level website <b>is not already using</b> it
 	(for example, there is no /shop/ section on website.com).
 	Also if your target is not using links relative to a current directory
 	(ones starting with "./") then <b>such links might break</b> when trying to
-	host them on a route with prefix. In such cases you might want to
+	host them on an app with a prefix. In such cases you might want to
 	use a <b>domain</b> instead.
 </p>

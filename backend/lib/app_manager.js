@@ -185,7 +185,7 @@ function updateServer(oldApp, newApp) {
 function setEnv(app, pr) {
 	pr.env.PATH = process.env.PATH;
 
-	if (app.hosting.enabled) {
+	if (app.hosting.target.port) {
 		pr.env.PORT = app.hosting.target.port;
 	} else {
 		delete (pr.env.PORT);
