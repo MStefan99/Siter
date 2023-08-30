@@ -44,6 +44,15 @@
 						FilePicker#key-input(v-model="app.hosting.source.key" placeholder="No file selected"
 							prompt="Choose key file" :class="validation.hosting.source.key? 'is-valid' : 'is-invalid'")
 						span.invalid-feedback No key file
+					.form-group
+						.form-check
+							input#source-redirect-check(type="checkbox" v-model="redirect")
+							label(for="source-redirect-check") Enable HTTPS redirect
+					.form-group(v-if="redirect")
+						label Redirect port
+						input.col(type="number" min="1" max="65535" placeholder="80"
+							v-model="app.hosting.source.redirectPort"
+							:class="validation.hosting.source.redirectPort? 'is-valid' : 'is-invalid'")
 
 				h3 Target
 				.form-group
@@ -126,10 +135,12 @@ const props = defineProps(['modelValue']);
 const emit = defineEmits(['update:modelValue', 'close']);
 const app = ref(structuredClone(toRaw(props.modelValue)));
 const directory = ref(!!props.modelValue.hosting.target.directory.length);
+const redirect = ref(!!props.modelValue.hosting.source.redirectPort);
 const validation = computed(() => validate(app.value, directory.value));
 
 function save() {
 	!directory.value && (app.value.hosting.target.directory = '');
+	!redirect.value && (app.value.hosting.source.redirectPort = null);
 
 	if (!validate(app.value)) {
 		return;

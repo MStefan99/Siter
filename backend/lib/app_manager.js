@@ -64,7 +64,7 @@ function isAValidPort(port) {
 async function start(defaultHandler) {
 	if (siter) {  // Siter already started, restarting
 		for (const port of servers.keys()) {
-			removeServer(null, true, port);
+			removeServer(port, true);
 		}
 	}
 	if (!defaultHandler) {
@@ -75,6 +75,8 @@ async function start(defaultHandler) {
 	const netCollection = await db('net');
 	const netOptions = await netCollection.find().toArray();
 	netOptions.forEach(o => net[o.key] = o.value);
+	net.httpPort = net.httpPort || 80;
+	net.httpsPort = net.httpsPort || 443;
 
 	const analyticsCollection = await db('analytics');
 	const analyticsOptions = await analyticsCollection.find().toArray();
@@ -94,7 +96,7 @@ async function start(defaultHandler) {
 
 	for (const app of apps) {
 		await setKeys(app);
-		addServer(app);
+		addAppServers(app);
 		addProcesses(app);
 	}
 }
@@ -110,7 +112,7 @@ function stop() {
 function findApp(host, port, url) {
 	return apps.find(app =>
 		(app.hosting.source.hostname ? host === app.hosting.source.hostname : true) &&
-		(app.hosting.source.port === port) &&
+		(app.hosting.source.port === port || app.hosting.source.redirectPort) &&
 		(app.hosting.source.pathname ? url.match(app.hosting.source.pathname) : true));
 }
 
@@ -130,41 +132,30 @@ async function setKeys(app) {
 }
 
 
-function addServer(app) {
-	if (!app.hosting.enabled) {
-		return; // Hosting disabled
-	}
-
-	if (servers.get(+app.hosting.source.port)) {
+function addServer(port, secure) {
+	if (servers.get(port)) {
 		return; // Server already exists
 	}
 
-	let server;
-	if (app.hosting.source.secure) {
-		server = https.createServer({SNICallback}, handleRequest);
-	} else {
-		server = http.createServer(handleRequest);
-	}
+	const server = secure ?
+		https.createServer({SNICallback}, handleRequest) :
+		http.createServer(handleRequest);
 
-	server.listen(app.hosting.source.port);
-	servers.set(+app.hosting.source.port, server);
+	server.listen(port);
+	servers.set(port, server);
 }
 
 
-function removeServer(app, force = false, port = null) {
+function removeServer(port, force) {
 	if (!force) {
-		if (app.hosting.source.port === (net.httpPort || 80) ||
-			(net.httpsEnabled && app.hosting.source.port === (net.httpsPort || 443))) {
+		if (port === (net.httpPort) ||
+			(net.httpsEnabled && port === (net.httpsPort))) {
 			return;  // Not removing Siter server
 		}
 
-		if (!apps.some(a => a.hosting.source.port === app.hosting.source.port)) {
+		if (apps.some(a => (a.hosting.source.port === port || a.hosting.source.redirectPort === port))) {
 			return;  // Some apps are still using the server, thus not removing
 		}
-	}
-
-	if (app) {
-		port = +app.hosting.source.port;
 	}
 
 	const server = servers.get(port);
@@ -177,9 +168,32 @@ function removeServer(app, force = false, port = null) {
 }
 
 
-function updateServer(oldApp, newApp) {
-	removeServer(oldApp);
-	addServer(newApp);
+function addAppServers(app) {
+	if (!app.hosting.enabled) {
+		return; // Hosting disabled
+	}
+
+	if (app.hosting.source.secure) {
+		addServer(app.hosting.source.port, true);
+	} else {
+		addServer(app.hosting.source.port, false);
+	}
+
+	if (app.hosting.source.redirectPort && !servers.has(+app.hosting.source.redirectPort)) {
+		addServer(app.hosting.source.redirectPort, false);
+	}
+}
+
+
+function removeAppServers(app, force = false) {
+	removeServer(+app.hosting.source.port, force);
+	removeServer(+app.hosting.source.redirectPort, force);
+}
+
+
+function updateAppServers(oldApp, newApp) {
+	removeAppServers(oldApp);
+	addAppServers(newApp);
 }
 
 function setEnv(app, pr) {
@@ -287,12 +301,12 @@ function handleRequest(request, response) {
 
 		if (url.match('force-siter=true')) {
 			siter(request, response);
-		} else if (host.startsWith(siterHostname)) {
+		} else if (host.startsWith(siterHostname) && (port === net.httpsPort || port === net.httpPort)) {
 			if (!request.connection.encrypted &&
 				net.httpsEnabled &&
 				net.httpsRedirect) {
 				response.writeHead(303, {
-					Location: 'https://' + host + url
+					Location: 'https://' + host + ':' + net.httpsPort + url
 				}).end();
 			} else {
 				siter(request, response);
@@ -305,6 +319,15 @@ function handleRequest(request, response) {
 			if (!app) {
 				sendFile(response, path.join(standaloneViews, 'no_app.html'), 404);
 			} else {
+				if (!request.connection.encrypted &&
+					app.hosting.source.redirectPort
+				) {
+					response.writeHead(303, {
+						Location: 'https://' + host + ':' + app.hosting.source.port + url
+					}).end();
+					return;
+				}
+
 				if (app.hosting.cors.origins.some(origin => request.headers.origin?.includes(origin))) {
 					response.setHeader('Access-Control-Allow-Origin', request.headers.origin);
 				}
@@ -432,7 +455,7 @@ async function addApp(app) {
 
 	app.id = crypto.randomUUID();
 	apps.push(app);
-	addServer(app);
+	addAppServers(app);
 	addProcesses(app);
 
 	if (app.order) {
@@ -481,7 +504,7 @@ async function updateApp(appID, newApp) {
 
 	setKeys(newApp);
 	if (oldApp) {
-		updateServer(oldApp, newApp);
+		updateAppServers(oldApp, newApp);
 		updateProcesses(oldApp, newApp);
 	}
 
@@ -496,7 +519,7 @@ async function removeApp(appID) {
 	const app = apps.splice(apps.findIndex(a => a.id === appID), 1)[0];
 
 	if (app) {
-		removeServer(app);
+		removeAppServers(app);
 		removeProcesses(app);
 	}
 
@@ -509,8 +532,8 @@ async function removeApp(appID) {
 async function setNetOptions(options = {}) {
 	const sanitized = {};
 
-	isAValidPort(options.httpPort) && (sanitized.httpPort = +options.httpPort);
-	isAValidPort(options.httpsPort) && (sanitized.httpsPort = +options.httpsPort);
+	isAValidPort(options.httpPort) && (sanitized.httpPort = +options.httpPort || 80);
+	isAValidPort(options.httpsPort) && (sanitized.httpsPort = +options.httpsPort || 443);
 	sanitized.httpsEnabled = !!options.httpsEnabled;
 	sanitized.httpsRedirect = !!options.httpsRedirect;
 	sanitized.cert = options.cert.toString();

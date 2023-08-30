@@ -4,6 +4,7 @@ import notify from '/js/notifications.js';
 
 
 const passwordForm = document.getElementById('password-form');
+const netForm = document.getElementById('net-form');
 const secureCheckbox = document.getElementById('secure-checkbox');
 const redirectCheckbox = document.getElementById('redirect-checkbox');
 const redirectLabel = document.getElementById('redirect-label');
@@ -32,8 +33,7 @@ redirectCheckbox.addEventListener('click', async e => {
 		redirectCheckbox.setAttribute('disabled', true);
 		redirectLabel.innerText = 'Checking HTTPS...';
 
-		fetch(window.location.href
-				.replace(/https?/, 'https'), {mode: 'no-cors'})
+		fetch('https://' + window.location.hostname + ':' + netForm.httpsPort.value + window.location.pathname, {mode: 'no-cors'})
 				.then(res => {
 					redirectCheckbox.checked = true;
 					redirectCheckbox.removeAttribute('disabled');

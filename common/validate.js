@@ -10,6 +10,8 @@ function validate(app, directoryMode) {
 			source: {
 				hostname: !!app.hosting.source.hostname?.match(/^[a-z0-9.\-]+$/),
 				port: +app.hosting.source.port > 0 && +app.hosting.source.port < 65536,
+				redirectPort: app.hosting.source.redirectPort === null ||
+					+app.hosting.source.redirectPort > 0 && +app.hosting.source.redirectPort < 65536,
 				pathname: !!app.hosting.source.pathname?.match(/^[a-z0-9\/\-]*$/),
 				cert: !app.hosting.source.secure || app.hosting.source.cert?.length,
 				key: !app.hosting.source.secure || app.hosting.source.key?.length
@@ -36,6 +38,7 @@ function validate(app, directoryMode) {
 	validation.valid = (!app.hosting.enabled || (
 			validation.hosting.source.hostname &&
 			validation.hosting.source.port &&
+			validation.hosting.source.redirectPort &&
 			validation.hosting.source.pathname &&
 			validation.hosting.source.cert &&
 			validation.hosting.source.key &&

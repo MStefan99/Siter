@@ -32,28 +32,42 @@
 				|
 				b.text-danger No
 		div(v-if="app.hosting.source.secure")
-			p Certificate file location:
+			p.mb-2 Certificate file location:
 			b.cert-file {{app.hosting.source.cert}}
-			p Key file location:
+			p.mb-2 Key file location:
 			b.key-file {{app.hosting.source.key}}
+			div(v-if="app.hosting.source.redirectPort" )
+				p.mb-2 Redirect port:
+					|
+					|
+					b {{app.hosting.source.redirectPort}}
 	.app-target.border-bottom
 		h4 Target
 		div(v-if="app.hosting.target.directory?.length")
-			p.directory Directory
+			p.directory.mb-2 Directory
 			b {{app.hosting.target.directory}}
 		div(v-else)
-			p.server Server
+			p.server.mb-2 Server
 			a(:href="(app.hosting.target.secure? 'https://': 'http://') + app.hosting.target.hostname + ':' + app.hosting.target.port + '/'"
 				target="_blank")
 				b.target-addr {{app.hosting.target.hostname}}:{{app.hosting.target.port}}
 	.app-pm.border-bottom
 		h4 Process manager
-		p Processes: {{app.pm.processes.length}}
+		p Processes:
+			|
+			|
+			b {{app.pm.processes.length}}
 	.app-analytics.border-bottom
 		h4 Analytics
-		p Performance monitoring: {{app.analytics.metricsEnabled ? 'enabled' : 'disabled'}}
-		p Logging: {{app.analytics.loggingEnabled ? 'enabled' : 'disabled'}}
-		p(v-if="app.analytics.metricsEnabled || app.analytics.loggingEnabled") Crash Course URL:
+		p Performance monitoring:
+			|
+			|
+			b {{app.analytics.metricsEnabled ? 'enabled' : 'disabled'}}
+		p Logging:
+			|
+			|
+			b {{app.analytics.loggingEnabled ? 'enabled' : 'disabled'}}
+		p.mb-2(v-if="app.analytics.metricsEnabled || app.analytics.loggingEnabled") Crash Course URL:
 			|
 			|
 			b {{app.analytics.url}}
@@ -66,3 +80,13 @@
 defineProps(['app']);
 defineEmits(['restart', 'edit', 'delete']);
 </script>
+
+<style>
+p {
+	margin-bottom: 0;
+}
+
+.border-bottom {
+	padding-bottom: 1em;
+}
+</style>

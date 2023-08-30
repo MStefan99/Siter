@@ -32,7 +32,7 @@ block main
 				input.btn.btn-primary(type='submit' value='Update')
 
 			h2 Network
-			form#network-form.mx-3(action='/settings/network', method='post')
+			form#net-form.mx-3(action='/settings/network', method='post')
 				.form-group
 					label(for='http-port-input') HTTP Port
 					input#http-port-input(type='number' name='httpPort' placeholder='80' value=net.httpPort)

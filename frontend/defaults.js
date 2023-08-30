@@ -10,6 +10,7 @@ export function defaultApp() {
 			source: {
 				hostname: '',
 				port: 80,
+				redirectPort: null,
 				pathname: '',
 				secure: false,
 				cert: '',
