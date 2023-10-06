@@ -22,24 +22,20 @@ class Session {
 		session.time = Date.now();
 		session.challenge = challenge;
 
-		const sessions = await db('sessions');
-		await sessions.insertOne(session);
-
+		await db.sessions.add(session);
 		return session;
 	}
 
 
 	static async getSessions() {
-		const sessions = await db('sessions');
-		const sessionDataArray = await sessions.find();
+		const sessionDataArray = await db.sessions.getAll();
 
 		return sessionDataArray.map(s => Object.assign(new Session(), s));
 	}
 
 
 	static async getSessionByID(sessionID) {
-		const sessions = await db('sessions');
-		const sessionData = await sessions.findOne({id: sessionID});
+		const sessionData = await db.sessions.getByID(sessionID);
 
 		if (!sessionData) {
 			return null;
@@ -53,20 +49,17 @@ class Session {
 
 
 	static async deleteAllSessions() {
-		const collection = await db('sessions');
-		await collection.deleteMany();
+		await db.sessions.deleteAll();
 	}
 
 
 	async save() {
-		const sessions = await db('sessions');
-		await sessions.replaceOne({id: this.id}, this);
+		await db.sessions.update(this.id, this);
 	}
 
 
 	async delete() {
-		const sessions = await db('sessions');
-		await sessions.deleteOne({id: this.id});
+		await db.sessions.deleteAll();
 	}
 }
 

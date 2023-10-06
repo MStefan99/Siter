@@ -72,18 +72,15 @@ async function start(defaultHandler) {
 	}
 	siter = defaultHandler;
 
-	const netCollection = await db('net');
-	const netOptions = await netCollection.find().toArray();
+	const netOptions = await db.net.getAll();
 	netOptions.forEach(o => net[o.key] = o.value);
 	net.httpPort = net.httpPort || 80;
 	net.httpsPort = net.httpsPort || 443;
 
-	const analyticsCollection = await db('analytics');
-	const analyticsOptions = await analyticsCollection.find().toArray();
+	const analyticsOptions = await db.net.getAll();
 	analyticsOptions.forEach(o => analytics[o.key] = o.value);
 
-	const appCollection = await db('apps');
-	apps = await appCollection.find().sort({'hosting.order': 1}).toArray();
+	apps = apps.concat(await db.apps.getAll());
 
 	httpServer.listen(net.httpPort || 80);
 	servers.set(net.httpPort || 80, httpServer);
@@ -463,8 +460,7 @@ async function addApp(app) {
 	}
 
 	setKeys(app);
-	const appCollection = await db('apps');
-	appCollection.insertOne(app);
+	db.apps.add(app);
 
 	return app;
 }
@@ -479,8 +475,7 @@ async function reorderApps(newOrder) {
 
 	apps.sort((a1, a2) => a1.hosting.order - a2.hosting.order);
 
-	const appCollection = await db('apps');
-	apps.forEach(async a => await appCollection.updateOne({id: a.id}, {$set: {'hosting.order': a.hosting.order}}));
+	apps.forEach(async a => await db.apps.update(id, a));
 }
 
 
@@ -509,8 +504,7 @@ async function updateApp(appID, newApp) {
 	}
 
 	delete (newApp._id);
-	const appCollection = await db('apps');
-	appCollection.replaceOne({id: appID}, newApp);
+	await db.apps.update(appID, newApp);
 
 	return newApp;
 }
@@ -524,8 +518,7 @@ async function removeApp(appID) {
 	}
 
 	delete (keys[app.id]);
-	const appCollection = await db('apps');
-	appCollection.deleteOne({id: appID});
+	await db.apps.delete(appID);
 }
 
 
@@ -541,8 +534,7 @@ async function setNetOptions(options = {}) {
 
 	await setSiterKeys(sanitized);
 	Object.assign(net, sanitized);
-	const netCollection = await db('net');
-	Object.keys(sanitized).forEach(k => netCollection.updateOne({key: k}, {$set: {value: sanitized[k]}}, {upsert: true}));
+	Object.keys(sanitized).forEach(k => db.net.set(k, sanitized[k]));
 
 	await start(siter);
 }
@@ -562,8 +554,7 @@ async function setAnalyticsOptions(options = {}) {
 	sanitized.telemetryKey = options.telemetryKey.toString();
 
 	Object.assign(analytics, sanitized);
-	const analyticsCollection = await db('analytics');
-	Object.keys(sanitized).forEach(k => analyticsCollection.updateOne({key: k}, {$set: {value: sanitized[k]}}, {upsert: true}));
+	Object.keys(sanitized).forEach(k => db.analytics.set(k, sanitized[k]));
 }
 
 
