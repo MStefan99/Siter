@@ -210,4 +210,3 @@ log/
 config*.json
 frontend/public/dist
 backend/views/standalone/*.html
-package-lock.json
