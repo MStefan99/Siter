@@ -7,11 +7,20 @@
 	#app-container.row(@dragover.prevent @drop.prevent="appDrop($event)")
 		SiterCard
 		TransitionGroup(name="list")
-			AppCard(v-for="app in apps" :key="app.id" :app="app" @restart="restartApp(app)" @edit="openApp = app" @delete="deleteApp(app)"
-				draggable="true" @dragstart="appDrag($event, app)")
+			AppCard(v-for="app in apps"
+				:key="app.id"
+				:app="app"
+				draggable="true"
+				@restart="restartApp(app)"
+				@edit="openApp(app)"
+				@delete="deleteApp(app)"
+				@dragstart="appDrag($event, app)")
 		Transition(name="popup")
-			AppEditor(v-if="openApp" v-model="openApp" @update:modelValue="newApp => saveApp(newApp)" @close="openApp = null")
-	button.btn-primary.ml-3(type="button" @click="openApp = defaultApp()") Add app
+			AppEditor(v-if="editorOpen && currentApp"
+				v-model="currentApp"
+				@save="newApp => saveApp(newApp) && (currentApp = null)"
+				@close="editorOpen = false")
+	button.btn-primary.ml-3(type="button" @click="openApp(defaultApp())") Add app
 </template>
 
 
@@ -28,7 +37,13 @@ import SiterCard from "./components/SiterCard.vue";
 
 const serverStatus = ref('pending');
 const apps = ref([]);
-const openApp = ref(null);
+const editorOpen = ref(false);
+const currentApp = ref(null);
+
+function openApp(app) {
+	editorOpen.value = true;
+	(!currentApp.value || currentApp.value.id !== app.id) && (currentApp.value = app);
+}
 
 function getServerStatus() {
 	switch (serverStatus.value) {

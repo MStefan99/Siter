@@ -1,7 +1,7 @@
 <template lang="pug">
 .popup-backdrop(v-if="app" @click.self="$emit('close')")
 	.popup.shadow-sm
-		form(@submit.prevent="save()")
+		form(@submit.prevent="save()" @change="emit('update:modelValue', app)")
 			h2 App settings
 
 			h3 Name
@@ -146,7 +146,7 @@ function save() {
 		return;
 	}
 
-	emit('update:modelValue', app.value);
+	emit('save', app.value);
 	emit('close');
 }
 </script>
