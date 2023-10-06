@@ -77,7 +77,7 @@ async function start(defaultHandler) {
 	net.httpPort = net.httpPort || 80;
 	net.httpsPort = net.httpsPort || 443;
 
-	const analyticsOptions = await db.net.getAll();
+	const analyticsOptions = await db.analytics.getAll();
 	analyticsOptions.forEach(o => analytics[o.key] = o.value);
 
 	apps = apps.concat(await db.apps.getAll());

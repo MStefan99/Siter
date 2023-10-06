@@ -59,7 +59,7 @@ class ConfigAdapter {
 	}
 
 	#kvStore = (name) => ({
-		getAll: () => this.#configPromise.then(c => Object.entries(c).map(e => ({key: e[0], value: e[1]}))),
+		getAll: () => this.#configPromise.then(c => Object.entries(c[name]).map(e => ({key: e[0], value: e[1]}))),
 		get: (key) => this.#configPromise.then(c => c[name][key]),
 		set: (key, value) => this.#configPromise.then(c => c[name][key] = value),
 		clear: () => this.#configPromise.then(c => c[name] = {})

@@ -22,7 +22,7 @@ async function collect() {
 		const mem = await si.mem();
 		metrics.memUsed = mem.active;
 		metrics.memTotal = mem.total;
-		const disk = (await si.fsSize()).find(fs => fs.mount === '/System/Volumes/Data');
+		const disk = (await si.fsSize())[0]; // TODO: which disk to show?
 		metrics.diskUsed = disk.used;
 		metrics.diskTotal = disk.size;
 		const net = (await si.networkStats())[0];
