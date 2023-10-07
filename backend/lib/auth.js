@@ -12,7 +12,7 @@ const PBKDF2ITERATIONS = 100000;
 
 module.exports = {
 	init: async function () {
-		if (!await db.auth.get('salt')) {
+		if (!await db.auth.get('salt') || !await db.auth.get('key')) {
 			const salt = crypto.randomBytes(32);
 			await db.auth.set('salt', salt.toString('hex'));
 
