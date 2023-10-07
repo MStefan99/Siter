@@ -8,49 +8,51 @@
 			@click="$emit('edit', app)")
 		img.icon.edit-icon.clickable(src="/img/trash_can.svg" alt="Remove icon"
 			@click="$emit('delete')")
-	.app-mask.border-bottom
-		h4 Source
-		a.app-link(target="_blank"
-			:href="(app.hosting.source.secure? 'https://' : 'http://') + \
-			app.hosting.source.hostname + ':' + app.hosting.source.port + '/' + \
-			(app.hosting.source.pathname || '')")
-			b.domain {{app.hosting.source.hostname}}
-			span.text-muted :
-			b.port {{app.hosting.source.port}}
-			span.text-muted /
-			b.prefix {{app.hosting.source.pathname}}
-	.app-security.border-bottom
-		h4 Security
-		div(v-if="app.hosting.source.secure")
-			p Secure:
-				|
-				|
-				b Yes
-		div(v-else)
-			p Secure:
-				|
-				|
-				b.text-danger No
-		div(v-if="app.hosting.source.secure")
-			p.mb-2 Certificate file location:
-			b.cert-file {{app.hosting.source.cert}}
-			p.mb-2 Key file location:
-			b.key-file {{app.hosting.source.key}}
-			div(v-if="app.hosting.source.redirectPort" )
-				p.mb-2 Redirect port:
+	.app-hosting(v-if="app.hosting.enabled")
+		.app-source.border-bottom
+			h4 Source
+			a.app-link(target="_blank"
+				:href="(app.hosting.source.secure? 'https://' : 'http://') + \
+				app.hosting.source.hostname + ':' + app.hosting.source.port + '/' + \
+				(app.hosting.source.pathname || '')")
+				b.domain {{app.hosting.source.hostname}}
+				span.text-muted :
+				b.port {{app.hosting.source.port}}
+				span.text-muted /
+				b.prefix {{app.hosting.source.pathname}}
+		.app-security.border-bottom
+			h4 Security
+			div(v-if="app.hosting.source.secure")
+				p Secure:
 					|
 					|
-					b {{app.hosting.source.redirectPort}}
-	.app-target.border-bottom
-		h4 Target
-		div(v-if="app.hosting.target.directory?.length")
-			p.directory.mb-2 Directory
-			b {{app.hosting.target.directory}}
-		div(v-else)
-			p.server.mb-2 Server
-			a(:href="(app.hosting.target.secure? 'https://': 'http://') + app.hosting.target.hostname + ':' + app.hosting.target.port + '/'"
-				target="_blank")
-				b.target-addr {{app.hosting.target.hostname}}:{{app.hosting.target.port}}
+					b Yes
+			div(v-else)
+				p Secure:
+					|
+					|
+					b.text-danger No
+			div(v-if="app.hosting.source.secure")
+				p.mb-2 Certificate file location:
+				b.cert-file {{app.hosting.source.cert}}
+				p.mb-2 Key file location:
+				b.key-file {{app.hosting.source.key}}
+				div(v-if="app.hosting.source.redirectPort" )
+					p.mb-2 Redirect port:
+						|
+						|
+						b {{app.hosting.source.redirectPort}}
+		.app-target.border-bottom
+			h4 Target
+			div(v-if="app.hosting.target.directory?.length")
+				p.directory.mb-2 Directory
+				b {{app.hosting.target.directory}}
+			div(v-else)
+				p.server.mb-2 Server
+				a(:href="(app.hosting.target.secure? 'https://': 'http://') + app.hosting.target.hostname + ':' + app.hosting.target.port + '/'"
+					target="_blank")
+					b.target-addr {{app.hosting.target.hostname}}:{{app.hosting.target.port}}
+	p.border-bottom(v-else) Hosting disabled
 	.app-pm.border-bottom
 		h4 Process manager
 		p Processes:
