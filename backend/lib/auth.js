@@ -25,7 +25,6 @@ module.exports = {
 		const encodedSalt = await db.auth.get('salt');
 		const encodedKey = await db.auth.get('key');
 
-		console.log('salt', encodedSalt);
 		const salt = Buffer.from(encodedSalt, 'hex');
 		const key = await pbkdf2(password, salt, PBKDF2ITERATIONS, 32, 'sha3-256');
 		return key.equals(Buffer.from(encodedKey, 'hex'));

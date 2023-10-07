@@ -63,6 +63,7 @@ function isAValidPort(port) {
 
 async function start(defaultHandler) {
 	if (siter) {  // Siter already started, restarting
+		stop();
 		for (const port of servers.keys()) {
 			removeServer(port, true);
 		}
@@ -115,16 +116,27 @@ function findApp(host, port, url) {
 
 
 async function setSiterKeys(net) {
-	siterKeys.cert = await fs.promises.readFile(net.cert, 'utf-8');
-	siterKeys.key = await fs.promises.readFile(net.key, 'utf-8');
+	try {
+		siterKeys.cert = await fs.promises.readFile(net.cert, 'utf-8');
+		siterKeys.key = await fs.promises.readFile(net.key, 'utf-8');
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 async function setKeys(app) {
-	if (app.hosting.source.secure) {
-		keys[app.id] = {
-			cert: await fs.promises.readFile(app.hosting.source.cert, 'utf-8'),
-			key: await fs.promises.readFile(app.hosting.source.key, 'utf-8')
-		};
+	try {
+		if (app.hosting.source.secure) {
+			keys[app.id] = {
+				cert: await fs.promises.readFile(app.hosting.source.cert, 'utf-8'),
+				key: await fs.promises.readFile(app.hosting.source.key, 'utf-8')
+			};
+			return true;
+		}
+		return false;
+	} catch {
+		return false;
 	}
 }
 
@@ -532,7 +544,9 @@ async function setNetOptions(options = {}) {
 	sanitized.cert = options.cert.toString();
 	sanitized.key = options.key.toString();
 
-	await setSiterKeys(sanitized);
+	if (sanitized.cert && sanitized.key) {
+		await setSiterKeys(sanitized);
+	}
 	Object.assign(net, sanitized);
 	Object.keys(sanitized).forEach(k => db.net.set(k, sanitized[k]));
 
