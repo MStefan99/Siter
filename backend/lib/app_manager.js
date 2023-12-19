@@ -339,6 +339,9 @@ function handleRequest(request, response) {
 
 				if (app.hosting.cors.origins.some(origin => request.headers.origin?.includes(origin))) {
 					response.setHeader('Access-Control-Allow-Origin', request.headers.origin);
+					response.setHeader('Access-Control-Allow-Headers', request.headers['access-control-request-headers'] ?? '*');
+					response.setHeader('Access-Control-Allow-Methods', request.headers['access-control-request-method'] ?? '*');
+					response.setHeader('Access-Control-Expose-Headers', request.headers['access-control-request-headers'] ?? '*');
 				}
 
 				if (app.hosting.target.directory?.length) {  // Serving static files
