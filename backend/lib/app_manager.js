@@ -490,7 +490,7 @@ async function reorderApps(newOrder) {
 
 	apps.sort((a1, a2) => a1.hosting.order - a2.hosting.order);
 
-	apps.forEach(async a => await db.apps.update(id, a));
+	apps.forEach(async a => await db.apps.update(a.id, a));
 }
 
 
