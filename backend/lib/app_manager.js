@@ -442,6 +442,7 @@ function getApps() {
 function sanitizeApp(app) {
 	app.hosting.order = +app.hosting.order > 0 ? +app.hosting.order : 1;
 	app.hosting.source.port = isAValidPort(+app.hosting.source.port) ? +app.hosting.source.port : (net.httpPort || 80);
+	app.hosting.source.redirectPort = isAValidPort(+app.hosting.source.redirectPort) ? +app.hosting.source.redirectPort : (net.httpPort || 80);
 	app.hosting.source.secure = !!app.hosting.source.secure;
 	app.hosting.target.port = +app.hosting.target.port;
 
