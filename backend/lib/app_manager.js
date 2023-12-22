@@ -329,6 +329,7 @@ function handleRequest(request, response) {
 				sendFile(response, path.join(standaloneViews, 'no_app.html'), 404);
 			} else {
 				if (!request.connection.encrypted &&
+					app.hosting.source.secure &&
 					app.hosting.source.redirectPort
 				) {
 					response.writeHead(303, {
