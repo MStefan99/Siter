@@ -42,6 +42,3 @@ function save() {
 	emit('update:modelValue', entries.value);
 }
 </script>
-
-<style scoped>
-</style>

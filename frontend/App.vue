@@ -194,5 +194,3 @@ onMounted(() => {
 	}).then(a => apps.value = a);
 });
 </script>
-
-<style></style>

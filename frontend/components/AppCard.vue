@@ -83,7 +83,7 @@ defineProps(['app']);
 defineEmits(['restart', 'edit', 'delete']);
 </script>
 
-<style>
+<style scoped>
 p {
 	margin-bottom: 0;
 }

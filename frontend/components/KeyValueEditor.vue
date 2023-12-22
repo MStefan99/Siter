@@ -47,6 +47,3 @@ function save() {
 	emit('update:modelValue', entries.value.reduce((obj, el) => {obj[el.key] = el.value; return obj}, {}));
 }
 </script>
-
-<style scoped>
-</style>

@@ -58,7 +58,3 @@ fetch('/settings/analytics')
 	}
 }).then(a => analytics.value = a)
 </script>
-
-<style scoped>
-
-</style>

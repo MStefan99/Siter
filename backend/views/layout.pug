@@ -9,9 +9,9 @@ html(lang='en')
 		link(rel='icon' type='image/svg+xml' href='/img/icon.svg')
 		meta(name='viewport' content='width=device-width, initial-scale=1.0')
 		if (analytics && analytics.enabled)
-			script(type="module")
-				| import {sendHit} from '#{analytics.url}/cc?k=#{analytics.audienceKey}';
-				| sendHit();
+			script(async type="module").
+				import {sendHit} from '#{analytics.url}/cc?k=#{analytics.audienceKey}&verbose';
+				sendHit();
 		block head
 			title Siter
 

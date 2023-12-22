@@ -54,6 +54,3 @@ function save() {
 	emit('update:modelValue', processes.value);
 }
 </script>
-
-<style scoped>
-</style>

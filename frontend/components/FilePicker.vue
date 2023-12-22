@@ -70,7 +70,3 @@ async function loadFiles() {
 	}
 }
 </script>
-
-<style scoped>
-
-</style>
