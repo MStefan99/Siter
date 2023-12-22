@@ -132,7 +132,7 @@ import ProcessEditor from "./ProcessEditor.vue";
 import ArrayEditor from "./ArrayEditor.vue";
 
 const props = defineProps(['modelValue']);
-const emit = defineEmits(['update:modelValue', 'close']);
+const emit = defineEmits(['save', 'close']);
 const app = ref(structuredClone(toRaw(props.modelValue)));
 const directory = ref(!!props.modelValue.hosting.target.directory.length);
 const redirect = ref(!!props.modelValue.hosting.source.redirectPort);

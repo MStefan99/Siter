@@ -109,6 +109,7 @@ function stop() {
 
 function findApp(host, port, url) {
 	return apps.find(app =>
+		app.hosting.enabled &&
 		(app.hosting.source.hostname ? host === app.hosting.source.hostname : true) &&
 		(app.hosting.source.port === port || app.hosting.source.redirectPort) &&
 		(app.hosting.source.pathname ? url.match(app.hosting.source.pathname) : true));
