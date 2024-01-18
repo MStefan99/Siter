@@ -6,7 +6,7 @@ const router = express.Router();
 const cookieParser = require("cookie-parser");
 
 const middleware = require('../lib/middleware');
-const flash = require('@mstefan99/express-flash');
+const flash = require('../lib/express-flash');
 const appManager = require('../lib/app_manager');
 const {getSession} = require("../lib/middleware");
 

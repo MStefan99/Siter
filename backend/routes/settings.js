@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 
 const libAuth = require('../lib/auth');
 const libSession = require('../lib/session');
-const flash = require('@mstefan99/express-flash');
+const flash = require('../lib/express-flash');
 const middleware = require('../lib/middleware');
 const appManager = require('../lib/app_manager');
 

@@ -3,7 +3,7 @@
 const path = require("path");
 const fs = require('fs');
 const {MongoClient} = require('mongodb');
-const smartConfig = require('@mstefan99/smart-config');
+const smartConfig = require('./smart-config');
 
 const configPath = path.join(__dirname, '..', '..', 'config.json');
 
