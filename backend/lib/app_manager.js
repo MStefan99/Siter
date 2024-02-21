@@ -100,9 +100,9 @@ async function start(defaultHandler) {
 }
 
 
-function stop() {
+async function stop() {
 	for (const app of apps) {
-		removeProcesses(app);
+		await removeProcesses(app);
 	}
 }
 
@@ -226,7 +226,8 @@ function setEnv(app, pr) {
 }
 
 function startProcess(cmd, cwd, env, onstart, restartDelay = 0, restartCount = 0, lastRestart = Date.now()) {
-	const child = childProcess.exec(cmd, {cwd, env});
+	const args = cmd.split(' ');
+	const child = childProcess.spawn(args[0], args.slice(1), {cwd, env});
 	const restart = () => setTimeout(() => {
 		const now = Date.now();
 
@@ -251,11 +252,20 @@ function startProcess(cmd, cwd, env, onstart, restartDelay = 0, restartCount = 0
 }
 
 function stopProcess(cmd) {
-	const {process = null, restart = null} = processes.get(cmd) || {};
+	return new Promise(resolve => {
 
-	process?.off('exit', restart);
-	process?.kill('SIGKILL');
-	processes.delete(cmd);
+		const {process = null, restart = null} = processes.get(cmd) || {};
+
+		process?.off('exit', restart);
+		process?.on('close', resolve);
+		process?.kill('SIGTERM');
+		process?.kill('SIGHUP');
+		setTimeout(() => {
+			process?.kill('SIGINT');
+			process?.kill('SIGKILL');
+		}, 5000);
+		processes.delete(cmd);
+	})
 }
 
 function addProcesses(app) {
@@ -272,14 +282,14 @@ function addProcesses(app) {
 		setEnv(app, pr);
 		startProcess(cmd, path.dirname(pr.path), pr.env, child => {
 			if (app.analytics.loggingEnabled) {
-				child.stdout.on('data', data => sendLog(app.analytics.url, app.analytics.telemetryKey, data, 1));
-				child.stderr.on('data', data => sendLog(app.analytics.url, app.analytics.telemetryKey, data, 3));
+				child.stdout.on('data', data => sendLog(app.analytics.url, app.analytics.telemetryKey, data.toString(), 1));
+				child.stderr.on('data', data => sendLog(app.analytics.url, app.analytics.telemetryKey, data.toString(), 3));
 				child.on('close', code => child.listenerCount('exit') &&
 					sendLog(app.analytics.url, app.analytics.telemetryKey,
 						`Siter: ${app.name}(${cmd}) exited with code ` + code, 4));
 			} else {
-				child.stdout.on('data', data => console.log(`${colors[1]}[${app.name}]${resetConsole} ${data.trim()}`));
-				child.stderr.on('data', data => console.log(`${colors[3]}[${app.name}]${resetConsole} ${data.trim()}`));
+				child.stdout.on('data', data => console.log(`${colors[1]}[${app.name}]${resetConsole} ${data.toString().trim()}`));
+				child.stderr.on('data', data => console.log(`${colors[3]}[${app.name}]${resetConsole} ${data.toString().trim()}`));
 				child.on('close', code => child.listenerCount('exit') &&
 					console.error(`${colors[4]}[${app.name}]${resetConsole} "${cmd}" exited with code`, code));
 			}
@@ -287,16 +297,16 @@ function addProcesses(app) {
 	}
 }
 
-function removeProcesses(app) {
+async function removeProcesses(app) {
 	for (const pr of app.pm.processes) {
 		const cmd = `${pr.cmd} ${pr.flags} ${pr.path}`;
 
-		stopProcess(cmd);
+		await stopProcess(cmd);
 	}
 }
 
-function updateProcesses(oldApp, newApp) {
-	removeProcesses(oldApp);
+async function updateProcesses(oldApp, newApp) {
+	await removeProcesses(oldApp);
 	addProcesses(newApp);
 }
 
@@ -500,7 +510,7 @@ async function reorderApps(newOrder) {
 async function restartApp(appID) {
 	const app = apps.find(a => appID === a.id);
 
-	removeProcesses(app);
+	await removeProcesses(app);
 	addProcesses(app);
 }
 
@@ -518,7 +528,7 @@ async function updateApp(appID, newApp) {
 	setKeys(newApp);
 	if (oldApp) {
 		updateAppServers(oldApp, newApp);
-		updateProcesses(oldApp, newApp);
+		await updateProcesses(oldApp, newApp);
 	}
 
 	delete (newApp._id);
@@ -532,7 +542,7 @@ async function removeApp(appID) {
 
 	if (app) {
 		removeAppServers(app);
-		removeProcesses(app);
+		await removeProcesses(app);
 	}
 
 	delete (keys[app.id]);
