@@ -29,7 +29,11 @@ router.get('/analytics', (req, res) => {
 
 
 router.post('/restart', (req, res) => {
-	res.redirect(303, '/settings');
+	res.flash({
+		title: 'Restarting',
+		info: 'Siter is restarting and will be back shortly',
+		type: 'success'
+	}).redirect(303, '/settings');
 	setTimeout(process.exit, 1000);
 });
 
