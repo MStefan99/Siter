@@ -226,8 +226,7 @@ function setEnv(app, pr) {
 }
 
 function startProcess(cmd, cwd, env, onstart, restartDelay = 0, restartCount = 0, lastRestart = Date.now()) {
-	const args = cmd.split(' ');
-	const child = childProcess.spawn(args[0], args.slice(1), {cwd, env});
+	const child = childProcess.spawn(cmd[0], cmd.slice(1), {cwd, env});
 	const restart = () => setTimeout(() => {
 		const now = Date.now();
 
@@ -274,7 +273,7 @@ function addProcesses(app) {
 	}
 
 	for (const pr of app.pm.processes) {
-		const cmd = `${pr.cmd} ${pr.flags} ${pr.path}`;
+		const cmd = [pr.cmd.split(' '), pr.flags.length ? pr.flags.split(' ') : [], pr.path].flat();
 		if (processes.has(cmd)) {
 			continue; // Process already launched
 		}
@@ -284,12 +283,17 @@ function addProcesses(app) {
 			if (app.analytics.loggingEnabled) {
 				child.stdout.on('data', data => sendLog(app.analytics.url, app.analytics.telemetryKey, data.toString(), 1));
 				child.stderr.on('data', data => sendLog(app.analytics.url, app.analytics.telemetryKey, data.toString(), 3));
+				child.on('error', err => child.listenerCount('exit') &&
+					sendLog(app.analytics.url, app.analytics.telemetryKey,
+						`Siter: ${app.name}(${cmd}) could not be started: ` + err.toString(), 4));
 				child.on('close', code => child.listenerCount('exit') &&
 					sendLog(app.analytics.url, app.analytics.telemetryKey,
 						`Siter: ${app.name}(${cmd}) exited with code ` + code, 4));
 			} else {
 				child.stdout.on('data', data => console.log(`${colors[1]}[${app.name}]${resetConsole} ${data.toString().trim()}`));
 				child.stderr.on('data', data => console.log(`${colors[3]}[${app.name}]${resetConsole} ${data.toString().trim()}`));
+				child.on('error', err => child.listenerCount('exit') &&
+					console.error(`${colors[4]}[${app.name}]${resetConsole} "${cmd}" could not be started: `, err.toString()));
 				child.on('close', code => child.listenerCount('exit') &&
 					console.error(`${colors[4]}[${app.name}]${resetConsole} "${cmd}" exited with code`, code));
 			}
