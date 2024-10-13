@@ -243,7 +243,7 @@ function startProcess(cmd, cwd, env, onstart, restartDelay = 0, restartCount = 0
 	}, restartDelay);
 
 	child.stderr.pipe(process.stderr);
-	processes.set(cmd, {process: child, restart});
+	processes.set(cmd.join(' '), {process: child, restart});
 	child.on('exit', restart);
 	onstart && onstart(child);
 
@@ -257,12 +257,13 @@ function stopProcess(cmd) {
 
 		process?.off('exit', restart);
 		process?.on('close', resolve);
+
 		process?.kill('SIGTERM');
-		process?.kill('SIGHUP');
 		setTimeout(() => {
-			process?.kill('SIGINT');
-			process?.kill('SIGKILL');
-		}, 5000);
+			if (process.exitCode === null) {
+				process?.kill('SIGKILL');
+			}
+		}, 15000);
 		processes.delete(cmd);
 	})
 }
