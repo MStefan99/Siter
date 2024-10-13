@@ -101,9 +101,9 @@ async function start(defaultHandler) {
 
 
 async function stop() {
-	for (const app of apps) {
-		await removeProcesses(app);
-	}
+	return Promise.all(apps.map(async app => {
+		return removeProcesses(app);
+	}));
 }
 
 
@@ -225,7 +225,7 @@ function setEnv(app, pr) {
 	}
 }
 
-function startProcess(cmd, cwd, env, onstart, restartDelay = 0, restartCount = 0, lastRestart = Date.now()) {
+function startProcess(cmd, name, cwd, env, onstart, restartDelay = 0, restartCount = 0, lastRestart = Date.now()) {
 	const child = childProcess.spawn(cmd[0], cmd.slice(1), {cwd, env});
 	const restart = () => setTimeout(() => {
 		const now = Date.now();
@@ -239,11 +239,11 @@ function startProcess(cmd, cwd, env, onstart, restartDelay = 0, restartCount = 0
 		++restartCount;
 		lastRestart = now;
 
-		startProcess(cmd, cwd, env, onstart, restartDelay, restartCount, lastRestart);
+		startProcess(cmd, name, cwd, env, onstart, restartDelay, restartCount, lastRestart);
 	}, restartDelay);
 
 	child.stderr.pipe(process.stderr);
-	processes.set(cmd.join(' '), {process: child, restart});
+	processes.set(name, {process: child, restart});
 	child.on('exit', restart);
 	onstart && onstart(child);
 
@@ -255,15 +255,22 @@ function stopProcess(cmd) {
 
 		const {process = null, restart = null} = processes.get(cmd) || {};
 
-		process?.off('exit', restart);
-		process?.on('close', resolve);
+		if (!process) {
+			resolve();
+			return;
+		}
 
-		process?.kill('SIGTERM');
+		process.off('exit', restart);
+		process.on('close', resolve);
+
+		process.kill('SIGTERM');
 		setTimeout(() => {
 			if (process.exitCode === null) {
-				process?.kill('SIGKILL');
+				process.kill('SIGKILL');
+				resolve();
 			}
 		}, 15000);
+
 		processes.delete(cmd);
 	})
 }
@@ -275,12 +282,13 @@ function addProcesses(app) {
 
 	for (const pr of app.pm.processes) {
 		const cmd = [pr.cmd.split(' '), pr.flags.length ? pr.flags.split(' ') : [], pr.path].flat();
-		if (processes.has(cmd)) {
+		const name = `${pr.cmd} ${pr.flags} ${pr.path}`;
+		if (processes.has(name)) {
 			continue; // Process already launched
 		}
 
 		setEnv(app, pr);
-		startProcess(cmd, path.dirname(pr.path), pr.env, child => {
+		startProcess(cmd, name, path.dirname(pr.path), pr.env, child => {
 			if (app.analytics.loggingEnabled) {
 				child.stdout.on('data', data => sendLog(app.analytics.url, app.analytics.telemetryKey, data.toString(), 1));
 				child.stderr.on('data', data => sendLog(app.analytics.url, app.analytics.telemetryKey, data.toString(), 3));
@@ -303,11 +311,11 @@ function addProcesses(app) {
 }
 
 async function removeProcesses(app) {
-	for (const pr of app.pm.processes) {
+	return Promise.all(app.pm.processes.map(async pr => {
 		const cmd = `${pr.cmd} ${pr.flags} ${pr.path}`;
 
-		await stopProcess(cmd);
-	}
+		return stopProcess(cmd);
+	}));
 }
 
 async function updateProcesses(oldApp, newApp) {

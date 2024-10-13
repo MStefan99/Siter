@@ -20,7 +20,7 @@ process.on('unhandledRejection', async (reason) => {
 	} catch (e) {
 		console.error(`${colors[4]}[Siter]${resetConsole}`, 'Unhandled rejection while exiting:', e);
 	}
-	appManager.stop();
+	await appManager.stop();
 	process.exit(~0x1);
 });
 
@@ -33,7 +33,7 @@ process.on('uncaughtException', async (err) => {
 	} catch (e) {
 		console.error(`${colors[4]}[Siter]${resetConsole}`, 'Uncaught exception while exiting:', e);
 	}
-	appManager.stop();
+	await appManager.stop();
 	process.exit(~0x0);
 });
 
