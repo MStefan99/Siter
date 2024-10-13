@@ -34,7 +34,7 @@ router.post('/restart', (req, res) => {
 		info: 'Siter is restarting and will be back shortly',
 		type: 'success'
 	}).redirect(303, '/settings');
-	setTimeout(process.exit, 1000);
+	setTimeout(() => process.kill(process.pid, "SIGINT"), 1000);
 });
 
 

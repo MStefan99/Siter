@@ -38,6 +38,11 @@ process.on('uncaughtException', async (err) => {
 });
 
 
+process.on('SIGINT', async () => {
+	await appManager.stop();
+	process.exit(0);
+});
+
 process.on('exit', () => {
 	appManager.stop();
 });
