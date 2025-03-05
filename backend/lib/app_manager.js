@@ -370,7 +370,7 @@ function handleRequest(request, response) {
 				}
 
 				if (app.hosting.target.directory?.length) {  // Serving static files
-					const pathname = (app.hosting.target.routing || url.match(/^\/[^?#]+\./)) ?
+					const pathname = (app.hosting.target.routing || url.match(/^\/[^?#]+\.\w+$/)) ?
 						url.replace(new RegExp(`^/?${app.hosting.source.pathname}|\\?.*$`, 'ig'), '') : '';
 					const filePath = path.join(app.hosting.target.directory, ...pathname.split('/'));
 
