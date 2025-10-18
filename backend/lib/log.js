@@ -7,6 +7,11 @@ const colors = ['\u001b[38;5;62m', '\u001b[38;5;29m', '\u001b[38;5;178m', '\u001
 const resetConsole = '\u001b[0m';
 
 async function submitLog(url, key, message, level) {
+	if (!url) {
+		console.log(`${colors[level]}[Siter]${resetConsole}`, message);
+		return;
+	}
+
 	try {
 		const res = await fetch(url + '/telemetry/logs', {
 			method: 'POST',

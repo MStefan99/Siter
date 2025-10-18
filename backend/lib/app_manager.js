@@ -290,13 +290,13 @@ function addProcesses(app) {
 		setEnv(app, pr);
 		startProcess(cmd, name, path.dirname(pr.path), pr.env, child => {
 			if (app.analytics.loggingEnabled) {
-				child.stdout.on('data', data => sendLog(app.analytics.url, app.analytics.telemetryKey, data.toString(), 1));
-				child.stderr.on('data', data => sendLog(app.analytics.url, app.analytics.telemetryKey, data.toString(), 3));
+				child.stdout.on('data', data => sendLog(app.analytics.enabled && app.analytics.url, app.analytics.telemetryKey, data.toString(), 1));
+				child.stderr.on('data', data => sendLog(app.analytics.enabled && app.analytics.url, app.analytics.telemetryKey, data.toString(), 3));
 				child.on('error', err => child.listenerCount('exit') &&
-					sendLog(app.analytics.url, app.analytics.telemetryKey,
+					sendLog(app.analytics.enabled && app.analytics.url, app.analytics.telemetryKey,
 						`Siter: ${app.name}(${cmd}) could not be started: ` + err.toString(), 4));
 				child.on('close', code => child.listenerCount('exit') &&
-					sendLog(app.analytics.url, app.analytics.telemetryKey,
+					sendLog(app.analytics.enabled && app.analytics.url, app.analytics.telemetryKey,
 						`Siter: ${app.name}(${cmd}) exited with code ` + code, 4));
 			} else {
 				child.stdout.on('data', data => console.log(`${colors[1]}[${app.name}]${resetConsole} ${data.toString().trim()}`));
@@ -330,7 +330,7 @@ function handleRequest(request, response) {
 		const server = this;
 		const host = request.headers.host.replace(/:.*/, '');
 		const port = server.address()?.port;
-		const url = request.url;
+		const url = decodeURIComponent(request.url);
 
 		if (url.match('force-siter=true')) {
 			siter(request, response);
@@ -344,7 +344,7 @@ function handleRequest(request, response) {
 			} else {
 				siter(request, response);
 				const time = Number(process.hrtime.bigint() - start) / 1000;
-				analytics.enabled && sendLog(analytics.url, analytics.telemetryKey, `Siter route matched in ${time} µs: ${host}${url}`, 0);
+				sendLog(analytics.enabled && analytics.url, analytics.telemetryKey, `Siter route matched in ${time} µs: ${host}${url}`, 0);
 			}
 		} else {
 			const app = findApp(host, port, url);
@@ -384,7 +384,7 @@ function handleRequest(request, response) {
 						.catch(() => sendFile(response, path.join(standaloneViews, 'no_file.html'), 404));
 
 					const time = Number(process.hrtime.bigint() - start) / 1000;
-					analytics.enabled && sendLog(analytics.url, analytics.telemetryKey, `Directory route matched in ${time} µs: ${host}${url}`, 0);
+					sendLog(analytics.enabled && analytics.url, analytics.telemetryKey, `Directory route matched in ${time} µs: ${host}${url}`, 0);
 				} else {  // Proxying requests to other servers
 					const pathname = url.replace(new RegExp(`^/?${app.hosting.source.pathname}/?`, 'ig'), '/');
 					const options = {
@@ -418,14 +418,14 @@ function handleRequest(request, response) {
 					});
 
 					const time = Number(process.hrtime.bigint() - start) / 1000;
-					if (analytics.enabled && !analytics.url.match(app.hosting.source.hostname)) {
-						sendLog(analytics.url, analytics.telemetryKey, `Proxy route  matched in ${time} µs: ${host}${url}`, 0);
+					if (!analytics.url.match(app.hosting.source.hostname)) {
+						sendLog(analytics.enabled && analytics.url, analytics.telemetryKey, `Proxy route  matched in ${time} µs: ${host}${url}`, 0);
 					}
 				}
 			}
 		}
 	} catch (err) {
-		analytics.enabled && sendLog(analytics.url, analytics.telemetryKey, `Failed to handle request: ${err.stack}`, 3);
+		sendLog(analytics.enabled && analytics.url, analytics.telemetryKey, `Failed to handle request: ${err.stack}`, 3);
 		sendFile(response, path.join(standaloneViews, 'internal.html'), 500);
 	}
 }
